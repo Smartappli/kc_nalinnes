@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/manager/admin_access.php';
 
 session_start();
 
@@ -9,8 +10,8 @@ $db = new \PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-us
 
 $auth = new \Delight\Auth\Auth($db);
 
-$redirectFail = 'login.php';
-$redirectSuccess = 'manager/dashboard.php';
+$redirectFail = 'membres.php';
+$redirectSuccess = 'member/dashboard.php';
 
 function flash(string $message, string $type = 'info'): void {
     $_SESSION['flash'] = ['message' => $message, 'type' => $type];
@@ -55,6 +56,7 @@ try {
 
     unset($_SESSION['old_email'], $_SESSION['old_remember']);
     flash('Connexion réussie.', 'success');
+    $redirectSuccess = resolve_dashboard_path($email, (string) getenv('ADMIN_EMAILS'));
     header('Location: ' . $redirectSuccess);
     exit;
 }

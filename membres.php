@@ -336,7 +336,7 @@ function flash_classes(?array $flash): string {
                                         class="h-4 w-4 rounded border-slate-600 bg-slate-950/50"
                                         <?= ($oldRemember === 1 ? 'checked' : '') ?>
                                 >
-                                Se souvenir de moi (1 jour)
+                                Se souvenir de moi (1 an)
                             </label>
                         </div>
 
