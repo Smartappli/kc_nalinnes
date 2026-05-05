@@ -577,8 +577,7 @@
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <h2 class="text-3xl font-bold text-center">Instructeurs</h2>
 
-      <!-- Sensei -->
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
           <img
             src="./assets/sensei1.jpg"
@@ -614,9 +613,7 @@
           <h3 class="mt-4 text-xl font-semibold">Sensei Matyas Simon</h3>
           <p class="text-slate-300">Président du club.</p>
         </article>
-      </div>
-      <!-- Senpai -->
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
           <img
             src="./assets/senpai2.jpg"
