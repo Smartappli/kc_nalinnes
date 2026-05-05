@@ -1,0 +1,4 @@
+[20-Feb-2026 19:34:07 Europe/Paris] PDOException: SQLSTATE[HY000] [2002] Connection timed out in /home/smartappwy/www/KC-NALINNES/manager/dashboard.php:28
+Stack trace:
+#0 /home/smartappwy/www/KC-NALINNES/manager/dashboard.php(28): PDO->__construct('mysql:dbname=my...', 'my-username', Object(SensitiveParameterValue), Array)
+#1 {main}

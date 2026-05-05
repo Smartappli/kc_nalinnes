@@ -1,0 +1,19 @@
+{
+    "name": "odebauche/site",
+    "require": {
+        "delight-im/auth": "^9.0",
+        "setasign/fpdi": "^2.6",
+        "fpdf/fpdf": "^1.86"
+    },
+    "autoload": {
+        "psr-4": {
+            "Odebauche\\Site\\": "/"
+        }
+    },
+    "authors": [
+        {
+            "name": "odebauche",
+            "email": "odebauche@awegroupe.be"
+        }
+    ]
+}
