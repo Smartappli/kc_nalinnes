@@ -63,8 +63,6 @@ try {
         exit;
     }
 
-
-
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'set_active_profile') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
