@@ -185,6 +185,21 @@ function flash_classes(?array $flash): string {
         html.light a.text-red-400 {
             color: #b91c1c; /* red-700 approx */
         }
+
+
+        /* Champs formulaire lisibles en mode clair */
+        html.light input,
+        html.light select,
+        html.light textarea {
+            background-color: #ffffff;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        html.light input::placeholder,
+        html.light textarea::placeholder {
+            color: #64748b;
+        }
     </style>
 
     <script>
@@ -336,7 +351,7 @@ function flash_classes(?array $flash): string {
                                         class="h-4 w-4 rounded border-slate-600 bg-slate-950/50"
                                         <?= ($oldRemember === 1 ? 'checked' : '') ?>
                                 >
-                                Se souvenir de moi (1 jour)
+                                Se souvenir de moi (1 an)
                             </label>
                         </div>
 
