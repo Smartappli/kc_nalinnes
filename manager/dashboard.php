@@ -133,7 +133,7 @@ try {
     }
 
 
-    if (isset($_GET['download']) && $_GET['download'] === 'meal_reservations_csv') {
+    if (isset($_GET['download']) && $_GET['download'] === 'meal_reservations_xlsx') {
         if (!$auth->isLoggedIn()) {
             header('Location: /membres.php', true, 303);
             exit;
@@ -148,14 +148,57 @@ try {
         $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
         $rows = $rowsStmt->fetchAll();
 
-        header('Content-Type: text/csv; charset=utf-8');
-        header('Content-Disposition: attachment; filename="reservations-repas.csv"');
-        $out = fopen('php://output', 'w');
-        fputcsv($out, ['date', 'member_user_id', 'profile_name', 'profile_type', 'adult_qty', 'child_qty', 'total_amount']);
+        $headers = ['date', 'member_user_id', 'profile_name', 'profile_type', 'adult_qty', 'child_qty', 'total_amount'];
+        $dataRows = [];
         foreach ($rows as $r) {
-            fputcsv($out, [$r['created_at'], $r['member_user_id'], $r['profile_name'], $r['profile_type'], $r['adult_qty'], $r['child_qty'], $r['total_amount']]);
+            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount']];
         }
-        fclose($out);
+
+        $colName = static function(int $index): string {
+            $name = '';
+            $index++;
+            while ($index > 0) {
+                $mod = ($index - 1) % 26;
+                $name = chr(65 + $mod) . $name;
+                $index = intdiv($index - 1, 26);
+            }
+            return $name;
+        };
+
+        $xmlEscape = static fn(string $value): string => htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+        $buildRow = static function(int $rowNum, array $values, callable $colName, callable $xmlEscape): string {
+            $cells = '';
+            foreach (array_values($values) as $i => $val) {
+                $ref = $colName($i) . $rowNum;
+                $cells .= '<c r="' . $ref . '" t="inlineStr"><is><t>' . $xmlEscape((string)$val) . '</t></is></c>';
+            }
+            return '<row r="' . $rowNum . '">' . $cells . '</row>';
+        };
+
+        $sheetRows = $buildRow(1, $headers, $colName, $xmlEscape);
+        foreach ($dataRows as $i => $row) {
+            $sheetRows .= $buildRow($i + 2, $row, $colName, $xmlEscape);
+        }
+
+        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+            . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
+            . $sheetRows
+            . '</sheetData></worksheet>';
+
+        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
+        $zip = new \ZipArchive();
+        $zip->open($tmp, \ZipArchive::OVERWRITE);
+        $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
+        $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+        $zip->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Reservations" sheetId="1" r:id="rId1"/></sheets></workbook>');
+        $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
+        $zip->addFromString('xl/worksheets/sheet1.xml', $sheetXml);
+        $zip->close();
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="reservations-repas.xlsx"');
+        readfile($tmp);
+        @unlink($tmp);
         exit;
     }
 
@@ -307,7 +350,7 @@ try {
 
 
     <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold">Synthèse réservations repas</h2><a href="/manager/dashboard.php?download=meal_reservations_csv" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500">Exporter CSV</a></div>
+        <div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold">Synthèse réservations repas</h2><a href="/manager/dashboard.php?download=meal_reservations_xlsx" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500">Exporter XLSX</a></div>
         <div class="mt-4 grid gap-3 md:grid-cols-3">
             <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Repas adultes</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_adult']) ?></p></div>
             <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Repas enfants</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_child']) ?></p></div>
