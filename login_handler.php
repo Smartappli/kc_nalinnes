@@ -56,7 +56,7 @@ try {
 
     unset($_SESSION['old_email'], $_SESSION['old_remember']);
     flash('Connexion réussie.', 'success');
-    $redirectSuccess = resolve_dashboard_path($email, (string) getenv('ADMIN_EMAILS'));
+    $redirectSuccess = resolve_dashboard_path($email, $db, (string) getenv('ADMIN_EMAILS'));
     header('Location: ' . $redirectSuccess);
     exit;
 }
