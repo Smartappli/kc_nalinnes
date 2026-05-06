@@ -132,6 +132,33 @@ try {
         exit;
     }
 
+
+    if (isset($_GET['download']) && $_GET['download'] === 'meal_reservations_csv') {
+        if (!$auth->isLoggedIn()) {
+            header('Location: /membres.php', true, 303);
+            exit;
+        }
+
+        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
+        if (!is_admin_email((string)($auth->getEmail() ?? ''), $adminEmails)) {
+            header('Location: /member/dashboard.php', true, 303);
+            exit;
+        }
+
+        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
+        $rows = $rowsStmt->fetchAll();
+
+        header('Content-Type: text/csv; charset=utf-8');
+        header('Content-Disposition: attachment; filename="reservations-repas.csv"');
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['date', 'member_user_id', 'profile_name', 'profile_type', 'adult_qty', 'child_qty', 'total_amount']);
+        foreach ($rows as $r) {
+            fputcsv($out, [$r['created_at'], $r['member_user_id'], $r['profile_name'], $r['profile_type'], $r['adult_qty'], $r['child_qty'], $r['total_amount']]);
+        }
+        fclose($out);
+        exit;
+    }
+
     // Protection : si pas connecté => login
     if (!$auth->isLoggedIn()) {
         flash('Veuillez vous connecter pour accéder au dashboard.', 'error');
@@ -280,7 +307,7 @@ try {
 
 
     <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h2 class="text-xl font-bold">Synthèse réservations repas</h2>
+        <div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold">Synthèse réservations repas</h2><a href="/manager/dashboard.php?download=meal_reservations_csv" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500">Exporter CSV</a></div>
         <div class="mt-4 grid gap-3 md:grid-cols-3">
             <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Repas adultes</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_adult']) ?></p></div>
             <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Repas enfants</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_child']) ?></p></div>
