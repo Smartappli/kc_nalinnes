@@ -23,6 +23,13 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
+$loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
+if ($loginBypassEnabled) {
+    flash('Bypass login temporaire actif.', 'info');
+    header('Location: /member/dashboard.php');
+    exit;
+}
+
 // CSRF
 $postedToken = (string)($_POST['csrf_token'] ?? '');
 $sessionToken = (string)($_SESSION['csrf_token'] ?? '');
