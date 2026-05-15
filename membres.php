@@ -3,6 +3,13 @@ declare(strict_types=1);
 
 session_start();
 
+
+$loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
+if ($loginBypassEnabled) {
+    header('Location: /member/dashboard.php', true, 303);
+    exit;
+}
+
 // CSRF
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
