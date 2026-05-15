@@ -237,8 +237,14 @@ try {
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
 
     // Autorisation admin (emails séparés par des virgules dans ADMIN_EMAILS)
-    $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
-    $isAdmin = is_admin_email($email, $adminEmails);
+    if ($loginBypassEnabled) {
+        $adminEmails = [];
+        $isAdmin = true;
+    }
+    else {
+        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
+        $isAdmin = is_admin_email($email, $adminEmails);
+    }
 
     if (!$isAdmin && !$loginBypassEnabled) {
         flash('Compte membre connecté : redirection vers votre dashboard.', 'info');
