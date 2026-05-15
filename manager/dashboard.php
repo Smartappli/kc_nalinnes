@@ -202,17 +202,26 @@ try {
         exit;
     }
 
+    $loginBypassEnabled = is_temp_bypass_login_enabled();
+
     // Protection : si pas connecté => login
-    if (!$auth->isLoggedIn()) {
+    if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
         flash('Veuillez vous connecter pour accéder au dashboard.', 'error');
         header('Location: /membres.php', true, 303);
         exit;
     }
 
     // Infos user
-    $userId = (string)($auth->getUserId() ?? '');
-    $email  = (string)($auth->getEmail() ?? '');
-    $user   = (string)($auth->getUsername() ?? '');
+    if ($loginBypassEnabled && !$auth->isLoggedIn()) {
+        $userId = '1';
+        $email  = 'admin@kc-nalinnes.be';
+        $user   = 'Bypass Temporaire';
+    }
+    else {
+        $userId = (string)($auth->getUserId() ?? '');
+        $email  = (string)($auth->getEmail() ?? '');
+        $user   = (string)($auth->getUsername() ?? '');
+    }
 
     $usersStmt = $db->query('SELECT id, email, username FROM users ORDER BY id ASC');
     $users = $usersStmt->fetchAll();
@@ -228,10 +237,16 @@ try {
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
 
     // Autorisation admin (emails séparés par des virgules dans ADMIN_EMAILS)
-    $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
-    $isAdmin = is_admin_email($email, $adminEmails);
+    if ($loginBypassEnabled) {
+        $adminEmails = [];
+        $isAdmin = true;
+    }
+    else {
+        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
+        $isAdmin = is_admin_email($email, $adminEmails);
+    }
 
-    if (!$isAdmin) {
+    if (!$isAdmin && !$loginBypassEnabled) {
         flash('Compte membre connecté : redirection vers votre dashboard.', 'info');
         header('Location: /member/dashboard.php', true, 303);
         exit;
