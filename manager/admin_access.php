@@ -44,6 +44,18 @@ function resolve_dashboard_path(string $email, \PDO $db, string $adminEmailsRaw)
     return is_admin_email($email, $adminEmails) ? '/manager/dashboard.php' : '/member/dashboard.php';
 }
 
+
+function is_temp_bypass_login_enabled(): bool {
+    $raw = getenv('TEMP_BYPASS_LOGIN');
+
+    if ($raw === false || $raw === '') {
+        $raw = $_ENV['TEMP_BYPASS_LOGIN'] ?? $_SERVER['TEMP_BYPASS_LOGIN'] ?? '';
+    }
+
+    $value = strtolower(trim((string)$raw));
+    return in_array($value, ['1', 'true', 'yes', 'on'], true);
+}
+
 function set_admin_role(\PDO $db, string $email, bool $isAdmin): void {
     ensure_admin_users_table($db);
     $email = normalize_email($email);
