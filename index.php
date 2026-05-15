@@ -62,8 +62,8 @@
     "@context": "https://schema.org",
     "@type": "SportsClub",
     "name": "KC Nalinnes",
-    "url": "https://www.kcnalinnes.be/",
-    "image": "https://www.kcnalinnes.be/assets/og-karate.jpg",
+    "url": "https://www.kc-nalinnes.be/",
+    "image": "https://www.kc-nalinnes.be/assets/og-karate.jpg",
     "description": "Karaté Shotokan pour tous niveaux — enfants (5+), ados, adultes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions.",
     "address": {
       "@type": "PostalAddress",
@@ -93,6 +93,55 @@
   }
   </script>
   
+
+  <meta name="geo.region" content="BE-WHT" />
+  <meta name="geo.placename" content="Nalinnes" />
+  <meta name="geo.position" content="50.3239;4.4448" />
+  <meta name="ICBM" content="50.3239, 4.4448" />
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Karaté Club Nalinnes",
+    "url": "https://www.kc-nalinnes.be/",
+    "inLanguage": "fr-BE"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "À partir de quel âge peut-on commencer le karaté ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Les cours sont accessibles dès 5 ans, ainsi qu'aux adolescents et aux adultes."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Le club propose-t-il des cours d'essai ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Oui, le club propose 3 premiers cours d'essai gratuits."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quelle discipline est enseignée ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Le club enseigne le Karaté Shotokan, avec une progression adaptée à tous les niveaux."
+        }
+      }
+    ]
+  }
+  </script>
+
   <!-- Matomo -->
   <script>
     var _paq = window._paq = window._paq || [];

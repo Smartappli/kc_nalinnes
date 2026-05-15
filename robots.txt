@@ -1,4 +1,5 @@
 User-agent: *
 Disallow:
+Allow: /llms.txt
 
-Sitemap: https://www.kcnalinnes.be/sitemap.xml
+Sitemap: https://www.kc-nalinnes.be/sitemap.xml
