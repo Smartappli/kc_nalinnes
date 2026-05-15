@@ -198,15 +198,24 @@ try {
         exit;
     }
 
-    if (!$auth->isLoggedIn()) {
+    $loginBypassEnabled = is_temp_bypass_login_enabled();
+
+    if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
         flash('Veuillez vous connecter pour accéder au dashboard membre.', 'error');
         header('Location: /membres.php', true, 303);
         exit;
     }
 
-    $userId = (string)($auth->getUserId() ?? '');
-    $email = (string)($auth->getEmail() ?? '');
-    $user = (string)($auth->getUsername() ?? '');
+    if ($loginBypassEnabled && !$auth->isLoggedIn()) {
+        $userId = '1';
+        $email = 'bypass@kc-nalinnes.be';
+        $user = 'Bypass Temporaire';
+    }
+    else {
+        $userId = (string)($auth->getUserId() ?? '');
+        $email = (string)($auth->getEmail() ?? '');
+        $user = (string)($auth->getUsername() ?? '');
+    }
 
     $depStmt = $db->prepare('SELECT id, full_name, birthdate, is_minor FROM member_dependents WHERE guardian_user_id = :uid ORDER BY id DESC');
     $depStmt->execute([':uid' => (int)$userId]);

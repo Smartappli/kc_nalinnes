@@ -3,7 +3,7 @@
 
   <url>
     <loc>https://kc-nalinnes.be/</loc>
-    <lastmod>2026-02-20</lastmod>
+    <lastmod>2026-05-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
@@ -23,14 +23,14 @@
   </url>
 
   <url>
-    <loc>https://kc-nalinnes.be/vocabulaire-karate-shotokan.html</loc>
+    <loc>https://kc-nalinnes.be/vocabulaire-karate-shotokan.php</loc>
     <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://kc-nalinnes.be/dojo-kun.html</loc>
+    <loc>https://kc-nalinnes.be/dojo-kun.php</loc>
     <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -51,28 +51,28 @@
   </url>
 
   <url>
-    <loc>https://kc-nalinnes.be/reviser_katas.html</loc>
+    <loc>https://kc-nalinnes.be/reviser_katas.php</loc>
     <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://kc-nalinnes.be/stretching.html</loc>
+    <loc>https://kc-nalinnes.be/stretching.php</loc>
     <lastmod>2026-02-01</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://kc-nalinnes.be/mentions-legales.html</loc>
+    <loc>https://kc-nalinnes.be/mentions-legales.php</loc>
     <lastmod>2026-02-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
 
   <url>
-    <loc>https://kc-nalinnes.be/politique-confidentialite.html</loc>
+    <loc>https://kc-nalinnes.be/politique-confidentialite.php</loc>
     <lastmod>2026-02-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
