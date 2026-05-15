@@ -46,15 +46,7 @@ function resolve_dashboard_path(string $email, \PDO $db, string $adminEmailsRaw)
 
 
 function is_temp_bypass_login_enabled(): bool {
-    $bypass = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
-    $appEnv = strtolower(trim((string)getenv('APP_ENV')));
-
-    // Sécurité: le bypass est refusé explicitement en production.
-    if ($appEnv === 'prod' || $appEnv === 'production') {
-        return false;
-    }
-
-    return $bypass;
+    return ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
 }
 
 function set_admin_role(\PDO $db, string $email, bool $isAdmin): void {
