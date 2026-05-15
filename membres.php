@@ -185,6 +185,21 @@ function flash_classes(?array $flash): string {
         html.light a.text-red-400 {
             color: #b91c1c; /* red-700 approx */
         }
+
+
+        /* Champs formulaire lisibles en mode clair */
+        html.light input,
+        html.light select,
+        html.light textarea {
+            background-color: #ffffff;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        html.light input::placeholder,
+        html.light textarea::placeholder {
+            color: #64748b;
+        }
     </style>
 
     <script>
