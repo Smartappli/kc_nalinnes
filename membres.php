@@ -6,7 +6,7 @@ require __DIR__ . '/manager/admin_access.php';
 session_start();
 
 
-$loginBypassEnabled = is_temp_bypass_login_enabled();
+$loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
 if ($loginBypassEnabled) {
     header('Location: /manager/dashboard.php', true, 303);
     exit;
