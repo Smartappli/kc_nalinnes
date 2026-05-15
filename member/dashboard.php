@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/pdf_access.php';
 require __DIR__ . '/meal_reservation.php';
+require __DIR__ . '/../manager/admin_access.php';
 
 session_start();
 
