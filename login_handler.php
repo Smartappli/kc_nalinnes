@@ -23,10 +23,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     exit;
 }
 
-$loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
+$loginBypassEnabled = is_temp_bypass_login_enabled();
 if ($loginBypassEnabled) {
     flash('Bypass login temporaire actif.', 'info');
-    header('Location: /member/dashboard.php');
+    header('Location: /manager/dashboard.php', true, 303);
     exit;
 }
 

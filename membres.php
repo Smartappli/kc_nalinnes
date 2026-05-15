@@ -4,9 +4,9 @@ declare(strict_types=1);
 session_start();
 
 
-$loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
+$loginBypassEnabled = is_temp_bypass_login_enabled();
 if ($loginBypassEnabled) {
-    header('Location: /member/dashboard.php', true, 303);
+    header('Location: /manager/dashboard.php', true, 303);
     exit;
 }
 

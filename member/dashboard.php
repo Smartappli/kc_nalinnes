@@ -198,7 +198,7 @@ try {
         exit;
     }
 
-    $loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
+    $loginBypassEnabled = is_temp_bypass_login_enabled();
 
     if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
         flash('Veuillez vous connecter pour accéder au dashboard membre.', 'error');

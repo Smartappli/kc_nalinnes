@@ -202,7 +202,7 @@ try {
         exit;
     }
 
-    $loginBypassEnabled = ((string)getenv('TEMP_BYPASS_LOGIN') === '1');
+    $loginBypassEnabled = is_temp_bypass_login_enabled();
 
     // Protection : si pas connecté => login
     if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
