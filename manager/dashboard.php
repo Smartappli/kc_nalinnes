@@ -176,14 +176,18 @@ try {
             $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)($r['contact_email'] ?? ''), (string)($r['contact_phone'] ?? ''), (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount'], (string)($r['notes'] ?? '')];
         }
 
-        $tmp = tempnam(sys_get_temp_dir(), 'reservations_excel_');
-        if ($tmp === false) {
+        $useXlsx = class_exists('ZipArchive');
+        $tmpBase = tempnam(sys_get_temp_dir(), 'reservations_excel_');
+        if ($tmpBase === false) {
             throw new RuntimeException('Impossible de créer le fichier Excel temporaire.');
         }
+        $tmp = $tmpBase . ($useXlsx ? '.xlsx' : '.xls');
+        rename($tmpBase, $tmp);
+
         write_meal_reservations_excel($tmp, $dataRows);
 
-        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
-        header('Content-Disposition: attachment; filename="reservations-repas.xls"');
+        header('Content-Type: ' . ($useXlsx ? 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' : 'application/vnd.ms-excel; charset=UTF-8'));
+        header('Content-Disposition: attachment; filename="reservations-repas.' . ($useXlsx ? 'xlsx' : 'xls') . '"');
         readfile($tmp);
         @unlink($tmp);
         exit;
