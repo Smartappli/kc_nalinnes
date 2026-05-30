@@ -5,6 +5,22 @@ RewriteEngine On
 RewriteCond %{HTTPS} off
 RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# Domaine canonique sans www
+RewriteCond %{HTTP_HOST} ^www\.kc-nalinnes\.be$ [NC]
+RewriteRule ^ https://kc-nalinnes.be%{REQUEST_URI} [L,R=301]
+
+# Anciennes URL .html vers les pages PHP canoniques
+RewriteRule ^karate-shotokan\.html$ /karate-shotokan.php [R=301,L]
+RewriteRule ^kata-shotokan\.html$ /kata-shotokan.php [R=301,L]
+RewriteRule ^vocabulaire-karate-shotokan\.html$ /vocabulaire-karate-shotokan.php [R=301,L]
+RewriteRule ^dojo-kun\.html$ /dojo-kun.php [R=301,L]
+RewriteRule ^technique_base\.html$ /technique_base.php [R=301,L]
+RewriteRule ^techniques_kumite\.html$ /techniques_kumite.php [R=301,L]
+RewriteRule ^reviser_katas\.html$ /reviser_katas.php [R=301,L]
+RewriteRule ^stretching\.html$ /stretching.php [R=301,L]
+RewriteRule ^mentions-legales\.html$ /mentions-legales.php [R=301,L]
+RewriteRule ^politique-confidentialite\.html$ /politique-confidentialite.php [R=301,L]
+
 # Empêcher l’indexation des dossiers
 Options -Indexes
 

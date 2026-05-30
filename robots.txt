@@ -1,5 +1,12 @@
 User-agent: *
-Disallow:
+Disallow: /manager/
+Disallow: /member/
+Disallow: /vendor/
+Disallow: /config/
+Disallow: /tests/
+Disallow: /login_handler.php
+Disallow: /fill_licence.php
+Disallow: /commandes.php
 Allow: /llms.txt
 
 Sitemap: https://kc-nalinnes.be/sitemap.xml
