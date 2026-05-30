@@ -277,7 +277,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
           <div class="reservation-meal-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
             <p class="text-sm font-semibold text-slate-100">Enfant — 10 €</p>
-            <p class="mt-1 text-sm text-slate-400">1 saucisse ou 1 brochette + frites.</p>
+            <p class="mt-1 text-sm text-slate-400">1 saucisse ou 1 brochette.</p>
           </div>
         </div>
 
