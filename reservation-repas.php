@@ -261,9 +261,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </nav>
   </header>
 
-  <main class="pt-24 pb-16">
+  <main id="reservation-repas-page" class="pt-24 pb-16">
     <section class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-2xl">
+      <div class="reservation-form-panel rounded-2xl border border-slate-800 bg-slate-900/70 p-6 shadow-2xl">
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Fin de saison</p>
         <h1 class="mt-2 text-3xl font-extrabold text-slate-100">Réservation repas</h1>
         <p class="mt-3 text-slate-300">
@@ -271,11 +271,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </p>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
-          <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <div class="reservation-meal-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
             <p class="text-sm font-semibold text-slate-100">Adulte — 19 €</p>
             <p class="mt-1 text-sm text-slate-400">1 brochette + 1 saucisse.</p>
           </div>
-          <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <div class="reservation-meal-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
             <p class="text-sm font-semibold text-slate-100">Enfant — 10 €</p>
             <p class="mt-1 text-sm text-slate-400">1 saucisse ou 1 brochette + frites.</p>
           </div>
