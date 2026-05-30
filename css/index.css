@@ -180,6 +180,26 @@
       background-color: #f1f5f9 !important;
     }
 
+    html.light #informations-essentielles {
+      background-color: #eaf2fb !important;
+    }
+
+    html.light #informations-essentielles .bg-slate-950\/50 {
+      background-color: #ffffff !important;
+      border-color: #b6c7da !important;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    html.light #informations-essentielles h2,
+    html.light #informations-essentielles dt {
+      color: #0f172a !important;
+    }
+
+    html.light #informations-essentielles > div > p,
+    html.light #informations-essentielles dd {
+      color: #1f2937 !important;
+    }
+
     /* Cartes / panneaux / bordures */
     html.light .border-slate-800 {
       border-color: #e2e8f0 !important;
