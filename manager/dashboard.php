@@ -8,6 +8,7 @@ error_reporting(E_ALL);
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/admin_access.php';
 require __DIR__ . '/../config/database.php';
+require __DIR__ . '/../member/meal_reservation.php';
 
 session_start();
 
@@ -41,6 +42,8 @@ try {
     $db = create_database_connection();
 
     $auth = new \Delight\Auth\Auth($db);
+    ensure_meal_reservations_table($db);
+    ensure_meal_public_contact_columns($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
 
@@ -165,13 +168,13 @@ try {
             exit;
         }
 
-        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
+        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
         $rows = $rowsStmt->fetchAll();
 
-        $headers = ['date', 'member_user_id', 'profile_name', 'profile_type', 'adult_qty', 'child_qty', 'total_amount'];
+        $headers = ['date', 'member_user_id', 'profile_name', 'profile_type', 'contact_email', 'contact_phone', 'adult_qty', 'child_qty', 'total_amount'];
         $dataRows = [];
         foreach ($rows as $r) {
-            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount']];
+            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)($r['contact_email'] ?? ''), (string)($r['contact_phone'] ?? ''), (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount']];
         }
 
         $colName = static function(int $index): string {
@@ -228,7 +231,7 @@ try {
     $mealSummaryStmt = $db->query('SELECT COALESCE(SUM(adult_qty),0) AS total_adult, COALESCE(SUM(child_qty),0) AS total_child, COALESCE(SUM(total_amount),0) AS total_amount FROM meal_reservations');
     $mealSummary = $mealSummaryStmt->fetch() ?: ['total_adult' => 0, 'total_child' => 0, 'total_amount' => 0];
 
-    $mealReservationsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
+    $mealReservationsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
     $mealReservations = $mealReservationsStmt->fetchAll();
     $gradesStmt = $db->query('SELECT user_id, grade FROM member_grades');
     $gradesRows = $gradesStmt->fetchAll();
@@ -358,7 +361,7 @@ try {
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
-                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4">Membre ID</th><th class="py-2 pr-4">Profil</th><th class="py-2 pr-4">Type</th><th class="py-2 pr-4">Adultes</th><th class="py-2 pr-4">Enfants</th><th class="py-2">Total</th>
+                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4">Membre ID</th><th class="py-2 pr-4">Profil</th><th class="py-2 pr-4">Type</th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4">Téléphone</th><th class="py-2 pr-4">Adultes</th><th class="py-2 pr-4">Enfants</th><th class="py-2">Total</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -368,13 +371,15 @@ try {
                         <td class="py-2 pr-4"><?= e((string)$r['member_user_id']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['profile_name']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['profile_type']) ?></td>
+                        <td class="py-2 pr-4"><?= e((string)($r['contact_email'] ?? '')) ?></td>
+                        <td class="py-2 pr-4"><?= e((string)($r['contact_phone'] ?? '')) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['adult_qty']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['child_qty']) ?></td>
                         <td class="py-2"><?= e((string)$r['total_amount']) ?> €</td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($mealReservations === []): ?>
-                    <tr><td colspan="7" class="py-3 text-slate-400">Aucune réservation enregistrée.</td></tr>
+                    <tr><td colspan="9" class="py-3 text-slate-400">Aucune réservation enregistrée.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
