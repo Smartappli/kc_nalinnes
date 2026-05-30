@@ -658,6 +658,27 @@
       filter: drop-shadow(0 0 2px rgba(15, 23, 42, 0.20));
     }
 
+    html.light #informations-essentielles {
+      background: linear-gradient(180deg, #dbeafe 0%, #eff6ff 100%) !important;
+    }
+
+    html.light #informations-essentielles .essential-info-card {
+      background: #ffffff !important;
+      border-color: #64748b !important;
+      border-width: 1px !important;
+      box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14) !important;
+    }
+
+    html.light #informations-essentielles .essential-info-card dt {
+      color: #0f172a !important;
+      font-weight: 800 !important;
+    }
+
+    html.light #informations-essentielles .essential-info-card dd {
+      color: #111827 !important;
+      font-weight: 500 !important;
+    }
+
     @media print{
       #leavesContainer{ display:none !important; }
     }

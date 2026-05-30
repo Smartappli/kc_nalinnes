@@ -447,19 +447,19 @@
         KC Nalinnes est un club de Karaté Shotokan situé à Nalinnes, dans la commune de Ham-sur-Heure-Nalinnes, près de Charleroi. Le club accueille les enfants dès 5 ans, les adolescents et les adultes, avec 3 premiers cours d’essai gratuits.
       </p>
       <dl class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4 text-sm">
-        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <dt class="font-semibold text-slate-100">Discipline</dt>
           <dd class="mt-1 text-slate-300">Karaté Shotokan, kata, kihon, kumité et préparation aux grades.</dd>
         </div>
-        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <dt class="font-semibold text-slate-100">Adresse</dt>
           <dd class="mt-1 text-slate-300">Rue des Monts 18, 6120 Nalinnes, Belgique.</dd>
         </div>
-        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <dt class="font-semibold text-slate-100">Public</dt>
           <dd class="mt-1 text-slate-300">Enfants dès 5 ans, adolescents, adultes, débutants et confirmés.</dd>
         </div>
-        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+        <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <dt class="font-semibold text-slate-100">Contact</dt>
           <dd class="mt-1 text-slate-300">info@kc-nalinnes.be · +32 497 25 12 14 · +32 488 09 50 27</dd>
         </div>
