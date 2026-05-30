@@ -9,6 +9,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/pdf_access.php';
 require __DIR__ . '/meal_reservation.php';
 require __DIR__ . '/../manager/admin_access.php';
+require __DIR__ . '/../config/database.php';
 
 session_start();
 
@@ -37,15 +38,14 @@ $flashMsg = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 
 try {
-    $db = new \PDO('mysql:dbname=my-database;host=127.0.0.1;charset=utf8mb4', 'my-username', 'my-password', [
-        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-        \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-    ]);
+    $db = create_database_connection();
 
     $auth = new \Delight\Auth\Auth($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_dependents (id INT AUTO_INCREMENT PRIMARY KEY, guardian_user_id INT NOT NULL, full_name VARCHAR(255) NOT NULL, birthdate DATE NULL, is_minor TINYINT(1) NOT NULL DEFAULT 1)');
     $db->exec('CREATE TABLE IF NOT EXISTS meal_reservations (id INT AUTO_INCREMENT PRIMARY KEY, member_user_id INT NOT NULL, profile_type VARCHAR(20) NOT NULL, dependent_id INT NULL, profile_name VARCHAR(255) NOT NULL, adult_qty INT NOT NULL DEFAULT 0, child_qty INT NOT NULL DEFAULT 0, total_amount DECIMAL(10,2) NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
+
+    $loginBypassEnabled = is_temp_bypass_login_enabled();
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
@@ -62,6 +62,23 @@ try {
         flash('Vous êtes déconnecté.', 'success');
         header('Location: /membres.php', true, 303);
         exit;
+    }
+
+    if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
+        flash('Veuillez vous connecter pour accéder au dashboard membre.', 'error');
+        header('Location: /membres.php', true, 303);
+        exit;
+    }
+
+    if ($loginBypassEnabled && !$auth->isLoggedIn()) {
+        $userId = '1';
+        $email = 'bypass@kc-nalinnes.be';
+        $user = 'Bypass Temporaire';
+    }
+    else {
+        $userId = (string)($auth->getUserId() ?? '');
+        $email = (string)($auth->getEmail() ?? '');
+        $user = (string)($auth->getUsername() ?? '');
     }
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'set_active_profile') {
@@ -197,25 +214,6 @@ try {
         flash('Enfant supprimé.', 'success');
         header('Location: /member/dashboard.php', true, 303);
         exit;
-    }
-
-    $loginBypassEnabled = is_temp_bypass_login_enabled();
-
-    if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
-        flash('Veuillez vous connecter pour accéder au dashboard membre.', 'error');
-        header('Location: /membres.php', true, 303);
-        exit;
-    }
-
-    if ($loginBypassEnabled && !$auth->isLoggedIn()) {
-        $userId = '1';
-        $email = 'bypass@kc-nalinnes.be';
-        $user = 'Bypass Temporaire';
-    }
-    else {
-        $userId = (string)($auth->getUserId() ?? '');
-        $email = (string)($auth->getEmail() ?? '');
-        $user = (string)($auth->getUsername() ?? '');
     }
 
     $depStmt = $db->prepare('SELECT id, full_name, birthdate, is_minor FROM member_dependents WHERE guardian_user_id = :uid ORDER BY id DESC');

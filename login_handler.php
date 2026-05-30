@@ -3,12 +3,9 @@ declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
 require __DIR__ . '/manager/admin_access.php';
+require __DIR__ . '/config/database.php';
 
 session_start();
-
-$db = new \PDO('mysql:dbname=my-database;host=localhost;charset=utf8mb4', 'my-username', 'my-password');
-
-$auth = new \Delight\Auth\Auth($db);
 
 $redirectFail = 'membres.php';
 $redirectSuccess = 'member/dashboard.php';
@@ -59,6 +56,9 @@ else {
 $_SESSION['old_email'] = $email;
 
 try {
+    $db = create_database_connection();
+    $auth = new \Delight\Auth\Auth($db);
+
     $auth->login($email, $password, $rememberDuration);
 
     unset($_SESSION['old_email'], $_SESSION['old_remember']);

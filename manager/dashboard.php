@@ -7,6 +7,7 @@ error_reporting(E_ALL);
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/admin_access.php';
+require __DIR__ . '/../config/database.php';
 
 session_start();
 
@@ -37,20 +38,13 @@ $flashMsg = $_SESSION['flash'] ?? null;
 unset($_SESSION['flash']);
 
 try {
-    // DB (à adapter)
-    $db = new \PDO(
-        'mysql:dbname=my-database;host=127.0.0.1;charset=utf8mb4',
-        'my-username',
-        'my-password',
-        [
-            \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-            \PDO::ATTR_DEFAULT_FETCH_MODE => \PDO::FETCH_ASSOC,
-        ]
-    );
+    $db = create_database_connection();
 
     $auth = new \Delight\Auth\Auth($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
+
+    $loginBypassEnabled = is_temp_bypass_login_enabled();
 
     // Logout (POST)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout') {
@@ -70,6 +64,32 @@ try {
         exit;
     }
 
+    if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
+        flash('Veuillez vous connecter pour accéder au dashboard.', 'error');
+        header('Location: /membres.php', true, 303);
+        exit;
+    }
+
+    if ($loginBypassEnabled && !$auth->isLoggedIn()) {
+        $userId = '1';
+        $email  = 'admin@kc-nalinnes.be';
+        $user   = 'Bypass Temporaire';
+        $adminEmails = [];
+        $isAdmin = true;
+    }
+    else {
+        $userId = (string)($auth->getUserId() ?? '');
+        $email  = (string)($auth->getEmail() ?? '');
+        $user   = (string)($auth->getUsername() ?? '');
+        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
+        $isAdmin = is_admin_email($email, $adminEmails);
+    }
+
+    if (!$isAdmin) {
+        flash('Compte membre connecté : redirection vers votre dashboard.', 'info');
+        header('Location: /member/dashboard.php', true, 303);
+        exit;
+    }
 
     // Gestion utilisateurs (admin)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'user_update') {
@@ -202,27 +222,6 @@ try {
         exit;
     }
 
-    $loginBypassEnabled = is_temp_bypass_login_enabled();
-
-    // Protection : si pas connecté => login
-    if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
-        flash('Veuillez vous connecter pour accéder au dashboard.', 'error');
-        header('Location: /membres.php', true, 303);
-        exit;
-    }
-
-    // Infos user
-    if ($loginBypassEnabled && !$auth->isLoggedIn()) {
-        $userId = '1';
-        $email  = 'admin@kc-nalinnes.be';
-        $user   = 'Bypass Temporaire';
-    }
-    else {
-        $userId = (string)($auth->getUserId() ?? '');
-        $email  = (string)($auth->getEmail() ?? '');
-        $user   = (string)($auth->getUsername() ?? '');
-    }
-
     $usersStmt = $db->query('SELECT id, email, username FROM users ORDER BY id ASC');
     $users = $usersStmt->fetchAll();
 
@@ -235,22 +234,6 @@ try {
     $gradesRows = $gradesStmt->fetchAll();
     $gradesByUserId = [];
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
-
-    // Autorisation admin (emails séparés par des virgules dans ADMIN_EMAILS)
-    if ($loginBypassEnabled) {
-        $adminEmails = [];
-        $isAdmin = true;
-    }
-    else {
-        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
-        $isAdmin = is_admin_email($email, $adminEmails);
-    }
-
-    if (!$isAdmin && !$loginBypassEnabled) {
-        flash('Compte membre connecté : redirection vers votre dashboard.', 'info');
-        header('Location: /member/dashboard.php', true, 303);
-        exit;
-    }
 
 } catch (\Throwable $e) {
     http_response_code(500);
