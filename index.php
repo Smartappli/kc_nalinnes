@@ -311,7 +311,7 @@
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Fin de saison</p>
             <h2 class="mt-2 text-2xl font-extrabold text-slate-100">Passage de grade et repas de fin de saison</h2>
             <p class="mt-2 max-w-3xl text-sm text-slate-300">
-              Passage de grade le <strong class="text-slate-100">26 juin 2026 à 18h</strong>. Le repas de fin de saison du 26 juin 2026 à 20h est aussi ouvert aux réservations pour les membres et leurs proches.
+              Passage de grade le <strong class="text-slate-100">26 juin 2026 à 18h</strong>. Le repas de fin de saison du <strong class="text-slate-100">26 juin 2026 à 20h</strong> est aussi ouvert aux réservations pour les membres et leurs proches.
             </p>
             <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div class="season-meal-card rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
@@ -328,7 +328,7 @@
             </p>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
-            <a href="reservation-repas.php" class="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 transition">
+            <a href="#" aria-disabled="true" tabindex="-1" class="pointer-events-none inline-flex items-center justify-center rounded-xl bg-slate-600 px-4 py-2 text-sm font-semibold text-white opacity-60 shadow-md shadow-slate-900/30 cursor-not-allowed">
               Réserver le repas
             </a>
           </div>
