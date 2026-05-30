@@ -153,6 +153,20 @@ try {
             ':total' => $total,
         ]);
 
+        $reservationDate = date('Y-m-d H:i:s');
+        append_meal_reservation_to_excel([
+            'date' => $reservationDate,
+            'member_user_id' => (string)(int)$auth->getUserId(),
+            'profile_name' => $profileName,
+            'profile_type' => $profileType,
+            'contact_email' => $email,
+            'contact_phone' => '',
+            'adult_qty' => (string)$adultQty,
+            'child_qty' => (string)$childQty,
+            'total_amount' => (string)$total,
+            'notes' => '',
+        ]);
+
         flash('Réservation repas enregistrée.', 'success');
 
         $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
@@ -162,7 +176,7 @@ try {
             . "Adultes: " . $adultQty . "\n"
             . "Enfants: " . $childQty . "\n"
             . "Total: " . $total . " EUR\n"
-            . "Date: " . date('Y-m-d H:i:s') . "\n";
+            . "Date: " . $reservationDate . "\n";
         @mail($to, $subject, $message, 'From: no-reply@kc-nalinnes.be');
 
         if ($sendCopy) {
