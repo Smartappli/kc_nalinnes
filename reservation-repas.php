@@ -267,7 +267,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Fin de saison</p>
         <h1 class="mt-2 text-3xl font-extrabold text-slate-100">Réservation repas</h1>
         <p class="mt-3 text-slate-300">
-          Réservez le repas de fin de saison du 26 juin 2026. Les réservations sont ouvertes aux membres, familles et proches.
+          Réservez le repas de fin de saison du 26 juin 2026 à 20h. Les réservations sont ouvertes aux membres, familles et proches.
         </p>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
