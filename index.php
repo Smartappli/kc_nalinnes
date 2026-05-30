@@ -27,6 +27,7 @@
   <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
   <meta name="theme-color" content="#0f172a" />
+  <link rel="alternate" type="application/json" href="/ai-summary.json" title="Résumé factuel KC Nalinnes pour moteurs génératifs" />
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
@@ -62,6 +63,7 @@
     "@context": "https://schema.org",
     "@type": "SportsClub",
     "name": "KC Nalinnes",
+    "alternateName": ["Karaté Club Nalinnes", "Karate Club Nalinnes"],
     "url": "https://kc-nalinnes.be/",
     "logo": "https://kc-nalinnes.be/assets/logo-kc-nalinnes1.png",
     "image": "https://kc-nalinnes.be/assets/og-karate.jpg",
@@ -98,6 +100,17 @@
       "Hainaut"
     ],
     "sport": "Karaté Shotokan",
+    "knowsAbout": [
+      "Karaté Shotokan",
+      "Kata Shotokan",
+      "Kumité",
+      "Kihon",
+      "Dojo Kun",
+      "Préparation aux passages de ceinture"
+    ],
+    "sameAs": [
+      "https://www.facebook.com/KarateClubNalinnes"
+    ],
     "priceRange": "EUR",
     "openingHoursSpecification": [
       {
@@ -128,7 +141,13 @@
     "@type": "WebSite",
     "name": "Karaté Club Nalinnes",
     "url": "https://kc-nalinnes.be/",
-    "inLanguage": "fr-BE"
+    "inLanguage": "fr-BE",
+    "about": {
+      "@type": "SportsClub",
+      "name": "KC Nalinnes",
+      "sport": "Karaté Shotokan",
+      "address": "Rue des Monts 18, 6120 Nalinnes, Belgique"
+    }
   }
   </script>
 
@@ -159,6 +178,30 @@
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Le club enseigne le Karaté Shotokan, avec une progression adaptée à tous les niveaux."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Où se trouve le KC Nalinnes ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Le club se trouve au Centre sportif Jules Roulin-Dorvillez, Rue des Monts 18, 6120 Nalinnes, Belgique."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Quels sont les horaires principaux ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Les cours ont lieu principalement le lundi de 17h00 à 20h30 et le vendredi de 18h00 à 20h30, selon les groupes d'âge et de niveau."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Comment contacter le club ?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Le club peut être contacté par email à info@kc-nalinnes.be, par téléphone au +32 497 25 12 14 ou au +32 488 09 50 27."
         }
       }
     ]
@@ -391,6 +434,34 @@
           <!-- /Largeur commune -->
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- Informations essentielles -->
+  <section id="informations-essentielles" class="section bg-slate-900/40">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
+      <h2 class="text-2xl md:text-3xl font-extrabold">KC Nalinnes en bref</h2>
+      <p class="mt-3 max-w-3xl text-slate-300">
+        KC Nalinnes est un club de Karaté Shotokan situé à Nalinnes, dans la commune de Ham-sur-Heure-Nalinnes, près de Charleroi. Le club accueille les enfants dès 5 ans, les adolescents et les adultes, avec 3 premiers cours d’essai gratuits.
+      </p>
+      <dl class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4 text-sm">
+        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <dt class="font-semibold text-slate-100">Discipline</dt>
+          <dd class="mt-1 text-slate-300">Karaté Shotokan, kata, kihon, kumité et préparation aux grades.</dd>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <dt class="font-semibold text-slate-100">Adresse</dt>
+          <dd class="mt-1 text-slate-300">Rue des Monts 18, 6120 Nalinnes, Belgique.</dd>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <dt class="font-semibold text-slate-100">Public</dt>
+          <dd class="mt-1 text-slate-300">Enfants dès 5 ans, adolescents, adultes, débutants et confirmés.</dd>
+        </div>
+        <div class="rounded-xl border border-slate-800 bg-slate-950/50 p-4">
+          <dt class="font-semibold text-slate-100">Contact</dt>
+          <dd class="mt-1 text-slate-300">info@kc-nalinnes.be · +32 497 25 12 14 · +32 488 09 50 27</dd>
+        </div>
+      </dl>
     </div>
   </section>
 
@@ -1151,11 +1222,23 @@
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
           <summary class="font-semibold">Puis-je essayer gratuitement ?</summary>
-          <p class="mt-2 text-slate-300">Oui, la première séance est offerte.</p>
+          <p class="mt-2 text-slate-300">Oui, les 3 premiers cours d’essai sont gratuits.</p>
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
           <summary class="font-semibold">À partir de quel âge ?</summary>
           <p class="mt-2 text-slate-300">À partir de 5 ans. Groupes aussi pour ados et adultes, tous niveaux.</p>
+        </details>
+        <details class="rounded-xl border border-slate-800 p-4">
+          <summary class="font-semibold">Où se trouve le club ?</summary>
+          <p class="mt-2 text-slate-300">Le dojo principal est au Centre sportif Jules Roulin-Dorvillez, Rue des Monts 18, 6120 Nalinnes, Belgique.</p>
+        </details>
+        <details class="rounded-xl border border-slate-800 p-4">
+          <summary class="font-semibold">Quels sont les horaires principaux ?</summary>
+          <p class="mt-2 text-slate-300">Les cours ont lieu principalement le lundi de 17h00 à 20h30 et le vendredi de 18h00 à 20h30, selon le groupe d’âge et le niveau.</p>
+        </details>
+        <details class="rounded-xl border border-slate-800 p-4">
+          <summary class="font-semibold">Comment contacter le KC Nalinnes ?</summary>
+          <p class="mt-2 text-slate-300">Par email à info@kc-nalinnes.be, par téléphone au +32 497 25 12 14 ou au +32 488 09 50 27.</p>
         </details>
       </div>
     </div>
