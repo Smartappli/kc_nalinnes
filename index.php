@@ -314,7 +314,7 @@
       <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-950/90 to-slate-900/95"></div>
     </div>
 
-    <div class="relative pt-32 pb-16 lg:pt-36 lg:pb-24">
+    <div class="relative pt-24 pb-10 lg:pt-28 lg:pb-14">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-10 items-center">
         <!-- Colonne texte -->
         <div>
