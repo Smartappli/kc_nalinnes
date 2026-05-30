@@ -88,40 +88,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         $db = create_database_connection();
-        ensure_meal_reservations_table($db);
-        ensure_meal_public_contact_columns($db);
-
         $total = compute_meal_total($adultQty, $childQty, 19, 10);
-
-        try {
-            $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, contact_email, contact_phone, notes, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :email, :phone, :notes, :adult, :child, :total)');
-            $stmt->execute([
-                ':uid' => 0,
-                ':ptype' => 'public',
-                ':did' => null,
-                ':pname' => $profileName,
-                ':email' => $contactEmail,
-                ':phone' => $contactPhone,
-                ':notes' => $notes,
-                ':adult' => $adultQty,
-                ':child' => $childQty,
-                ':total' => $total,
-            ]);
-        }
-        catch (Throwable $e) {
-            $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :adult, :child, :total)');
-            $stmt->execute([
-                ':uid' => 0,
-                ':ptype' => 'public',
-                ':did' => null,
-                ':pname' => $profileName,
-                ':adult' => $adultQty,
-                ':child' => $childQty,
-                ':total' => $total,
-            ]);
-        }
-
         $reservationDate = date('Y-m-d H:i:s');
+
+        $reservationId = save_public_meal_reservation($db, [
+            'profile_name' => $profileName,
+            'contact_email' => $contactEmail,
+            'contact_phone' => $contactPhone,
+            'adult_qty' => $adultQty,
+            'child_qty' => $childQty,
+            'total_amount' => $total,
+            'notes' => $notes,
+        ]);
+
         append_meal_reservation_to_excel([
             'date' => $reservationDate,
             'member_user_id' => '0',
@@ -138,6 +117,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
         $subject = 'Nouvelle réservation repas publique';
         $message = "Réservation publique\n"
+            . "Réservation ID: " . $reservationId . "\n"
             . "Nom: " . $profileName . "\n"
             . "Email: " . $contactEmail . "\n"
             . "Téléphone: " . ($contactPhone !== '' ? $contactPhone : '-') . "\n"
@@ -147,10 +127,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             . "Notes: " . ($notes !== '' ? $notes : '-') . "\n"
             . "Date: " . $reservationDate . "\n";
         $headers = "From: no-reply@kc-nalinnes.be\r\nReply-To: " . $contactEmail;
-        @mail($to, $subject, $message, $headers);
+        $adminMailSent = send_meal_reservation_mail($to, $subject, $message, $headers);
 
         if ($sendCopy) {
-            @mail($contactEmail, 'Copie de votre réservation repas', $message, 'From: no-reply@kc-nalinnes.be');
+            send_meal_reservation_mail($contactEmail, 'Copie de votre réservation repas', $message, 'From: no-reply@kc-nalinnes.be');
+        }
+
+        if (!$adminMailSent) {
+            error_log('Meal reservation saved but admin notification failed. Reservation ID: ' . $reservationId);
         }
 
         unset($_SESSION['meal_public_old']);

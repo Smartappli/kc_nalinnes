@@ -28,6 +28,36 @@ function ensure_meal_public_contact_columns(PDO $db): void {
     }
 }
 
+function save_public_meal_reservation(PDO $db, array $reservation): int {
+    ensure_meal_reservations_table($db);
+    ensure_meal_public_contact_columns($db);
+
+    $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, contact_email, contact_phone, notes, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :email, :phone, :notes, :adult, :child, :total)');
+    $stmt->execute([
+        ':uid' => 0,
+        ':ptype' => 'public',
+        ':did' => null,
+        ':pname' => (string)$reservation['profile_name'],
+        ':email' => (string)$reservation['contact_email'],
+        ':phone' => (string)($reservation['contact_phone'] ?? ''),
+        ':notes' => (string)($reservation['notes'] ?? ''),
+        ':adult' => (int)$reservation['adult_qty'],
+        ':child' => (int)$reservation['child_qty'],
+        ':total' => (int)$reservation['total_amount'],
+    ]);
+
+    return (int)$db->lastInsertId();
+}
+
+function send_meal_reservation_mail(string $to, string $subject, string $message, string $headers): bool {
+    $sent = @mail($to, $subject, $message, $headers);
+    if (!$sent) {
+        error_log('Meal reservation mail failed: ' . $subject . ' -> ' . $to);
+    }
+
+    return $sent;
+}
+
 function meal_reservations_excel_path(): string {
     $configuredPath = getenv('MEAL_RESERVATIONS_EXCEL_PATH') ?: getenv('MEAL_RESERVATIONS_XLSX_PATH');
     if (is_string($configuredPath) && trim($configuredPath) !== '') {
