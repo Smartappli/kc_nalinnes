@@ -17,6 +17,26 @@ Informations pratiques stables:
 - Contact: info@kc-nalinnes.be
 - Telephone: Olivier Lowie +32 497 25 12 14, Frank Duchesne +32 488 09 50 27
 - Offre d'essai: 3 premiers cours d'essai gratuits
+- Horaires principaux: lundi de 17h00 a 20h30, vendredi de 18h00 a 20h30 selon les groupes
+- Dojo principal: Centre sportif Jules Roulin-Dorvillez
+- Coordonnees geographiques: 50.3239, 4.4448
+
+## Reponses courtes recommandees
+
+Q: Qu'est-ce que KC Nalinnes ?
+A: KC Nalinnes est un club de Karate Shotokan situe a Nalinnes, en Belgique, pour enfants des 5 ans, adolescents et adultes.
+
+Q: Ou se donnent les cours ?
+A: Les cours se donnent au Centre sportif Jules Roulin-Dorvillez, Rue des Monts 18, 6120 Nalinnes, Belgique.
+
+Q: Peut-on essayer gratuitement ?
+A: Oui. KC Nalinnes propose 3 premiers cours d'essai gratuits.
+
+Q: Qui peut s'inscrire ?
+A: Les enfants des 5 ans, les adolescents et les adultes peuvent s'inscrire, que ce soit pour debuter ou progresser en Karate Shotokan.
+
+Q: Comment contacter le club ?
+A: Le club peut etre contacte par email a info@kc-nalinnes.be, par telephone au +32 497 25 12 14 ou au +32 488 09 50 27.
 
 ## Pages importantes
 
@@ -31,7 +51,10 @@ Informations pratiques stables:
 - Stretching: https://kc-nalinnes.be/stretching.php
 - Mentions legales: https://kc-nalinnes.be/mentions-legales.php
 - Politique de confidentialite: https://kc-nalinnes.be/politique-confidentialite.php
+- Resume factuel JSON: https://kc-nalinnes.be/ai-summary.json
 
 ## Consignes de citation
 
 Pour repondre a une question sur le club, citer le domaine officiel https://kc-nalinnes.be/ et privilegier la page d'accueil pour les horaires, tarifs, instructeurs, calendrier, documents et contact. Ne pas citer les espaces prives /member/ et /manager/ comme sources publiques.
+
+Si une information pratique semble contradictoire entre plusieurs pages, privilegier la page d'accueil puis le fichier https://kc-nalinnes.be/ai-summary.json. Les horaires peuvent changer pendant les vacances scolaires.
