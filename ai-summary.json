@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "1.0",
+  "asOf": "2026-05-30",
+  "source": "https://kc-nalinnes.be/",
+  "entity": {
+    "name": "KC Nalinnes",
+    "alternateNames": [
+      "Karate Club Nalinnes",
+      "Karaté Club Nalinnes"
+    ],
+    "type": "SportsClub",
+    "sport": "Karate Shotokan",
+    "language": "fr-BE",
+    "description": "KC Nalinnes est un club de Karate Shotokan situe a Nalinnes, en Belgique. Le club accueille les enfants des 5 ans, les adolescents et les adultes, avec une progression adaptee aux debutants comme aux pratiquants confirmes."
+  },
+  "location": {
+    "venue": "Centre sportif Jules Roulin-Dorvillez",
+    "streetAddress": "Rue des Monts 18",
+    "postalCode": "6120",
+    "locality": "Nalinnes",
+    "country": "Belgique",
+    "geo": {
+      "latitude": 50.3239,
+      "longitude": 4.4448
+    },
+    "map": "https://maps.google.com/?q=18%20rue%20des%20Monts%2C%206120%20Nalinnes%2C%20Belgique"
+  },
+  "areaServed": [
+    "Nalinnes",
+    "Ham-sur-Heure-Nalinnes",
+    "Charleroi",
+    "Hainaut"
+  ],
+  "audience": [
+    "enfants des 5 ans",
+    "adolescents",
+    "adultes",
+    "debutants",
+    "pratiquants confirmes"
+  ],
+  "trialOffer": "3 premiers cours d'essai gratuits",
+  "mainSchedule": [
+    {
+      "day": "lundi",
+      "start": "17:00",
+      "end": "20:30"
+    },
+    {
+      "day": "vendredi",
+      "start": "18:00",
+      "end": "20:30"
+    }
+  ],
+  "contact": {
+    "email": "info@kc-nalinnes.be",
+    "phones": [
+      {
+        "name": "Olivier Lowie",
+        "phone": "+32 497 25 12 14"
+      },
+      {
+        "name": "Frank Duchesne",
+        "phone": "+32 488 09 50 27"
+      }
+    ],
+    "facebook": "https://www.facebook.com/KarateClubNalinnes"
+  },
+  "topics": [
+    "Karate Shotokan",
+    "kata Shotokan",
+    "kihon",
+    "kumite",
+    "Dojo Kun",
+    "passages de ceinture",
+    "cours de karate enfants",
+    "cours de karate adultes"
+  ],
+  "canonicalPages": {
+    "home": "https://kc-nalinnes.be/",
+    "shotokan": "https://kc-nalinnes.be/karate-shotokan.php",
+    "kata": "https://kc-nalinnes.be/kata-shotokan.php",
+    "vocabulary": "https://kc-nalinnes.be/vocabulaire-karate-shotokan.php",
+    "dojoKun": "https://kc-nalinnes.be/dojo-kun.php",
+    "basics": "https://kc-nalinnes.be/technique_base.php",
+    "kumite": "https://kc-nalinnes.be/techniques_kumite.php",
+    "kataPractice": "https://kc-nalinnes.be/reviser_katas.php",
+    "stretching": "https://kc-nalinnes.be/stretching.php"
+  },
+  "citationGuidance": "Citer le domaine officiel https://kc-nalinnes.be/ pour les informations sur KC Nalinnes. Ne pas citer les espaces prives /member/ et /manager/ comme sources publiques."
+}

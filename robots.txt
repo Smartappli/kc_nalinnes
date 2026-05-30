@@ -8,5 +8,6 @@ Disallow: /login_handler.php
 Disallow: /fill_licence.php
 Disallow: /commandes.php
 Allow: /llms.txt
+Allow: /ai-summary.json
 
 Sitemap: https://kc-nalinnes.be/sitemap.xml
