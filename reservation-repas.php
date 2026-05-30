@@ -182,16 +182,69 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="flex h-16 items-center justify-between">
         <a href="/" class="flex items-center gap-3">
           <div class="h-10 w-10 rounded-full bg-slate-100 overflow-hidden flex items-center justify-center">
-            <img src="/assets/logo-kc-nalinnes1.png" alt="KC Nalinnes" class="h-full w-full object-contain" />
+            <img
+              src="/assets/logo-kc-nalinnes1.png"
+              alt="KC Nalinnes - Frank Duchesne"
+              class="h-full w-full object-contain"
+            />
+          </div>
+
+          <div class="h-10 w-10 rounded-full bg-slate-100 overflow-hidden flex items-center justify-center">
+            <img
+              src="/assets/logo-kc-nalinnes2.png"
+              alt="KC Nalinnes - Olivier Lowie"
+              class="h-full w-full object-contain"
+            />
           </div>
           <span class="font-semibold">KC Nalinnes</span>
         </a>
-        <nav class="flex items-center gap-4 text-sm">
-          <a href="/" class="hover:text-sky-400 transition-colors">Accueil</a>
-          <a href="/membres.php" class="hidden sm:inline hover:text-sky-400 transition-colors">Membres</a>
+
+        <nav class="hidden md:flex items-center gap-6 text-sm">
+          <a href="/#horaires" class="hover:text-sky-400 transition-colors">Horaires</a>
+          <a href="/#tarifs" class="hover:text-sky-400 transition-colors">Tarifs</a>
+          <a href="/#calendrier" class="hover:text-sky-400 transition-colors">Calendrier</a>
+          <a href="/#coach" class="hover:text-sky-400 transition-colors">Instructeurs</a>
+          <a href="/#documents" class="hover:text-sky-400 transition-colors">Documents</a>
+          <a href="/#actus" class="hover:text-sky-400 transition-colors">Actus</a>
+          <a href="/#contact" class="hover:text-sky-400 transition-colors">Contact</a>
+          <a href="/membres.php"
+            class="ml-2 rounded-full bg-red-600 px-4 py-2 font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 hover:translate-y-[1px] transition">
+            Membres
+          </a>
+
+          <button id="themeToggle" class="ml-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
+                  aria-pressed="false" aria-label="Basculer le thème">
+            <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.8 1.8-1.79zm10.48 0l1.8-1.79 1.79 1.78-1.79 1.8-1.8-1.79zM12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 12H1v0h3v0zm19 0h-3v0h3v0zM6.76 19.16l-1.8 1.79-1.79-1.78 1.79-1.8 1.8 1.79zM17.24 19.16l1.8 1.79 1.79-1.78-1.79-1.8-1.8 1.79zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
+            <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
+            <span id="themeLabel">Dark</span>
+          </button>
         </nav>
+
+        <button id="menuBtn"
+          class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md
+                bg-slate-800 text-slate-100 border border-transparent
+                hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
+          aria-label="Ouvrir le menu" type="button">☰</button>
       </div>
     </div>
+
+    <nav id="mobileNav" class="md:hidden hidden border-t border-slate-800">
+      <div class="mx-auto max-w-7xl px-4 py-3 space-y-2">
+        <a href="/#horaires" class="block">Horaires</a>
+        <a href="/#tarifs" class="block">Tarifs</a>
+        <a href="/#calendrier" class="block">Calendrier</a>
+        <a href="/#coach" class="block">Instructeurs</a>
+        <a href="/#documents" class="block">Documents</a>
+        <a href="/#actus" class="block">Actus</a>
+        <a href="/#contact" class="block">Contact</a>
+        <a href="/membres.php" class="block font-semibold text-red-400">Membres</a>
+
+        <button id="themeToggleMobile" class="mt-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
+                aria-pressed="false" aria-label="Basculer le thème">
+          🌗 <span id="themeLabelMobile">Dark</span>
+        </button>
+      </div>
+    </nav>
   </header>
 
   <main class="pt-24 pb-16">
@@ -278,8 +331,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   </footer>
 
   <script>
-    var yearEl = document.getElementById('year');
-    if (yearEl) yearEl.textContent = new Date().getFullYear();
+    function setTheme(mode){
+      const root = document.documentElement;
+      const isLight = mode === 'light';
+      root.classList.toggle('light', isLight);
+      try { localStorage.setItem('themeMode', mode); } catch(e){}
+      const label = document.getElementById('themeLabel');
+      const labelM = document.getElementById('themeLabelMobile');
+      const sun = document.getElementById('iconSun');
+      const moon = document.getElementById('iconMoon');
+      if(label) label.textContent = isLight ? 'Light' : 'Dark';
+      if(labelM) labelM.textContent = isLight ? 'Light' : 'Dark';
+      if(sun && moon){
+        sun.classList.toggle('hidden', !isLight);
+        moon.classList.toggle('hidden', isLight);
+      }
+    }
+
+    (function(){
+      let saved = 'dark';
+      try { saved = localStorage.getItem('themeMode') || 'dark'; } catch(e){}
+      setTheme(saved);
+
+      const themeBtn = document.getElementById('themeToggle');
+      const themeBtnM = document.getElementById('themeToggleMobile');
+      const toggleTheme = function(){
+        setTheme(document.documentElement.classList.contains('light') ? 'dark' : 'light');
+      };
+      if(themeBtn) themeBtn.addEventListener('click', toggleTheme);
+      if(themeBtnM) themeBtnM.addEventListener('click', toggleTheme);
+
+      const yearEl = document.getElementById('year');
+      if (yearEl) yearEl.textContent = new Date().getFullYear();
+
+      const menuBtn = document.getElementById('menuBtn');
+      const mobileNav = document.getElementById('mobileNav');
+      if (menuBtn && mobileNav) {
+        menuBtn.addEventListener('click', function () { mobileNav.classList.toggle('hidden'); });
+      }
+    })();
   </script>
 </body>
 </html>
