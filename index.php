@@ -313,6 +313,19 @@
             <p class="mt-2 max-w-3xl text-sm text-slate-300">
               Passage de grade le <strong class="text-slate-100">26 juin 2026 à 18h</strong>. Le repas de fin de saison est aussi ouvert aux réservations pour les membres et leurs proches.
             </p>
+            <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <div class="rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
+                <p class="font-semibold text-slate-100">Repas enfant — 10 €</p>
+                <p class="mt-1 text-slate-300">1 brochette ou 1 saucisse.</p>
+              </div>
+              <div class="rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
+                <p class="font-semibold text-slate-100">Repas adulte — 19 €</p>
+                <p class="mt-1 text-slate-300">1 brochette et 1 saucisse.</p>
+              </div>
+            </div>
+            <p class="mt-3 text-sm font-semibold text-orange-200">
+              Boisson non comprise. Date limite de réservation : <strong class="text-slate-100">22 juin 2026 à midi</strong>.
+            </p>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
             <a href="reservation-repas.php" class="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 transition">
