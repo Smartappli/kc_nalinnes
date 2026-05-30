@@ -315,7 +315,7 @@
             </p>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
-            <a href="membres.php" class="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 transition">
+            <a href="reservation-repas.php" class="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 transition">
               Réserver le repas
             </a>
           </div>
