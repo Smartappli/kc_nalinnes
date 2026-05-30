@@ -9,14 +9,14 @@
 
   <meta name="description" content="Comprendre ce qu’est un kata en karaté Shotokan, découvrir les principaux kata par niveau et apprendre à les réviser. Ressource pédagogique pour les élèves du KC Nalinnes." />
   <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://kc-nalinnes.be/kata-shotokan.html" />
+  <link rel="canonical" href="https://kc-nalinnes.be/kata-shotokan.php" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Les kata en karaté Shotokan — KC Nalinnes" />
   <meta property="og:description" content="Qu’est-ce qu’un kata ? À quoi servent-ils ? Quels sont les kata en karaté Shotokan et comment les réviser ? Une page pour les élèves du KC Nalinnes." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://kc-nalinnes.be/kata-shotokan.html" />
-  <meta property="og:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+  <meta property="og:url" content="https://kc-nalinnes.be/kata-shotokan.php" />
+  <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
   <meta property="og:locale" content="fr_BE" />
   <meta property="og:site_name" content="Karaté Club Nalinnes" />
 
@@ -24,7 +24,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Les kata en karaté Shotokan — KC Nalinnes" />
   <meta name="twitter:description" content="Une introduction claire aux kata de karaté Shotokan pour les élèves du KC Nalinnes." />
-  <meta name="twitter:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+  <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
   <meta name="theme-color" content="#0f172a" />
 

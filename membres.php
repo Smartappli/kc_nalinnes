@@ -53,15 +53,15 @@ function flash_classes(?array $flash): string {
     <title>Karaté Shotokan à Nalinnes — KC Nalinnes</title>
 
     <meta name="description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
-    <meta name="robots" content="index,follow" />
-    <link rel="canonical" href="https://www.kc-nalinnes.be/mentions-legales.html" />
+    <meta name="robots" content="noindex,nofollow,noarchive" />
+    <link rel="canonical" href="https://kc-nalinnes.be/membres.php" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="Karaté Shotokan à Nalinnes — KC Nalinnes" />
     <meta property="og:description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.kc-nalinnes.be/" />
-    <meta property="og:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+    <meta property="og:url" content="https://kc-nalinnes.be/membres.php" />
+    <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
     <meta property="og:locale" content="fr_BE" />
     <meta property="og:site_name" content="Karaté Club Nalinnes" />
 
@@ -69,7 +69,7 @@ function flash_classes(?array $flash): string {
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Karaté Shotokan à Nalinnes — KC Nalinnes" />
     <meta name="twitter:description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
-    <meta name="twitter:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+    <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
     <meta name="theme-color" content="#0f172a" />
 

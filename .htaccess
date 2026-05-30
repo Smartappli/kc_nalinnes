@@ -17,7 +17,9 @@ RewriteRule ^dojo-kun\.html$ /dojo-kun.php [R=301,L]
 RewriteRule ^technique_base\.html$ /technique_base.php [R=301,L]
 RewriteRule ^techniques_kumite\.html$ /techniques_kumite.php [R=301,L]
 RewriteRule ^reviser_katas\.html$ /reviser_katas.php [R=301,L]
+RewriteRule ^entrainement-kata\.html$ /reviser_katas.php [R=301,L]
 RewriteRule ^stretching\.html$ /stretching.php [R=301,L]
+RewriteRule ^streching\.html$ /stretching.php [R=301,L]
 RewriteRule ^mentions-legales\.html$ /mentions-legales.php [R=301,L]
 RewriteRule ^politique-confidentialite\.html$ /politique-confidentialite.php [R=301,L]
 
@@ -34,4 +36,7 @@ Options -Indexes
     Header always set X-Content-Type-Options "nosniff"
     Header always set X-Frame-Options "SAMEORIGIN"
     Header always set X-XSS-Protection "1; mode=block"
+    <FilesMatch "^(login_handler|fill_licence|commandes)\.php$">
+        Header set X-Robots-Tag "noindex, nofollow, noarchive"
+    </FilesMatch>
 </IfModule>

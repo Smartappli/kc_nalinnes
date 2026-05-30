@@ -10,14 +10,14 @@
   <meta name="description" content="S'entraîner aux kata du karaté Shotokan avec le KC Nalinnes : vidéos YouTube par niveau (débutants, intermédiaires, avancés), conseils pour réviser avant les passages de grade." />
   <meta name="robots" content="index,follow" />
   <!-- Aligné avec og:url + lien du menu -->
-  <link rel="canonical" href="https://www.kc-nalinnes.be/entrainement-kata.html" />
+  <link rel="canonical" href="https://kc-nalinnes.be/reviser_katas.php" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="S'entraîner aux kata Shotokan — KC Nalinnes" />
   <meta property="og:description" content="Vidéos de kata du KC Nalinnes pour s'entraîner à la maison : Heian, Tekki, Bassai Dai, Jion... par niveau et par ceinture." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://www.kc-nalinnes.be/entrainement-kata.html" />
-  <meta property="og:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+  <meta property="og:url" content="https://kc-nalinnes.be/reviser_katas.php" />
+  <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
   <meta property="og:locale" content="fr_BE" />
   <meta property="og:site_name" content="Karaté Club Nalinnes" />
 
@@ -25,7 +25,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="S'entraîner aux kata Shotokan — KC Nalinnes" />
   <meta name="twitter:description" content="Révise tes kata Shotokan avec les vidéos du KC Nalinnes : par niveau, par ceinture, avec conseils pratiques." />
-  <meta name="twitter:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+  <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
   <meta name="theme-color" content="#0f172a" />
 

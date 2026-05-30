@@ -63,6 +63,7 @@
     "@type": "SportsClub",
     "name": "KC Nalinnes",
     "url": "https://kc-nalinnes.be/",
+    "logo": "https://kc-nalinnes.be/assets/logo-kc-nalinnes1.png",
     "image": "https://kc-nalinnes.be/assets/og-karate.jpg",
     "description": "Karaté Shotokan pour tous niveaux — enfants (5+), ados, adultes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions.",
     "address": {
@@ -73,9 +74,31 @@
       "addressRegion": "Hainaut",
       "addressCountry": "BE"
     },
-    "telephone": "+32 497 25 12 14",
-    "areaServed": "Ham-sur-Heure-Nalinnes et région de Charleroi",
+    "geo": {
+      "@type": "GeoCoordinates",
+      "latitude": 50.3239,
+      "longitude": 4.4448
+    },
+    "hasMap": "https://maps.google.com/?q=18%20rue%20des%20Monts%2C%206120%20Nalinnes%2C%20Belgique",
+    "email": "info@kc-nalinnes.be",
+    "telephone": ["+32 497 25 12 14", "+32 488 09 50 27"],
+    "contactPoint": [
+      {
+        "@type": "ContactPoint",
+        "contactType": "information",
+        "telephone": "+32 497 25 12 14",
+        "email": "info@kc-nalinnes.be",
+        "availableLanguage": ["fr-BE"]
+      }
+    ],
+    "areaServed": [
+      "Nalinnes",
+      "Ham-sur-Heure-Nalinnes",
+      "Charleroi",
+      "Hainaut"
+    ],
     "sport": "Karaté Shotokan",
+    "priceRange": "EUR",
     "openingHoursSpecification": [
       {
         "@type": "OpeningHoursSpecification",
@@ -997,7 +1020,7 @@
   </section>
 
   <!-- Compétitions -->
-  <section id="actus" class="section bg-slate-900/50">
+  <section id="competitions" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <h2 class="text-3xl font-bold">Compétitions</h2>
 

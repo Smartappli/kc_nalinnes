@@ -9,14 +9,14 @@
 
   <meta name="description" content="Apprendre à compter en japonais et découvrir le vocabulaire de base du karaté Shotokan : chiffres, commandes du dojo, positions et techniques. Ressource pédagogique pour les élèves du KC Nalinnes." />
   <meta name="robots" content="index,follow" />
-  <link rel="canonical" href="https://kc-nalinnes.be/vocabulaire-karate-shotokan.html" />
+  <link rel="canonical" href="https://kc-nalinnes.be/vocabulaire-karate-shotokan.php" />
 
   <!-- Open Graph -->
   <meta property="og:title" content="Compter en japonais & vocabulaire du karaté Shotokan — KC Nalinnes" />
   <meta property="og:description" content="Apprends à compter en japonais et découvre le vocabulaire essentiel du karaté Shotokan : chiffres, commandes du dojo, positions, techniques." />
   <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://kc-nalinnes.be/vocabulaire-karate-shotokan.html" />
-  <meta property="og:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+  <meta property="og:url" content="https://kc-nalinnes.be/vocabulaire-karate-shotokan.php" />
+  <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
   <meta property="og:locale" content="fr_BE" />
   <meta property="og:site_name" content="Karaté Club Nalinnes" />
 
@@ -24,7 +24,7 @@
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="Compter en japonais & vocabulaire du karaté Shotokan — KC Nalinnes" />
   <meta name="twitter:description" content="Apprendre à compter en japonais et le vocabulaire de base du karaté Shotokan." />
-  <meta name="twitter:image" content="https://www.kc-nalinnes.be/assets/og-karate.jpg" />
+  <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
   <meta name="theme-color" content="#0f172a" />
 
