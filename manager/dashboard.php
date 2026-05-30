@@ -168,58 +168,22 @@ try {
             exit;
         }
 
-        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
+        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, notes, created_at FROM meal_reservations ORDER BY created_at DESC');
         $rows = $rowsStmt->fetchAll();
 
-        $headers = ['date', 'member_user_id', 'profile_name', 'profile_type', 'contact_email', 'contact_phone', 'adult_qty', 'child_qty', 'total_amount'];
         $dataRows = [];
         foreach ($rows as $r) {
-            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)($r['contact_email'] ?? ''), (string)($r['contact_phone'] ?? ''), (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount']];
+            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)($r['contact_email'] ?? ''), (string)($r['contact_phone'] ?? ''), (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount'], (string)($r['notes'] ?? '')];
         }
 
-        $colName = static function(int $index): string {
-            $name = '';
-            $index++;
-            while ($index > 0) {
-                $mod = ($index - 1) % 26;
-                $name = chr(65 + $mod) . $name;
-                $index = intdiv($index - 1, 26);
-            }
-            return $name;
-        };
-
-        $xmlEscape = static fn(string $value): string => htmlspecialchars($value, ENT_XML1 | ENT_QUOTES, 'UTF-8');
-        $buildRow = static function(int $rowNum, array $values, callable $colName, callable $xmlEscape): string {
-            $cells = '';
-            foreach (array_values($values) as $i => $val) {
-                $ref = $colName($i) . $rowNum;
-                $cells .= '<c r="' . $ref . '" t="inlineStr"><is><t>' . $xmlEscape((string)$val) . '</t></is></c>';
-            }
-            return '<row r="' . $rowNum . '">' . $cells . '</row>';
-        };
-
-        $sheetRows = $buildRow(1, $headers, $colName, $xmlEscape);
-        foreach ($dataRows as $i => $row) {
-            $sheetRows .= $buildRow($i + 2, $row, $colName, $xmlEscape);
+        $tmp = tempnam(sys_get_temp_dir(), 'reservations_excel_');
+        if ($tmp === false) {
+            throw new RuntimeException('Impossible de créer le fichier Excel temporaire.');
         }
+        write_meal_reservations_excel($tmp, $dataRows);
 
-        $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-            . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
-            . $sheetRows
-            . '</sheetData></worksheet>';
-
-        $tmp = tempnam(sys_get_temp_dir(), 'xlsx_');
-        $zip = new \ZipArchive();
-        $zip->open($tmp, \ZipArchive::OVERWRITE);
-        $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
-        $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
-        $zip->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Reservations" sheetId="1" r:id="rId1"/></sheets></workbook>');
-        $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
-        $zip->addFromString('xl/worksheets/sheet1.xml', $sheetXml);
-        $zip->close();
-
-        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment; filename="reservations-repas.xlsx"');
+        header('Content-Type: application/vnd.ms-excel; charset=UTF-8');
+        header('Content-Disposition: attachment; filename="reservations-repas.xls"');
         readfile($tmp);
         @unlink($tmp);
         exit;
@@ -231,7 +195,7 @@ try {
     $mealSummaryStmt = $db->query('SELECT COALESCE(SUM(adult_qty),0) AS total_adult, COALESCE(SUM(child_qty),0) AS total_child, COALESCE(SUM(total_amount),0) AS total_amount FROM meal_reservations');
     $mealSummary = $mealSummaryStmt->fetch() ?: ['total_adult' => 0, 'total_child' => 0, 'total_amount' => 0];
 
-    $mealReservationsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, created_at FROM meal_reservations ORDER BY created_at DESC');
+    $mealReservationsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, notes, created_at FROM meal_reservations ORDER BY created_at DESC');
     $mealReservations = $mealReservationsStmt->fetchAll();
     $gradesStmt = $db->query('SELECT user_id, grade FROM member_grades');
     $gradesRows = $gradesStmt->fetchAll();
@@ -361,7 +325,7 @@ try {
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
-                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4">Membre ID</th><th class="py-2 pr-4">Profil</th><th class="py-2 pr-4">Type</th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4">Téléphone</th><th class="py-2 pr-4">Adultes</th><th class="py-2 pr-4">Enfants</th><th class="py-2">Total</th>
+                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4">Membre ID</th><th class="py-2 pr-4">Profil</th><th class="py-2 pr-4">Type</th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4">Téléphone</th><th class="py-2 pr-4">Adultes</th><th class="py-2 pr-4">Enfants</th><th class="py-2 pr-4">Total</th><th class="py-2">Note</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -375,11 +339,12 @@ try {
                         <td class="py-2 pr-4"><?= e((string)($r['contact_phone'] ?? '')) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['adult_qty']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['child_qty']) ?></td>
-                        <td class="py-2"><?= e((string)$r['total_amount']) ?> €</td>
+                        <td class="py-2 pr-4"><?= e((string)$r['total_amount']) ?> €</td>
+                        <td class="py-2"><?= e((string)($r['notes'] ?? '')) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($mealReservations === []): ?>
-                    <tr><td colspan="9" class="py-3 text-slate-400">Aucune réservation enregistrée.</td></tr>
+                    <tr><td colspan="10" class="py-3 text-slate-400">Aucune réservation enregistrée.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
