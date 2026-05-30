@@ -379,15 +379,17 @@ function flash_classes(?array $flash): string {
             </div>
         </section>
 
-        <div class="mt-12 text-sm text-slate-500 border-t border-slate-800 pt-6 flex flex-wrap gap-4 justify-between">
-            <p>© <span id="year"></span> KC Nalinnes. Tous droits réservés.</p>
-            <div class="flex gap-4">
-                <a href="/mentions-legales.php" class="hover:text-orange-400">Mentions légales</a>
-                <a href="/politique-confidentialite.php" class="hover:text-orange-400">Politique de confidentialité</a>
-            </div>
-        </div>
-        
     </main>
+
+    <footer class="border-t border-slate-800">
+        <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-slate-400 flex flex-col md:flex-row gap-3 items-center justify-between">
+            <p>© <span id="year"></span> KC Nalinnes. Tous droits réservés - Développé par <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
+            <nav class="flex gap-4">
+                <a href="/mentions-legales.php" class="hover:text-orange-600">Mentions légales</a>
+                <a href="/politique-confidentialite.php" class="hover:text-orange-600">Politique de confidentialité</a>
+            </nav>
+        </div>
+    </footer>
 
     <script>
         document.addEventListener('DOMContentLoaded', function () {
