@@ -121,6 +121,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ]);
         }
 
+        $reservationDate = date('Y-m-d H:i:s');
+        append_meal_reservation_to_excel([
+            'date' => $reservationDate,
+            'member_user_id' => '0',
+            'profile_name' => $profileName,
+            'profile_type' => 'public',
+            'contact_email' => $contactEmail,
+            'contact_phone' => $contactPhone,
+            'adult_qty' => (string)$adultQty,
+            'child_qty' => (string)$childQty,
+            'total_amount' => (string)$total,
+            'notes' => $notes,
+        ]);
+
         $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
         $subject = 'Nouvelle réservation repas publique';
         $message = "Réservation publique\n"
@@ -131,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             . "Enfants: " . $childQty . "\n"
             . "Total: " . $total . " EUR\n"
             . "Notes: " . ($notes !== '' ? $notes : '-') . "\n"
-            . "Date: " . date('Y-m-d H:i:s') . "\n";
+            . "Date: " . $reservationDate . "\n";
         $headers = "From: no-reply@kc-nalinnes.be\r\nReply-To: " . $contactEmail;
         @mail($to, $subject, $message, $headers);
 
