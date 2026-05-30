@@ -314,11 +314,11 @@
               Passage de grade le <strong class="text-slate-100">26 juin 2026 à 18h</strong>. Le repas de fin de saison est aussi ouvert aux réservations pour les membres et leurs proches.
             </p>
             <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
-              <div class="rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
+              <div class="season-meal-card rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
                 <p class="font-semibold text-slate-100">Repas enfant — 10 €</p>
                 <p class="mt-1 text-slate-300">1 brochette ou 1 saucisse.</p>
               </div>
-              <div class="rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
+              <div class="season-meal-card rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
                 <p class="font-semibold text-slate-100">Repas adulte — 19 €</p>
                 <p class="mt-1 text-slate-300">1 brochette et 1 saucisse.</p>
               </div>

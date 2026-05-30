@@ -698,6 +698,22 @@
       color: #374151 !important;
     }
 
+    html.light #passage-grade-repas .season-meal-card {
+      background: #ffffff !important;
+      border-color: #c2410c !important;
+      box-shadow: 0 8px 20px rgba(154, 52, 18, 0.10) !important;
+    }
+
+    html.light #passage-grade-repas .season-meal-card p:first-child {
+      color: #111827 !important;
+      font-weight: 800 !important;
+    }
+
+    html.light #passage-grade-repas .season-meal-card p:last-child {
+      color: #1f2937 !important;
+      font-weight: 500 !important;
+    }
+
     @media print{
       #leavesContainer{ display:none !important; }
     }
