@@ -29,12 +29,12 @@ function ensure_meal_public_contact_columns(PDO $db): void {
 }
 
 function meal_reservations_excel_path(): string {
-    $configuredPath = getenv('MEAL_RESERVATIONS_XLSX_PATH');
+    $configuredPath = getenv('MEAL_RESERVATIONS_EXCEL_PATH') ?: getenv('MEAL_RESERVATIONS_XLSX_PATH');
     if (is_string($configuredPath) && trim($configuredPath) !== '') {
         return $configuredPath;
     }
 
-    return __DIR__ . '/../storage/reservations-repas.xlsx';
+    return __DIR__ . '/../storage/reservations-repas.xls';
 }
 
 function meal_reservations_excel_headers(): array {
@@ -52,57 +52,25 @@ function meal_reservations_excel_headers(): array {
     ];
 }
 
-function meal_reservation_excel_col_name(int $index): string {
-    $name = '';
-    $index++;
-    while ($index > 0) {
-        $mod = ($index - 1) % 26;
-        $name = chr(65 + $mod) . $name;
-        $index = intdiv($index - 1, 26);
-    }
-
-    return $name;
-}
-
-function meal_reservation_excel_row_xml(int $rowNum, array $values): string {
-    $cells = '';
-    foreach (array_values($values) as $i => $value) {
-        $ref = meal_reservation_excel_col_name($i) . $rowNum;
-        $cells .= '<c r="' . $ref . '" t="inlineStr"><is><t>' . htmlspecialchars((string)$value, ENT_XML1 | ENT_QUOTES, 'UTF-8') . '</t></is></c>';
-    }
-
-    return '<row r="' . $rowNum . '">' . $cells . '</row>';
-}
-
 function read_meal_reservations_excel_rows(string $path): array {
-    if (!is_file($path) || !class_exists('ZipArchive')) {
-        return [];
-    }
-
-    $zip = new ZipArchive();
-    if ($zip->open($path) !== true) {
-        return [];
-    }
-
-    $sheetXml = $zip->getFromName('xl/worksheets/sheet1.xml');
-    $zip->close();
-
-    if (!is_string($sheetXml) || $sheetXml === '') {
+    if (!is_file($path)) {
         return [];
     }
 
     $dom = new DOMDocument();
-    if (@$dom->loadXML($sheetXml) === false) {
+    $html = file_get_contents($path);
+    if (!is_string($html) || @$dom->loadHTML('<?xml encoding="UTF-8">' . $html) === false) {
         return [];
     }
 
     $headers = meal_reservations_excel_headers();
     $rows = [];
-    foreach ($dom->getElementsByTagNameNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'row') as $rowNode) {
+    foreach ($dom->getElementsByTagName('tr') as $rowNode) {
         $values = [];
-        foreach ($rowNode->getElementsByTagNameNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'c') as $cellNode) {
-            $textNodes = $cellNode->getElementsByTagNameNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 't');
-            $values[] = $textNodes->length > 0 ? (string)$textNodes->item(0)->textContent : '';
+        foreach ($rowNode->childNodes as $cellNode) {
+            if ($cellNode instanceof DOMElement && in_array(strtolower($cellNode->tagName), ['th', 'td'], true)) {
+                $values[] = trim((string)$cellNode->textContent);
+            }
         }
 
         if ($values === $headers) {
@@ -118,47 +86,40 @@ function read_meal_reservations_excel_rows(string $path): array {
 }
 
 function write_meal_reservations_excel(string $path, array $rows): void {
-    if (!class_exists('ZipArchive')) {
-        throw new RuntimeException('ZipArchive is required to write XLSX files.');
-    }
-
     $dir = dirname($path);
     if (!is_dir($dir) && !mkdir($dir, 0775, true) && !is_dir($dir)) {
         throw new RuntimeException('Unable to create meal reservations storage directory.');
     }
 
     $headers = meal_reservations_excel_headers();
-    $sheetRows = meal_reservation_excel_row_xml(1, $headers);
+    $tableRows = '<tr>';
+    foreach ($headers as $header) {
+        $tableRows .= '<th>' . htmlspecialchars($header, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</th>';
+    }
+    $tableRows .= '</tr>';
+
     foreach (array_values($rows) as $i => $row) {
-        $sheetRows .= meal_reservation_excel_row_xml($i + 2, array_pad(array_slice(array_values($row), 0, count($headers)), count($headers), ''));
+        $tableRows .= '<tr>';
+        foreach (array_pad(array_slice(array_values($row), 0, count($headers)), count($headers), '') as $value) {
+            $tableRows .= '<td style="mso-number-format:\'@\';">' . htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</td>';
+        }
+        $tableRows .= '</tr>';
     }
 
-    $sheetXml = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
-        . '<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>'
-        . $sheetRows
-        . '</sheetData></worksheet>';
+    $excelHtml = '<!doctype html><html><head><meta charset="UTF-8">'
+        . '<style>table{border-collapse:collapse}th,td{border:1px solid #999;padding:4px}</style>'
+        . '</head><body><table>' . $tableRows . '</table></body></html>';
 
-    $tmp = tempnam($dir, 'reservations_xlsx_');
+    $tmp = tempnam($dir, 'reservations_excel_');
     if ($tmp === false) {
-        throw new RuntimeException('Unable to create temporary XLSX file.');
+        throw new RuntimeException('Unable to create temporary Excel file.');
     }
 
-    $zip = new ZipArchive();
-    if ($zip->open($tmp, ZipArchive::OVERWRITE) !== true) {
-        @unlink($tmp);
-        throw new RuntimeException('Unable to open temporary XLSX archive.');
-    }
-
-    $zip->addFromString('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>');
-    $zip->addFromString('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
-    $zip->addFromString('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Reservations" sheetId="1" r:id="rId1"/></sheets></workbook>');
-    $zip->addFromString('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>');
-    $zip->addFromString('xl/worksheets/sheet1.xml', $sheetXml);
-    $zip->close();
+    file_put_contents($tmp, $excelHtml, LOCK_EX);
 
     if (!rename($tmp, $path)) {
         @unlink($tmp);
-        throw new RuntimeException('Unable to move XLSX file into place.');
+        throw new RuntimeException('Unable to move Excel file into place.');
     }
 }
 
@@ -177,7 +138,7 @@ function append_meal_reservation_to_excel(array $reservation, ?string $path = nu
 
     try {
         if (!flock($lock, LOCK_EX)) {
-            throw new RuntimeException('Unable to lock meal reservations XLSX file.');
+            throw new RuntimeException('Unable to lock meal reservations Excel file.');
         }
 
         $headers = meal_reservations_excel_headers();
