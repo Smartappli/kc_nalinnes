@@ -1,0 +1,108 @@
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "SportsClub",
+      "@id": "https://kc-nalinnes.be/#club",
+      "name": "KC Nalinnes",
+      "alternateName": [
+        "Karate Club Nalinnes",
+        "Karaté Club Nalinnes"
+      ],
+      "url": "https://kc-nalinnes.be/",
+      "mainEntityOfPage": "https://kc-nalinnes.be/",
+      "logo": "https://kc-nalinnes.be/assets/logo-kc-nalinnes1.png",
+      "image": "https://kc-nalinnes.be/assets/og-karate.jpg",
+      "description": "KC Nalinnes est un club de Karaté Shotokan situé à Nalinnes, en Belgique. Le club accueille les enfants dès 5 ans, les adolescents et les adultes.",
+      "sport": "Karaté Shotokan",
+      "email": "info@kc-nalinnes.be",
+      "telephone": [
+        "+32 497 25 12 14",
+        "+32 488 09 50 27"
+      ],
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Rue des Monts 18",
+        "postalCode": "6120",
+        "addressLocality": "Nalinnes",
+        "addressRegion": "Hainaut",
+        "addressCountry": "BE"
+      },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 50.3239,
+        "longitude": 4.4448
+      },
+      "hasMap": "https://maps.google.com/?q=18%20rue%20des%20Monts%2C%206120%20Nalinnes%2C%20Belgique",
+      "areaServed": [
+        "Nalinnes",
+        "Ham-sur-Heure-Nalinnes",
+        "Charleroi",
+        "Hainaut"
+      ],
+      "audience": [
+        {
+          "@type": "Audience",
+          "audienceType": "enfants dès 5 ans"
+        },
+        {
+          "@type": "Audience",
+          "audienceType": "adolescents"
+        },
+        {
+          "@type": "Audience",
+          "audienceType": "adultes"
+        }
+      ],
+      "knowsAbout": [
+        "Karaté Shotokan",
+        "Kata Shotokan",
+        "Kihon",
+        "Kumité",
+        "Dojo Kun",
+        "Passages de ceinture"
+      ],
+      "sameAs": [
+        "https://www.facebook.com/KarateClubNalinnes"
+      ],
+      "openingHoursSpecification": [
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Monday",
+          "opens": "17:00",
+          "closes": "20:30"
+        },
+        {
+          "@type": "OpeningHoursSpecification",
+          "dayOfWeek": "Friday",
+          "opens": "18:00",
+          "closes": "20:30"
+        }
+      ],
+      "contactPoint": [
+        {
+          "@type": "ContactPoint",
+          "contactType": "information",
+          "email": "info@kc-nalinnes.be",
+          "telephone": "+32 497 25 12 14",
+          "availableLanguage": "fr-BE"
+        }
+      ],
+      "potentialAction": {
+        "@type": "ContactAction",
+        "target": "https://kc-nalinnes.be/#contact",
+        "name": "Contacter KC Nalinnes"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://kc-nalinnes.be/#website",
+      "name": "KC Nalinnes",
+      "url": "https://kc-nalinnes.be/",
+      "inLanguage": "fr-BE",
+      "publisher": {
+        "@id": "https://kc-nalinnes.be/#club"
+      }
+    }
+  ]
+}

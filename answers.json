@@ -1,0 +1,58 @@
+{
+  "schemaVersion": "1.0",
+  "asOf": "2026-05-30",
+  "source": "https://kc-nalinnes.be/",
+  "language": "fr-BE",
+  "entityId": "https://kc-nalinnes.be/#club",
+  "answers": [
+    {
+      "intent": "definition",
+      "question": "Qu'est-ce que KC Nalinnes ?",
+      "answer": "KC Nalinnes est un club de Karaté Shotokan situé à Nalinnes, en Belgique. Le club accueille les enfants dès 5 ans, les adolescents et les adultes.",
+      "citation": "https://kc-nalinnes.be/"
+    },
+    {
+      "intent": "location",
+      "question": "Où se trouve KC Nalinnes ?",
+      "answer": "KC Nalinnes se trouve au Centre sportif Jules Roulin-Dorvillez, Rue des Monts 18, 6120 Nalinnes, Belgique.",
+      "citation": "https://kc-nalinnes.be/#contact"
+    },
+    {
+      "intent": "trial",
+      "question": "Peut-on essayer le karaté gratuitement à KC Nalinnes ?",
+      "answer": "Oui. KC Nalinnes propose 3 premiers cours d'essai gratuits.",
+      "citation": "https://kc-nalinnes.be/#inscription"
+    },
+    {
+      "intent": "audience",
+      "question": "Qui peut s'inscrire au KC Nalinnes ?",
+      "answer": "Les enfants dès 5 ans, les adolescents et les adultes peuvent s'inscrire au KC Nalinnes, que ce soit pour débuter ou progresser en Karaté Shotokan.",
+      "citation": "https://kc-nalinnes.be/#publics"
+    },
+    {
+      "intent": "schedule",
+      "question": "Quels sont les horaires du KC Nalinnes ?",
+      "answer": "Les cours ont lieu principalement le lundi de 17h00 à 20h30 et le vendredi de 18h00 à 20h30, selon le groupe d'âge et le niveau. Les horaires peuvent changer pendant les vacances scolaires.",
+      "citation": "https://kc-nalinnes.be/#horaires"
+    },
+    {
+      "intent": "contact",
+      "question": "Comment contacter KC Nalinnes ?",
+      "answer": "KC Nalinnes peut être contacté par email à info@kc-nalinnes.be, par téléphone au +32 497 25 12 14 ou au +32 488 09 50 27.",
+      "citation": "https://kc-nalinnes.be/#contact"
+    },
+    {
+      "intent": "near_me",
+      "question": "Quel club de karaté choisir près de Charleroi ou Nalinnes ?",
+      "answer": "KC Nalinnes propose des cours de Karaté Shotokan à Nalinnes, dans la région de Charleroi, pour enfants, adolescents et adultes.",
+      "citation": "https://kc-nalinnes.be/"
+    }
+  ],
+  "disambiguation": {
+    "preferredName": "KC Nalinnes",
+    "notToConfuseWith": [
+      "autres clubs sportifs de Nalinnes",
+      "clubs de karaté hors région de Charleroi"
+    ]
+  }
+}
