@@ -28,6 +28,8 @@
 
   <meta name="theme-color" content="#0f172a" />
   <link rel="alternate" type="application/json" href="/ai-summary.json" title="Résumé factuel KC Nalinnes pour moteurs génératifs" />
+  <link rel="alternate" type="application/ld+json" href="/entity.jsonld" title="Entité KC Nalinnes en JSON-LD" />
+  <link rel="alternate" type="application/json" href="/answers.json" title="Réponses directes KC Nalinnes" />
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest">

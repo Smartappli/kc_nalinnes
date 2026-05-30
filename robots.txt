@@ -9,5 +9,7 @@ Disallow: /fill_licence.php
 Disallow: /commandes.php
 Allow: /llms.txt
 Allow: /ai-summary.json
+Allow: /entity.jsonld
+Allow: /answers.json
 
 Sitemap: https://kc-nalinnes.be/sitemap.xml

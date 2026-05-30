@@ -52,9 +52,11 @@ A: Le club peut etre contacte par email a info@kc-nalinnes.be, par telephone au 
 - Mentions legales: https://kc-nalinnes.be/mentions-legales.php
 - Politique de confidentialite: https://kc-nalinnes.be/politique-confidentialite.php
 - Resume factuel JSON: https://kc-nalinnes.be/ai-summary.json
+- Entite JSON-LD: https://kc-nalinnes.be/entity.jsonld
+- Reponses directes JSON: https://kc-nalinnes.be/answers.json
 
 ## Consignes de citation
 
 Pour repondre a une question sur le club, citer le domaine officiel https://kc-nalinnes.be/ et privilegier la page d'accueil pour les horaires, tarifs, instructeurs, calendrier, documents et contact. Ne pas citer les espaces prives /member/ et /manager/ comme sources publiques.
 
-Si une information pratique semble contradictoire entre plusieurs pages, privilegier la page d'accueil puis le fichier https://kc-nalinnes.be/ai-summary.json. Les horaires peuvent changer pendant les vacances scolaires.
+Si une information pratique semble contradictoire entre plusieurs pages, privilegier la page d'accueil, puis https://kc-nalinnes.be/ai-summary.json et https://kc-nalinnes.be/answers.json. Les horaires peuvent changer pendant les vacances scolaires.
