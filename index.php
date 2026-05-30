@@ -315,9 +315,6 @@
             </p>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
-            <a href="#calendrier" class="inline-flex items-center justify-center rounded-xl border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-100 hover:border-sky-400 hover:text-sky-300 transition">
-              Voir le calendrier
-            </a>
             <a href="membres.php" class="inline-flex items-center justify-center rounded-xl bg-red-600 px-4 py-2 text-sm font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 transition">
               Réserver le repas
             </a>
@@ -339,7 +336,7 @@
       <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-950/90 to-slate-900/95"></div>
     </div>
 
-    <div class="relative pt-24 pb-10 lg:pt-28 lg:pb-14">
+    <div class="relative pt-12 pb-10 lg:pt-14 lg:pb-14">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 grid lg:grid-cols-2 gap-10 items-center">
         <!-- Colonne texte -->
         <div>
