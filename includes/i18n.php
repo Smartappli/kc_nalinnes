@@ -262,17 +262,38 @@ function kc_should_use_page_translation(): bool {
     ], true);
 }
 
+function kc_auto_translation_map(string $locale): array {
+    $locale = kc_normalize_locale($locale);
+
+    if ($locale === kc_default_locale()) {
+        return [];
+    }
+
+    $path = dirname(__DIR__) . '/translations/' . $locale . '/auto.php';
+
+    if (!is_file($path)) {
+        return [];
+    }
+
+    $translations = require $path;
+    return is_array($translations) ? $translations : [];
+}
+
 function kc_page_translation_script(string $locale): string {
     if (!kc_should_use_page_translation()) {
         return '';
     }
 
     $locale = kc_normalize_locale($locale);
-    $supported = implode(',', kc_supported_locales());
+    $map = kc_auto_translation_map($locale);
 
-    return '<div id="google_translate_element" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden"></div>'
-        . '<style>.goog-te-banner-frame,.goog-te-gadget,.goog-te-balloon-frame{display:none!important}body{top:0!important}.skiptranslate{display:none!important}</style>'
-        . '<script>(function(){var lang=' . json_encode($locale) . ';var supported=' . json_encode($supported) . ';function cookie(name,value,days){var expires="";if(days){var date=new Date();date.setTime(date.getTime()+days*864e5);expires="; expires="+date.toUTCString()}document.cookie=name+"="+value+expires+"; path=/";var host=location.hostname;if(host.indexOf(".")>-1){document.cookie=name+"="+value+expires+"; path=/; domain=."+host.replace(/^www\\./,"")}}if(lang==="fr"){cookie("googtrans","/fr/fr",-1);return}cookie("googtrans","/fr/"+lang,365);window.googleTranslateElementInit=function(){new google.translate.TranslateElement({pageLanguage:"fr",includedLanguages:supported,autoDisplay:false},"google_translate_element")};var s=document.createElement("script");s.src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";s.async=true;document.head.appendChild(s)})();</script>';
+    if ($map === []) {
+        return '';
+    }
+
+    return '<script>(function(){var map='
+        . json_encode($map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+        . ';function skip(n){var e=n.nodeType===1?n:n.parentElement;return !e||e.closest("script,style,noscript,.notranslate,[translate=no]")}function tr(v){var t=(v||"").trim();return t&&map[t]?v.replace(t,map[t]):v}function run(){var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){return skip(n)||!n.nodeValue.trim()?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}});var nodes=[];while(w.nextNode())nodes.push(w.currentNode);nodes.forEach(function(n){n.nodeValue=tr(n.nodeValue)});["alt","title","aria-label","placeholder","value"].forEach(function(a){document.querySelectorAll("["+a+"]").forEach(function(e){if(!skip(e))e.setAttribute(a,tr(e.getAttribute(a)||""))})})}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",run)}else{run()}})();</script>';
 }
 
 function kc_language_switcher(string $class = ''): string {
