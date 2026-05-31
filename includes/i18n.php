@@ -32,7 +32,7 @@ function kc_supported_locales(): array {
 }
 
 function kc_translation_modules(): array {
-    return ['common', 'reservation-repas', 'member-dashboard', 'manager-dashboard', 'contact', 'membres', 'commandes', 'legal', 'pages', 'home'];
+    return ['common', 'reservation-repas', 'member-dashboard', 'manager-dashboard', 'contact', 'membres', 'commandes', 'legal', 'pages', 'home', 'fill-licence'];
 }
 
 function kc_default_locale(): string {
