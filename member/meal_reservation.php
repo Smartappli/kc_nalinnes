@@ -16,28 +16,43 @@ function compute_meal_total(int $adultQty, int $childQty, int $adultPrice = 19, 
 
 function ensure_meal_reservations_table(PDO $db): void {
     $db->exec('CREATE TABLE IF NOT EXISTS meal_reservations (id INT AUTO_INCREMENT PRIMARY KEY, member_user_id INT NOT NULL, profile_type VARCHAR(20) NOT NULL, dependent_id INT NULL, profile_name VARCHAR(255) NOT NULL, adult_qty INT NOT NULL DEFAULT 0, child_qty INT NOT NULL DEFAULT 0, total_amount DECIMAL(10,2) NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
+
+    ensure_meal_reservations_columns($db);
 }
 
-function ensure_meal_public_contact_columns(PDO $db): void {
-    $columns = [
+function meal_reservations_schema_columns(): array {
+    return [
+        'member_user_id' => 'INT NOT NULL DEFAULT 0',
+        'profile_type' => 'VARCHAR(20) NOT NULL DEFAULT \'public\'',
+        'dependent_id' => 'INT NULL',
+        'profile_name' => 'VARCHAR(255) NOT NULL DEFAULT \'\'',
         'contact_email' => 'VARCHAR(255) NULL',
         'contact_phone' => 'VARCHAR(50) NULL',
         'notes' => 'TEXT NULL',
+        'adult_qty' => 'INT NOT NULL DEFAULT 0',
+        'child_qty' => 'INT NOT NULL DEFAULT 0',
+        'total_amount' => 'DECIMAL(10,2) NOT NULL DEFAULT 0',
+        'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     ];
+}
 
-    foreach ($columns as $name => $definition) {
-        try {
-            $db->exec(sprintf('ALTER TABLE meal_reservations ADD COLUMN %s %s', $name, $definition));
-        }
-        catch (Throwable $e) {
-            // Column already exists, or the database user cannot alter the table.
-        }
+function ensure_meal_reservations_columns(PDO $db): void {
+    foreach (meal_reservations_schema_columns() as $name => $definition) {
+        add_meal_reservation_column_if_missing($db, $name, $definition);
+    }
+}
+
+function add_meal_reservation_column_if_missing(PDO $db, string $name, string $definition): void {
+    try {
+        $db->exec(sprintf('ALTER TABLE meal_reservations ADD COLUMN %s %s', $name, $definition));
+    }
+    catch (Throwable $e) {
+        // Column already exists, or the database user cannot alter the table.
     }
 }
 
 function save_public_meal_reservation(PDO $db, array $reservation): int {
     ensure_meal_reservations_table($db);
-    ensure_meal_public_contact_columns($db);
 
     $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, contact_email, contact_phone, notes, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :email, :phone, :notes, :adult, :child, :total)');
     $stmt->execute([
