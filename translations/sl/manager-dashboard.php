@@ -39,7 +39,7 @@ return [
     'manager.meal.total_amount' => 'Skupni znesek',
     'manager.meal.by_members' => 'Rezervacije članov',
     'manager.meal.member_id' => 'ID člana',
-    'manager.meal.profile' => 'Profil',
+    'manager.meal.profile' => 'Uporabniški profil',
     'manager.meal.type' => 'Vrsta',
     'manager.meal.phone' => 'Telefon',
     'manager.meal.adults' => 'Odrasli',

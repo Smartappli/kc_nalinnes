@@ -28,7 +28,7 @@ return [
     'home.documents.body' => 'Documentele utile pentru înregistrare, asigurare și viața de club sunt puse la dispoziție membrilor atunci când este nevoie.',
     'home.news.title' => 'Știri',
     'home.news.body' => 'Urmărește știrile clubului pentru schimbări de antrenament, evenimente, etape, competiții și anunțuri importante.',
-    'home.contact.title' => 'Contact',
+    'home.contact.title' => 'Contactați-ne',
     'home.contact.body' => 'Trimite-ne un mesaj pentru o clasă de probă, o întrebare de înregistrare sau orice informație practică.',
     'home.contact.name' => 'Numele tău',
     'home.contact.email' => 'E-mail',

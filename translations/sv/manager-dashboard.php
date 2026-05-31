@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 return [
-    'manager.meta.title' => 'Dashboard - KC Nalinnes',
+    'manager.meta.title' => 'Kontrollpanel - KC Nalinnes',
     'manager.heading' => 'Instrumentbräda',
     'manager.subtitle' => 'Medlemsområde',
     'manager.logout' => 'Logga ut',
@@ -16,7 +16,7 @@ return [
     'manager.flash.invalid_grade_params' => 'Ogiltiga betygsparametrar.',
     'manager.flash.grade_updated' => 'Betyget uppdaterat.',
     'manager.error.temp_excel' => 'Det gick inte att skapa den tillfälliga Excel-filen.',
-    'manager.status.title' => 'Status',
+    'manager.status.title' => 'Läge',
     'manager.status.connected' => 'Ansluten',
     'manager.account.title' => 'konto',
     'manager.account.username_empty' => '-',
@@ -39,7 +39,7 @@ return [
     'manager.meal.total_amount' => 'Totalt belopp',
     'manager.meal.by_members' => 'Reservationer av medlemmar',
     'manager.meal.member_id' => 'Medlems-ID',
-    'manager.meal.profile' => 'Profil',
+    'manager.meal.profile' => 'Användarprofil',
     'manager.meal.type' => 'Typ',
     'manager.meal.phone' => 'Telefon',
     'manager.meal.adults' => 'Vuxna',

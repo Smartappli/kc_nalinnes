@@ -34,5 +34,5 @@ return [
     'meal.form.children' => 'Børnemåltider',
     'meal.form.notes' => 'Valgfri bemærkning',
     'meal.form.copy' => 'Modtag en kopi via e-mail',
-    'meal.form.submit' => 'Send reservation',
+    'meal.form.submit' => 'Send tilmelding',
 ];

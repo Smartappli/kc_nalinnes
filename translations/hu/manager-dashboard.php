@@ -39,7 +39,7 @@ return [
     'manager.meal.total_amount' => 'Teljes összeg',
     'manager.meal.by_members' => 'A tagok foglalásai',
     'manager.meal.member_id' => 'Tagazonosító',
-    'manager.meal.profile' => 'Profil',
+    'manager.meal.profile' => 'Felhasználói profil',
     'manager.meal.type' => 'Írja be',
     'manager.meal.phone' => 'Telefon',
     'manager.meal.adults' => 'Felnőttek',

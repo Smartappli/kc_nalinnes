@@ -9,7 +9,7 @@ return [
     'common.nav.instructors' => 'Instructori',
     'common.nav.documents' => 'Documente',
     'common.nav.news' => 'Noutăți',
-    'common.nav.contact' => 'Contact',
+    'common.nav.contact' => 'Contactați-ne',
     'common.nav.members' => 'Membri',
     'common.theme.toggle' => 'Comută tema',
     'common.menu.open' => 'Deschide meniul',

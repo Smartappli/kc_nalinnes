@@ -12,7 +12,7 @@ return [
     'contact.mail.subject' => 'Nová správa z webovej stránky KC Nalinnes',
     'contact.mail.intro' => 'Dostali ste novú správu z kontaktného formulára KC Nalinnes.',
     'contact.mail.name' => 'Meno',
-    'contact.mail.email' => 'Email',
+    'contact.mail.email' => 'E-mail',
     'contact.mail.message' => 'Správa',
     'contact.success.title' => 'ďakujem za správu',
     'contact.success.heading' => 'dakujem',

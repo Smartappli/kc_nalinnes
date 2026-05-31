@@ -10,7 +10,7 @@ return [
     'commandes.table.description' => 'Descrição',
     'commandes.table.price' => 'Preço',
     'commandes.table.quantity' => 'Quantidade',
-    'commandes.table.total' => 'Total',
+    'commandes.table.total' => 'Total geral',
     'commandes.menu.adults' => 'Adultos: um bife tártaro americano com batatas fritas',
     'commandes.menu.children' => 'Crianças: uma almôndega com batata frita',
     'commandes.reservation.title' => 'Reserva',

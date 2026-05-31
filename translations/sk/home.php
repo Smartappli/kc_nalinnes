@@ -31,7 +31,7 @@ return [
     'home.contact.title' => 'Kontaktovať',
     'home.contact.body' => 'Pošlite nám správu na skúšobnú hodinu, otázku na registráciu alebo akékoľvek praktické informácie.',
     'home.contact.name' => 'Vaše meno',
-    'home.contact.email' => 'Email',
+    'home.contact.email' => 'E-mail',
     'home.contact.message' => 'Správa',
     'home.contact.submit' => 'Odoslať',
 ];

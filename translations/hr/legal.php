@@ -10,7 +10,7 @@ return [
     'legal.mentions.section.publisher.p1' => 'Ovu web stranicu izdaje KC Nalinnes, Shotokan karate sportski klub koji se nalazi na adresi 18 rue des Monts, 6120 Nalinnes, Belgija.',
     'legal.mentions.section.publisher.p2' => 'KCN: 5230. Kontakt email: info@kc-nalinnes.be. Telefon: Olivier Lowie +32 497 25 12 14 / Frank Duchesne +32 488 09 50 27.',
     'legal.mentions.section.publisher.p3' => 'Voditelj izdanja: Matyas SIMON, predsjednik kluba.',
-    'legal.mentions.section.hosting.title' => '2. Hosting',
+    'legal.mentions.section.hosting.title' => '2. Pružatelj hostinga',
     'legal.mentions.section.hosting.p1' => 'Domaćin web stranice je OVHcloud, 2 rue Kellermann, 59100 Roubaix, Francuska.',
     'legal.mentions.section.hosting.p2' => 'Web stranica: https://www.ovhcloud.com.',
     'legal.mentions.section.ip.title' => '3. Intelektualno vlasništvo',

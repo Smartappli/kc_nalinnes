@@ -18,7 +18,7 @@ return [
     'manager.error.temp_excel' => 'Impossibile creare il file Excel temporaneo.',
     'manager.status.title' => 'Stato',
     'manager.status.connected' => 'Connesso',
-    'manager.account.title' => 'Account',
+    'manager.account.title' => 'Profilo account',
     'manager.account.username_empty' => '-',
     'manager.users.title' => 'Gestione utenti',
     'manager.users.description' => 'Cambia il ruolo admin/membro dalla dashboard admin.',

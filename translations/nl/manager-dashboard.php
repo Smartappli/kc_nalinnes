@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 return [
-    'manager.meta.title' => 'Dashboard - KC Nalinnes',
-    'manager.heading' => 'Dashboard',
+    'manager.meta.title' => 'Ledendashboard - KC Nalinnes',
+    'manager.heading' => 'Ledendashboard',
     'manager.subtitle' => 'Ledenruimte',
     'manager.logout' => 'Afmelden',
     'manager.flash.csrf' => 'Ongeldige aanvraag (CSRF).',
@@ -16,7 +16,7 @@ return [
     'manager.flash.invalid_grade_params' => 'Ongeldige graadparameters.',
     'manager.flash.grade_updated' => 'Graad bijgewerkt.',
     'manager.error.temp_excel' => 'Kan het tijdelijke Excel-bestand niet maken.',
-    'manager.status.title' => 'Status',
+    'manager.status.title' => 'Accountstatus',
     'manager.status.connected' => 'Verbonden',
     'manager.account.title' => 'Rekening',
     'manager.account.username_empty' => '-€”',
@@ -40,7 +40,7 @@ return [
     'manager.meal.by_members' => 'Reservaties per lid',
     'manager.meal.member_id' => 'Lid ID',
     'manager.meal.profile' => 'Profiel',
-    'manager.meal.type' => 'Type',
+    'manager.meal.type' => 'Soort',
     'manager.meal.phone' => 'Telefoon',
     'manager.meal.adults' => 'Volwassenen',
     'manager.meal.children' => 'Kinderen',

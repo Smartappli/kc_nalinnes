@@ -18,7 +18,7 @@ return [
     'meal.mail.phone' => 'Teléfono',
     'meal.mail.adults' => 'Adultos',
     'meal.mail.children' => 'Niños',
-    'meal.mail.total' => 'Total',
+    'meal.mail.total' => 'Importe total',
     'meal.mail.notes' => 'Notas',
     'meal.hero.kicker' => 'Fin de temporada',
     'meal.hero.title' => 'Reserva de comida',

@@ -18,7 +18,7 @@ return [
     'meal.mail.phone' => 'Telefon',
     'meal.mail.adults' => 'Adulți',
     'meal.mail.children' => 'Copii',
-    'meal.mail.total' => 'Total',
+    'meal.mail.total' => 'Total general',
     'meal.mail.notes' => 'Note',
     'meal.hero.kicker' => 'Sfârșit de sezon',
     'meal.hero.title' => 'Rezervare masă',

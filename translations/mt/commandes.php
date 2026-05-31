@@ -10,7 +10,7 @@ return [
     'commandes.table.description' => 'Deskrizzjoni',
     'commandes.table.price' => 'Prezz',
     'commandes.table.quantity' => 'Kwantità',
-    'commandes.table.total' => 'Total',
+    'commandes.table.total' => 'Total ġenerali',
     'commandes.menu.adults' => 'Adulti: steak tartare Amerikan bil-fries',
     'commandes.menu.children' => 'Tfal: pulpetta bil-fries',
     'commandes.reservation.title' => 'Riżerva',

@@ -59,7 +59,7 @@ return [
     'page.stretching.kicker' => 'Preparazzjoni',
     'page.stretching.heading' => 'Tiġbid',
     'page.stretching.intro' => 'It-tiġbid jappoġġja l-prattika tal-karate meta jsir progressivament u b\'kontroll. Ittejjeb il-mobilità, il-kumdità u l-irkupru.',
-    'page.stretching.warmup.title' => 'Warm-up',
+    'page.stretching.warmup.title' => 'Tisħin',
     'page.stretching.warmup.body' => 'Qabel sforz intens, uża movimenti dinamiċi biex tgħolli t-temperatura tal-ġisem u tħejji l-ġogi.',
     'page.stretching.mobility.title' => 'Mobilità',
     'page.stretching.mobility.body' => 'Il-mobilità tal-ġenbejn, l-għaksa, l-ispallejn u s-sinsla tas-sinsla tgħin biex ittejjeb il-pożizzjonijiet, is-sieq u t-tranżizzjonijiet.',

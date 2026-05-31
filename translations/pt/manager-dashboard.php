@@ -44,7 +44,7 @@ return [
     'manager.meal.phone' => 'Telefone',
     'manager.meal.adults' => 'Adultos',
     'manager.meal.children' => 'Criancas',
-    'manager.meal.total' => 'Total',
+    'manager.meal.total' => 'Total geral',
     'manager.meal.note' => 'Nota',
     'manager.meal.none' => 'Nenhuma reserva registada.',
     'manager.calendar.title' => 'Gestao do calendario (admin)',

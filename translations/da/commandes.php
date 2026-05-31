@@ -13,7 +13,7 @@ return [
     'commandes.table.total' => 'I alt',
     'commandes.menu.adults' => 'Voksne: en amerikansk steak tartar med pommes frites',
     'commandes.menu.children' => 'Børn: en frikadelle med pommes frites',
-    'commandes.reservation.title' => 'Reservation',
+    'commandes.reservation.title' => 'Bestilling',
     'commandes.form.last_name' => 'Efternavn',
     'commandes.form.last_name_placeholder' => 'Karateka efternavn',
     'commandes.form.first_name' => 'Fornavn',

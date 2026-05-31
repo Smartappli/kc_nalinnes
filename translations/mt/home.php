@@ -31,7 +31,7 @@ return [
     'home.contact.title' => 'Kuntatt',
     'home.contact.body' => 'Ibgħatilna messaġġ għal klassi ta\' prova, mistoqsija ta\' reġistrazzjoni jew kwalunkwe informazzjoni prattika.',
     'home.contact.name' => 'Ismek',
-    'home.contact.email' => 'Email',
+    'home.contact.email' => 'Email elettroniku',
     'home.contact.message' => 'Messaġġ',
     'home.contact.submit' => 'Ibgħat',
 ];

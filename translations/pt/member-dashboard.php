@@ -39,7 +39,7 @@ return [
     'member.meal.mine' => 'As minhas reservas',
     'member.meal.list_adults' => 'Adultos',
     'member.meal.list_children' => 'Crianças',
-    'member.meal.list_total' => 'Total',
+    'member.meal.list_total' => 'Total geral',
     'member.meal.none_yet' => 'Ainda não há reservas.',
     'member.meal.mail_subject' => 'Nova reserva de refeição de fim de ano',
     'member.meal.mail_copy_subject' => 'Cópia da sua reserva de refeição',

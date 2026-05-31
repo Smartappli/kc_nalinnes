@@ -20,7 +20,7 @@ return [
     'page.karate_shotokan.kicker' => 'Karate Shotokan',
     'page.karate_shotokan.heading' => 'Karate Shotokan',
     'page.karate_shotokan.intro' => 'Il karate Shotokan è un\'arte marziale giapponese basata su tecniche precise, posizioni stabili, respirazione, disciplina e rispetto per il partner.',
-    'page.karate_shotokan.origin.title' => 'Origine',
+    'page.karate_shotokan.origin.title' => 'Origine storica',
     'page.karate_shotokan.origin.body' => 'Lo Shotokan si è sviluppato dall\'insegnamento di Gichin Funakoshi. Combina forme tradizionali, tecniche di base e sparring controllato.',
     'page.karate_shotokan.training.title' => 'Formazione',
     'page.karate_shotokan.training.body' => 'L\'allenamento alterna kihon, kata e kumite. Questo equilibrio sviluppa coordinazione, potenza, mobilità e concentrazione.',
