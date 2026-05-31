@@ -6,11 +6,14 @@ ini_set('display_startup_errors', '1'); // à enlever en prod
 error_reporting(E_ALL);
 
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../includes/i18n.php';
 require __DIR__ . '/admin_access.php';
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../member/meal_reservation.php';
 
 session_start();
+
+$locale = kc_current_locale();
 
 function e(string $s): string {
     return htmlspecialchars($s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -27,6 +30,18 @@ function flash_classes(?array $flash): string {
         case 'error':   return 'border-red-500/40 bg-red-500/10 text-red-200';
         default:        return 'border-sky-500/40 bg-sky-500/10 text-sky-200';
     }
+}
+
+function manager_dashboard_url(): string {
+    return '/manager/dashboard.php?lang=' . rawurlencode(kc_current_locale());
+}
+
+function manager_login_url(): string {
+    return '/membres.php?lang=' . rawurlencode(kc_current_locale());
+}
+
+function manager_member_dashboard_url(): string {
+    return '/member/dashboard.php?lang=' . rawurlencode(kc_current_locale());
 }
 
 // CSRF
@@ -53,8 +68,8 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'logout') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
-            flash('Requête invalide (CSRF).', 'error');
-            header('Location: /manager/dashboard.php', true, 303);
+            flash(kc_t('manager.flash.csrf'), 'error');
+            header('Location: ' . manager_dashboard_url(), true, 303);
             exit;
         }
 
@@ -62,14 +77,14 @@ try {
             $auth->logOut();
         }
 
-        flash('Vous êtes déconnecté.', 'success');
-        header('Location: /membres.php', true, 303);
+        flash(kc_t('manager.flash.logged_out'), 'success');
+        header('Location: ' . manager_login_url(), true, 303);
         exit;
     }
 
     if (!$auth->isLoggedIn() && !$loginBypassEnabled) {
-        flash('Veuillez vous connecter pour accéder au dashboard.', 'error');
-        header('Location: /membres.php', true, 303);
+        flash(kc_t('manager.flash.login_required'), 'error');
+        header('Location: ' . manager_login_url(), true, 303);
         exit;
     }
 
@@ -89,8 +104,8 @@ try {
     }
 
     if (!$isAdmin) {
-        flash('Compte membre connecté : redirection vers votre dashboard.', 'info');
-        header('Location: /member/dashboard.php', true, 303);
+        flash(kc_t('manager.flash.member_redirect'), 'info');
+        header('Location: ' . manager_member_dashboard_url(), true, 303);
         exit;
     }
 
@@ -98,8 +113,8 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'user_update') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
-            flash('Requête invalide (CSRF).', 'error');
-            header('Location: /manager/dashboard.php', true, 303);
+            flash(kc_t('manager.flash.csrf'), 'error');
+            header('Location: ' . manager_dashboard_url(), true, 303);
             exit;
         }
 
@@ -107,8 +122,8 @@ try {
         $targetRole = (string)($_POST['target_role'] ?? 'member');
 
         if ($targetId <= 0 || !in_array($targetRole, ['admin', 'member'], true)) {
-            flash('Paramètres utilisateur invalides.', 'error');
-            header('Location: /manager/dashboard.php', true, 303);
+            flash(kc_t('manager.flash.invalid_user_params'), 'error');
+            header('Location: ' . manager_dashboard_url(), true, 303);
             exit;
         }
 
@@ -117,15 +132,15 @@ try {
         $targetEmail = (string)($stmt->fetchColumn() ?: '');
 
         if ($targetEmail === '') {
-            flash('Utilisateur introuvable.', 'error');
-            header('Location: /manager/dashboard.php', true, 303);
+            flash(kc_t('manager.flash.user_not_found'), 'error');
+            header('Location: ' . manager_dashboard_url(), true, 303);
             exit;
         }
 
         set_admin_role($db, $targetEmail, $targetRole === 'admin');
 
-        flash('Rôle utilisateur mis à jour.', 'success');
-        header('Location: /manager/dashboard.php', true, 303);
+        flash(kc_t('manager.flash.user_role_updated'), 'success');
+        header('Location: ' . manager_dashboard_url(), true, 303);
         exit;
     }
 
@@ -133,8 +148,8 @@ try {
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'grade_update') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
-            flash('Requête invalide (CSRF).', 'error');
-            header('Location: /manager/dashboard.php', true, 303);
+            flash(kc_t('manager.flash.csrf'), 'error');
+            header('Location: ' . manager_dashboard_url(), true, 303);
             exit;
         }
 
@@ -142,29 +157,29 @@ try {
         $grade = trim((string)($_POST['target_grade'] ?? ''));
 
         if ($targetId <= 0 || $grade === '') {
-            flash('Paramètres grade invalides.', 'error');
-            header('Location: /manager/dashboard.php', true, 303);
+            flash(kc_t('manager.flash.invalid_grade_params'), 'error');
+            header('Location: ' . manager_dashboard_url(), true, 303);
             exit;
         }
 
         $stmt = $db->prepare('INSERT INTO member_grades (user_id, grade) VALUES (:user_id, :grade) ON DUPLICATE KEY UPDATE grade = VALUES(grade)');
         $stmt->execute([':user_id' => $targetId, ':grade' => $grade]);
 
-        flash('Grade mis à jour.', 'success');
-        header('Location: /manager/dashboard.php', true, 303);
+        flash(kc_t('manager.flash.grade_updated'), 'success');
+        header('Location: ' . manager_dashboard_url(), true, 303);
         exit;
     }
 
 
     if (isset($_GET['download']) && $_GET['download'] === 'meal_reservations_xlsx') {
         if (!$auth->isLoggedIn()) {
-            header('Location: /membres.php', true, 303);
+            header('Location: ' . manager_login_url(), true, 303);
             exit;
         }
 
         $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
         if (!is_admin_email((string)($auth->getEmail() ?? ''), $adminEmails)) {
-            header('Location: /member/dashboard.php', true, 303);
+            header('Location: ' . manager_member_dashboard_url(), true, 303);
             exit;
         }
 
@@ -179,7 +194,7 @@ try {
         $useXlsx = class_exists('ZipArchive');
         $tmpBase = tempnam(sys_get_temp_dir(), 'reservations_excel_');
         if ($tmpBase === false) {
-            throw new RuntimeException('Impossible de créer le fichier Excel temporaire.');
+            throw new RuntimeException(kc_t('manager.error.temp_excel'));
         }
         $tmp = $tmpBase . ($useXlsx ? '.xlsx' : '.xls');
         rename($tmpBase, $tmp);
@@ -216,11 +231,11 @@ try {
 }
 ?>
 <!doctype html>
-<html lang="fr">
+<html lang="<?= e($locale) ?>">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dashboard — KC Nalinnes</title>
+    <title><?= e(kc_t('manager.meta.title')) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
@@ -234,17 +249,20 @@ try {
 
     <div class="flex items-center justify-between gap-4">
         <div>
-            <h1 class="text-3xl font-extrabold tracking-tight">Dashboard</h1>
-            <p class="mt-1 text-slate-400">Espace membre</p>
+            <h1 class="text-3xl font-extrabold tracking-tight"><?= e(kc_t('manager.heading')) ?></h1>
+            <p class="mt-1 text-slate-400"><?= e(kc_t('manager.subtitle')) ?></p>
         </div>
 
-        <form method="post" action="/manager/dashboard.php">
+        <div class="flex items-center gap-3">
+        <?= kc_language_switcher('flex items-center gap-2') ?>
+        <form method="post" action="<?= e(manager_dashboard_url()) ?>">
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
             <input type="hidden" name="action" value="logout">
             <button class="rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 transition">
-                Se déconnecter
+                <?= e(kc_t('manager.logout')) ?>
             </button>
         </form>
+        </div>
     </div>
 
     <?php if (is_array($flashMsg) && !empty($flashMsg['message'])): ?>
@@ -255,28 +273,28 @@ try {
 
     <section class="mt-8 grid gap-6 md:grid-cols-2">
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-            <h2 class="text-xl font-bold">Statut</h2>
-            <p class="mt-2 text-slate-300">✅ Connecté</p>
+            <h2 class="text-xl font-bold"><?= e(kc_t('manager.status.title')) ?></h2>
+            <p class="mt-2 text-slate-300"><?= e(kc_t('manager.status.connected')) ?></p>
         </div>
 
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-            <h2 class="text-xl font-bold">Compte</h2>
+            <h2 class="text-xl font-bold"><?= e(kc_t('manager.account.title')) ?></h2>
             <dl class="mt-4 space-y-2 text-sm">
                 <div class="flex justify-between gap-3"><dt class="text-slate-400">User ID</dt><dd class="font-semibold"><?= e($userId) ?></dd></div>
                 <div class="flex justify-between gap-3"><dt class="text-slate-400">Email</dt><dd class="font-semibold"><?= e($email) ?></dd></div>
-                <div class="flex justify-between gap-3"><dt class="text-slate-400">Username</dt><dd class="font-semibold"><?= e($user !== '' ? $user : '—') ?></dd></div>
+                <div class="flex justify-between gap-3"><dt class="text-slate-400">Username</dt><dd class="font-semibold"><?= e($user !== '' ? $user : kc_t('manager.account.username_empty')) ?></dd></div>
             </dl>
         </div>
     </section>
 
     <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h2 class="text-xl font-bold">Gestion des utilisateurs</h2>
-        <p class="mt-2 text-sm text-slate-400">Changer le rôle admin/membre depuis le dashboard admin.</p>
+        <h2 class="text-xl font-bold"><?= e(kc_t('manager.users.title')) ?></h2>
+        <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('manager.users.description')) ?></p>
         <div class="mt-4 overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
-                    <th class="py-2 pr-4">ID</th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4">Username</th><th class="py-2 pr-4">Grade</th><th class="py-2 pr-4">Rôle</th><th class="py-2">Actions</th>
+                    <th class="py-2 pr-4"><?= e(kc_t('manager.users.id')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.email')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.username')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.grade')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.role')) ?></th><th class="py-2"><?= e(kc_t('manager.users.actions')) ?></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -287,25 +305,25 @@ try {
                         <td class="py-2 pr-4"><?= e((string)$row['email']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)($row['username'] ?? '—')) ?></td>
                         <td class="py-2 pr-4">
-                            <form method="post" action="/manager/dashboard.php" class="flex items-center gap-2">
+                            <form method="post" action="<?= e(manager_dashboard_url()) ?>" class="flex items-center gap-2">
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="grade_update">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$row['id']) ?>">
-                                <input name="target_grade" value="<?= e($gradesByUserId[(int)$row['id']] ?? '—') ?>" class="w-28 rounded-lg bg-slate-800 border border-slate-700 px-2 py-1">
-                                <button class="rounded-lg bg-emerald-600 px-2 py-1 text-white text-xs font-semibold hover:bg-emerald-500">Maj</button>
+                                <input name="target_grade" value="<?= e($gradesByUserId[(int)$row['id']] ?? kc_t('manager.account.username_empty')) ?>" class="w-28 rounded-lg bg-slate-800 border border-slate-700 px-2 py-1">
+                                <button class="rounded-lg bg-emerald-600 px-2 py-1 text-white text-xs font-semibold hover:bg-emerald-500"><?= e(kc_t('manager.users.update')) ?></button>
                             </form>
                         </td>
-                        <td class="py-2 pr-4"><?= $rowIsAdmin ? 'Admin' : 'Membre' ?></td>
+                        <td class="py-2 pr-4"><?= e($rowIsAdmin ? kc_t('manager.users.admin') : kc_t('manager.users.member')) ?></td>
                         <td class="py-2">
-                            <form method="post" action="/manager/dashboard.php" class="flex items-center gap-2">
+                            <form method="post" action="<?= e(manager_dashboard_url()) ?>" class="flex items-center gap-2">
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="user_update">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$row['id']) ?>">
                                 <select name="target_role" class="rounded-lg bg-slate-800 border border-slate-700 px-2 py-1">
-                                    <option value="member" <?= !$rowIsAdmin ? 'selected' : '' ?>>Membre</option>
-                                    <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>>Admin</option>
+                                    <option value="member" <?= !$rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.member')) ?></option>
+                                    <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.admin')) ?></option>
                                 </select>
-                                <button class="rounded-lg bg-sky-600 px-3 py-1.5 text-white text-xs font-semibold hover:bg-sky-500">Enregistrer</button>
+                                <button class="rounded-lg bg-sky-600 px-3 py-1.5 text-white text-xs font-semibold hover:bg-sky-500"><?= e(kc_t('manager.users.save')) ?></button>
                             </form>
                         </td>
                     </tr>
@@ -317,19 +335,19 @@ try {
 
 
     <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold">Synthèse réservations repas</h2><a href="/manager/dashboard.php?download=meal_reservations_xlsx" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500">Exporter XLSX</a></div>
+        <div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold"><?= e(kc_t('manager.meal.title')) ?></h2><a href="<?= e(manager_dashboard_url()) ?>&download=meal_reservations_xlsx" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.meal.export')) ?></a></div>
         <div class="mt-4 grid gap-3 md:grid-cols-3">
-            <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Repas adultes</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_adult']) ?></p></div>
-            <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Repas enfants</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_child']) ?></p></div>
-            <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm">Montant total</p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_amount']) ?> €</p></div>
+            <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm"><?= e(kc_t('manager.meal.adult_count')) ?></p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_adult']) ?></p></div>
+            <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm"><?= e(kc_t('manager.meal.child_count')) ?></p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_child']) ?></p></div>
+            <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm"><?= e(kc_t('manager.meal.total_amount')) ?></p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_amount']) ?> EUR</p></div>
         </div>
 
-        <h3 class="mt-6 text-lg font-semibold">Réservations par membres</h3>
+        <h3 class="mt-6 text-lg font-semibold"><?= e(kc_t('manager.meal.by_members')) ?></h3>
         <div class="mt-3 overflow-x-auto">
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
-                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4">Membre ID</th><th class="py-2 pr-4">Profil</th><th class="py-2 pr-4">Type</th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4">Téléphone</th><th class="py-2 pr-4">Adultes</th><th class="py-2 pr-4">Enfants</th><th class="py-2 pr-4">Total</th><th class="py-2">Note</th>
+                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.member_id')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.profile')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.type')) ?></th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.phone')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.adults')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.children')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.total')) ?></th><th class="py-2"><?= e(kc_t('manager.meal.note')) ?></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -343,12 +361,12 @@ try {
                         <td class="py-2 pr-4"><?= e((string)($r['contact_phone'] ?? '')) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['adult_qty']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['child_qty']) ?></td>
-                        <td class="py-2 pr-4"><?= e((string)$r['total_amount']) ?> €</td>
+                        <td class="py-2 pr-4"><?= e((string)$r['total_amount']) ?> EUR</td>
                         <td class="py-2"><?= e((string)($r['notes'] ?? '')) ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($mealReservations === []): ?>
-                    <tr><td colspan="10" class="py-3 text-slate-400">Aucune réservation enregistrée.</td></tr>
+                    <tr><td colspan="10" class="py-3 text-slate-400"><?= e(kc_t('manager.meal.none')) ?></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

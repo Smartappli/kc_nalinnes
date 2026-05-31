@@ -6,7 +6,7 @@ function kc_supported_locales(): array {
 }
 
 function kc_translation_modules(): array {
-    return ['common', 'reservation-repas', 'member-dashboard'];
+    return ['common', 'reservation-repas', 'member-dashboard', 'manager-dashboard'];
 }
 
 function kc_normalize_locale(?string $locale): string {
