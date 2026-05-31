@@ -94,7 +94,7 @@ final class I18nTest extends TestCase {
 
         $html = kc_language_switcher('test-switcher');
 
-        $this->assertStringContainsString('<details class="relative test-switcher"', $html);
+        $this->assertStringContainsString('<details class="notranslate relative test-switcher"', $html);
         $this->assertStringContainsString('href="/reservation-repas.php?foo=bar&amp;lang=fr"', $html);
         $this->assertStringContainsString('href="/reservation-repas.php?foo=bar&amp;lang=nl"', $html);
         $this->assertStringContainsString('lang="fr"', $html);
