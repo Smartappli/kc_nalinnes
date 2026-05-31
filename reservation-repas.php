@@ -248,7 +248,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
           🌗 <span id="themeLabelMobile">Dark</span>
         </button>
-        <?= kc_language_switcher('flex items-center gap-2 pt-2') ?>
       </div>
     </nav>
   </header>
