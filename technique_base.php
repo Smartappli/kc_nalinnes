@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Techniques de base Shotokan — KC Nalinnes</title>
+  <title><?= e(kc_t('page.technique_base.meta.title')) ?></title>
 
-  <meta name="description" content="Techniques de base du karaté Shotokan avec le KC Nalinnes : postures (dachi), déplacements, blocages (uke) et coups de poing (tsuki) pour s'entraîner à la maison." />
+  <meta name="description" content="<?= e(kc_t('page.technique_base.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://kc-nalinnes.be/technique_base.php" />
 
@@ -299,7 +299,7 @@ function e(string $text): string {
       </button>
     </div>
 
-    <h1 class="text-3xl md:text-4xl font-extrabold mb-4">Techniques de base Shotokan</h1>
+    <h1 class="text-3xl md:text-4xl font-extrabold mb-4"><?= e(kc_t('page.technique_base.heading')) ?></h1>
 
     <p class="text-sm text-slate-400 mb-6">
       Une sélection courte de vidéos pour réviser les <strong>bases</strong> du Shotokan : <strong>postures</strong>, <strong>déplacements</strong>, <strong>blocages</strong> et <strong>coups de poing</strong>. Utilise-les comme support : rien ne remplace les corrections du dojo.

@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Karaté Shotokan à Nalinnes — KC Nalinnes</title>
+  <title><?= e(kc_t('page.karate_shotokan.meta.title')) ?></title>
 
-  <meta name="description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
+  <meta name="description" content="<?= e(kc_t('page.karate_shotokan.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://kc-nalinnes.be/karate-shotokan.php" />
 
@@ -422,7 +422,7 @@ function e(string $text): string {
     </div>
 
     <h1 class="text-3xl md:text-4xl font-extrabold mb-4">
-      Le karaté Shotokan
+      <?= e(kc_t('page.karate_shotokan.heading')) ?>
     </h1>
 
     <p class="text-sm text-slate-400 mb-8">

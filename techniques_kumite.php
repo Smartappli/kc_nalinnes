@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Techniques de kumité Shotokan — KC Nalinnes</title>
+  <title><?= e(kc_t('page.techniques_kumite.meta.title')) ?></title>
 
-  <meta name="description" content="Techniques de kumité du karaté Shotokan avec le KC Nalinnes : conseils de garde, distance, déplacements, timing, attaques et contres pour s'entraîner à la maison." />
+  <meta name="description" content="<?= e(kc_t('page.techniques_kumite.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <!-- Aligné avec og:url + lien du menu -->
   <link rel="canonical" href="https://kc-nalinnes.be/techniques_kumite.php" />
@@ -413,7 +413,7 @@ function e(string $text): string {
     </div>
 
     <h1 class="text-3xl md:text-4xl font-extrabold mb-4">
-      Techniques de kumité Shotokan
+      <?= e(kc_t('page.techniques_kumite.heading')) ?>
     </h1>
 
     <p class="text-sm text-slate-400 mb-6">

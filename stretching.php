@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Stretching — KC Nalinnes</title>
+  <title><?= e(kc_t('page.stretching.meta.title')) ?></title>
 
-  <meta name="description" content="Routine de stretching (étirements) pour le karaté : mobilité, hanches, ischios, adducteurs et dos, pour s'entraîner à la maison avec le KC Nalinnes." />
+  <meta name="description" content="<?= e(kc_t('page.stretching.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <!-- Aligné avec og:url + lien du menu -->
   <link rel="canonical" href="https://kc-nalinnes.be/stretching.php" />
@@ -408,7 +408,7 @@ function e(string $text): string {
   </button>
 </div>
 
-<h1 class="text-3xl md:text-4xl font-extrabold mb-4">Stretching (étirements)</h1>
+<h1 class="text-3xl md:text-4xl font-extrabold mb-4"><?= e(kc_t('page.stretching.heading')) ?></h1>
 
     <p class="text-sm text-slate-400 mb-6">
   Une routine simple d’<strong>étirements</strong> et de <strong>mobilité</strong> pour accompagner ta pratique du karaté.

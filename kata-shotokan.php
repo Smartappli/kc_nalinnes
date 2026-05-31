@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Les kata en karaté Shotokan — KC Nalinnes</title>
+  <title><?= e(kc_t('page.kata_shotokan.meta.title')) ?></title>
 
-  <meta name="description" content="Comprendre ce qu’est un kata en karaté Shotokan, découvrir les principaux kata par niveau et apprendre à les réviser. Ressource pédagogique pour les élèves du KC Nalinnes." />
+  <meta name="description" content="<?= e(kc_t('page.kata_shotokan.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://kc-nalinnes.be/kata-shotokan.php" />
 
@@ -388,7 +388,7 @@ function e(string $text): string {
     </div>
 
     <h1 class="text-3xl md:text-4xl font-extrabold mb-4">
-      Les kata en karaté Shotokan
+      <?= e(kc_t('page.kata_shotokan.heading')) ?>
     </h1>
 
     <p class="text-sm text-slate-400 mb-8">

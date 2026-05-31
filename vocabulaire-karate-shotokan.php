@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Compter en japonais & vocabulaire du karaté Shotokan — KC Nalinnes</title>
+  <title><?= e(kc_t('page.vocabulaire.meta.title')) ?></title>
 
-  <meta name="description" content="Apprendre à compter en japonais et découvrir le vocabulaire de base du karaté Shotokan : chiffres, commandes du dojo, positions et techniques. Ressource pédagogique pour les élèves du KC Nalinnes." />
+  <meta name="description" content="<?= e(kc_t('page.vocabulaire.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://kc-nalinnes.be/vocabulaire-karate-shotokan.php" />
 
@@ -389,7 +389,7 @@ function e(string $text): string {
     </div>
 
     <h1 class="text-3xl md:text-4xl font-extrabold mb-4">
-      Compter en japonais & vocabulaire du karaté Shotokan
+      <?= e(kc_t('page.vocabulaire.heading')) ?>
     </h1>
 
     <p class="text-sm text-slate-400 mb-8">

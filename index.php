@@ -16,15 +16,15 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Karaté Shotokan à Nalinnes — KC Nalinnes</title>
+  <title><?= e(kc_t('home.meta.title')) ?></title>
 
-  <meta name="description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 3 premiers cours d’essai gratuits." />
+  <meta name="description" content="<?= e(kc_t('home.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://kc-nalinnes.be/" />
 
   <!-- Open Graph -->
-  <meta property="og:title" content="Karaté Shotokan à Nalinnes — KC Nalinnes" />
-  <meta property="og:description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 3 premiers cours d’essai gratuits." />
+  <meta property="og:title" content="<?= e(kc_t('home.meta.title')) ?>" />
+  <meta property="og:description" content="<?= e(kc_t('home.meta.description')) ?>" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://kc-nalinnes.be/" />
   <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
@@ -33,8 +33,8 @@ function e(string $text): string {
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="Karaté Shotokan à Nalinnes — KC Nalinnes" />
-  <meta name="twitter:description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 3 premiers cours d’essai gratuits." />
+  <meta name="twitter:title" content="<?= e(kc_t('home.meta.title')) ?>" />
+  <meta name="twitter:description" content="<?= e(kc_t('home.meta.description')) ?>" />
   <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
   <meta name="theme-color" content="#0f172a" />
@@ -260,27 +260,27 @@ function e(string $text): string {
               class="h-full w-full object-contain"
             />
           </div>
-          <span class="font-semibold">KC Nalinnes</span>
+          <span class="font-semibold"><?= e(kc_t('common.brand')) ?></span>
         </a>
 
         <nav class="hidden md:flex items-center gap-6 text-sm">
-          <a href="#horaires" class="hover:text-sky-400 transition-colors">Horaires</a>
-          <a href="#tarifs" class="hover:text-sky-400 transition-colors">Tarifs</a>
-          <a href="#calendrier" class="hover:text-sky-400 transition-colors">Calendrier</a>
-          <a href="#coach" class="hover:text-sky-400 transition-colors">Instructeurs</a>
-          <a href="#documents" class="hover:text-sky-400 transition-colors">Documents</a>
-          <a href="#actus" class="hover:text-sky-400 transition-colors">Actus</a>
-          <a href="#contact" class="hover:text-sky-400 transition-colors">Contact</a>
+          <a href="#horaires" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.schedule')) ?></a>
+          <a href="#tarifs" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.prices')) ?></a>
+          <a href="#calendrier" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.calendar')) ?></a>
+          <a href="#coach" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.instructors')) ?></a>
+          <a href="#documents" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.documents')) ?></a>
+          <a href="#actus" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.news')) ?></a>
+          <a href="#contact" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.contact')) ?></a>
           <a href="membres.php"
             class="ml-2 rounded-full bg-red-600 px-4 py-2 font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 hover:translate-y-[1px] transition">
-            Membres
+            <?= e(kc_t('common.nav.members')) ?>
           </a>
 
           <?= kc_language_switcher('ml-2 inline-flex') ?>
 
           <!-- Bouton Light/Dark -->
           <button id="themeToggle" class="ml-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
-                  aria-pressed="false" aria-label="Basculer le thème">
+                  aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
             <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.8 1.8-1.79zm10.48 0l1.8-1.79 1.79 1.78-1.79 1.8-1.8-1.79zM12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 12H1v0h3v0zm19 0h-3v0h3v0zM6.76 19.16l-1.8 1.79-1.79-1.78 1.79-1.8 1.8 1.79zM17.24 19.16l1.8 1.79 1.79-1.78-1.79-1.8-1.8 1.79zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
             <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
             <span id="themeLabel">Dark</span>
@@ -291,25 +291,25 @@ function e(string $text): string {
           class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md
                 bg-slate-800 text-slate-100 border border-transparent
                 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
-          aria-label="Ouvrir le menu" type="button">☰</button>
+          aria-label="<?= e(kc_t('common.menu.open')) ?>" type="button">☰</button>
       </div>
     </div>
 
     <nav id="mobileNav" class="md:hidden hidden border-t border-slate-800">
       <div class="mx-auto max-w-7xl px-4 py-3 space-y-2">
-        <a href="#horaires" class="block">Horaires</a>
-        <a href="#tarifs" class="block">Tarifs</a>
-        <a href="#calendrier" class="block">Calendrier</a>
-        <a href="#coach" class="block">Instructeurs</a>
-        <a href="#documents" class="block">Documents</a>
-        <a href="#actus" class="block">Actus</a>
-        <a href="#contact" class="block">Contact</a>
-        <a href="membres.php" class="block font-semibold text-red-400">Membres</a>
+        <a href="#horaires" class="block"><?= e(kc_t('common.nav.schedule')) ?></a>
+        <a href="#tarifs" class="block"><?= e(kc_t('common.nav.prices')) ?></a>
+        <a href="#calendrier" class="block"><?= e(kc_t('common.nav.calendar')) ?></a>
+        <a href="#coach" class="block"><?= e(kc_t('common.nav.instructors')) ?></a>
+        <a href="#documents" class="block"><?= e(kc_t('common.nav.documents')) ?></a>
+        <a href="#actus" class="block"><?= e(kc_t('common.nav.news')) ?></a>
+        <a href="#contact" class="block"><?= e(kc_t('common.nav.contact')) ?></a>
+        <a href="membres.php" class="block font-semibold text-red-400"><?= e(kc_t('common.nav.members')) ?></a>
         <?= kc_language_switcher('mt-2 block') ?>
 
         <!-- Bouton Light/Dark mobile -->
         <button id="themeToggleMobile" class="mt-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
-                aria-pressed="false" aria-label="Basculer le thème">
+                aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
           🌗 <span id="themeLabelMobile">Dark</span>
         </button>
       </div>
@@ -322,8 +322,8 @@ function e(string $text): string {
       <div class="rounded-2xl border border-red-500/40 bg-slate-950/70 p-5 shadow-lg shadow-red-950/20">
         <div class="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
           <div>
-            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300">Fin de saison</p>
-            <h2 class="mt-2 text-2xl font-extrabold text-slate-100">Passage de grade et repas de fin de saison</h2>
+            <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300"><?= e(kc_t('meal.hero.kicker')) ?></p>
+            <h2 class="mt-2 text-2xl font-extrabold text-slate-100"><?= e(kc_t('meal.hero.title')) ?></h2>
             <p class="mt-2 max-w-3xl text-sm text-slate-300">
               Passage de grade le <strong class="text-slate-100">26 juin 2026 à 18h</strong>. Le repas de fin de saison du <strong class="text-slate-100">26 juin 2026 à 20h</strong> est aussi ouvert aux réservations pour les membres et leurs proches.
             </p>
@@ -343,7 +343,7 @@ function e(string $text): string {
           </div>
           <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
             <a href="#" aria-disabled="true" tabindex="-1" class="pointer-events-none inline-flex items-center justify-center rounded-xl bg-slate-600 px-4 py-2 text-sm font-semibold text-white opacity-60 shadow-md shadow-slate-900/30 cursor-not-allowed">
-              Réserver le repas
+              <?= e(kc_t('meal.form.submit')) ?>
             </a>
           </div>
         </div>
@@ -368,12 +368,11 @@ function e(string $text): string {
         <!-- Colonne texte -->
         <div>
           <p class="text-base uppercase tracking-[0.2em] text-orange-300 mb-3">
-            <a href="karate-shotokan.php" class="hover:text-orange-200 transition">Karaté Shotokan</a> · Nalinnes
+            <a href="karate-shotokan.php" class="hover:text-orange-200 transition"><?= e(kc_t('home.hero.kicker')) ?></a>
           </p>
 
           <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
-            Discipline. Respect. Confiance.<br>
-            <span class="text-sky-300">Karaté pour enfants, ados et adultes.</span>
+            <?= e(kc_t('home.hero.title')) ?>
           </h1>
 
           <p class="mt-4 text-slate-200 max-w-prose">
@@ -381,10 +380,9 @@ function e(string $text): string {
               href="karate-shotokan.php"
               class="text-slate-100 hover:text-sky-200 underline underline-offset-4 decoration-slate-500/60 hover:decoration-sky-400/60 transition"
             >
-              Karaté Shotokan
+              <?= e(kc_t('page.karate_shotokan.heading')) ?>
             </a>
-            pour tous niveaux — enfants (5+), ados, adultes. Ambiance familiale, instructeurs diplômés,
-            progression ceintures<!--, stages & compétitions-->.
+            <?= e(kc_t('home.hero.body')) ?>
           </p>
 
           <div class="mt-6 flex flex-wrap gap-3">
@@ -392,7 +390,7 @@ function e(string $text): string {
               href="#inscription"
               class="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm md:text-base font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 hover:translate-y-[1px] transition"
             >
-              Essai gratuit
+              <?= e(kc_t('home.quick.trial_label')) ?>
               <span aria-hidden="true"></span>
             </a>
 
@@ -400,12 +398,12 @@ function e(string $text): string {
               href="#horaires"
               class="inline-flex items-center rounded-xl border border-slate-500/70 px-5 py-3 text-sm md:text-base font-semibold text-slate-100 hover:border-sky-400 hover:text-sky-300 transition"
             >
-              Voir les horaires
+              <?= e(kc_t('common.nav.schedule')) ?>
             </a>
           </div>
 
           <div class="mt-4 text-xs md:text-sm text-slate-300">
-            3 premiers cours d’essai gratuits.
+            <?= e(kc_t('home.quick.trial')) ?>
           </div>
         </div>
 
@@ -587,8 +585,8 @@ function e(string $text): string {
   <!-- Horaires -->
   <section id="horaires" class="section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Horaires</h2>
-      <p class="mt-2 text-slate-300">Dojo principal — Centre sportif Jules ROULIN-DORVILLEZ</p>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.schedule.title')) ?></h2>
+      <p class="mt-2 text-slate-300"><?= e(kc_t('home.schedule.body')) ?></p>
       <div class="mt-6 overflow-x-auto rounded-xl border border-slate-800">
         <table class="min-w-full divide-y divide-slate-800">
           <thead class="bg-slate-900/60">

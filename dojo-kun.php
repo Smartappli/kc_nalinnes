@@ -15,9 +15,9 @@ function e(string $text): string {
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Dojo Kun — KC Nalinnes</title>
+  <title><?= e(kc_t('page.dojo_kun.meta.title')) ?></title>
 
-  <meta name="description" content="Le Dojo Kun (code de conduite) du karaté Shotokan : 5 préceptes, traduction, sens et conseils pour le réciter au dojo." />
+  <meta name="description" content="<?= e(kc_t('page.dojo_kun.meta.description')) ?>" />
   <meta name="robots" content="index,follow" />
   <link rel="canonical" href="https://kc-nalinnes.be/dojo-kun.php" />
 
@@ -422,7 +422,7 @@ function e(string $text): string {
     </div>
 
     <h1 class="text-3xl md:text-4xl font-extrabold mb-4">
-      Le Dojo Kun (道場訓)
+      <?= e(kc_t('page.dojo_kun.heading')) ?>
     </h1>
 
     <p class="text-sm text-slate-400 mb-8">
