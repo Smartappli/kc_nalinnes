@@ -1,6 +1,13 @@
 <?php
 declare(strict_types=1);
 
+if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
+    require_once __DIR__ . '/../includes/i18n.php';
+
+    header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
+    exit;
+}
+
 function compute_meal_total(int $adultQty, int $childQty, int $adultPrice = 19, int $childPrice = 10): int {
     $adultQty = max(0, $adultQty);
     $childQty = max(0, $childQty);

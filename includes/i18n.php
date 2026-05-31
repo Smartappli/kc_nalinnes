@@ -140,6 +140,19 @@ function kc_current_locale(): string {
         return $locale;
     }
 
+    if (isset($_POST['lang'])) {
+        $locale = kc_normalize_locale((string)$_POST['lang']);
+        setcookie('kc_locale', $locale, [
+            'expires' => time() + 31536000,
+            'path' => '/',
+            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => false,
+            'samesite' => 'Lax',
+        ]);
+
+        return $locale;
+    }
+
     if (isset($_COOKIE['kc_locale'])) {
         $locale = kc_normalize_locale((string)$_COOKIE['kc_locale']);
         return $locale;
