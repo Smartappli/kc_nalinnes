@@ -235,24 +235,16 @@ function kc_language_switcher(string $class = ''): string {
     $flags = kc_locale_flags();
     $label = kc_t('common.language.label');
     $class = trim($class);
-    $selectId = 'kc-language-select-' . substr(hash('sha256', $class . ($_SERVER['REQUEST_URI'] ?? '')), 0, 8);
-    $action = parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?: '/';
-
-    $html = '<form class="' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" action="' . htmlspecialchars($action, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" method="get">';
-    foreach ($_GET as $name => $value) {
-        if ($name === 'lang' || is_array($value)) {
-            continue;
-        }
-
-        $html .= '<input type="hidden" name="' . htmlspecialchars((string)$name, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" value="' . htmlspecialchars((string)$value, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
-    }
-    $html .= '<label class="sr-only" for="' . htmlspecialchars($selectId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</label>';
-    $html .= '<select id="' . htmlspecialchars($selectId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" name="lang" class="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 hover:border-sky-500 focus:border-sky-500 focus:outline-none" aria-label="' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" onchange="this.form.submit();">';
+    $currentLabel = trim(($flags[$current] ?? '') . ' ' . strtoupper($current));
+    $html = '<details class="relative ' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
+    $html .= '<summary class="list-none cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 hover:border-sky-500 focus:border-sky-500 focus:outline-none" aria-label="' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($currentLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</summary>';
+    $html .= '<div class="absolute right-0 z-50 mt-2 max-h-80 min-w-48 overflow-y-auto rounded-lg border border-slate-700 bg-slate-950 p-2 shadow-xl">';
 
     foreach (kc_supported_locales() as $locale) {
         $optionLabel = trim(($flags[$locale] ?? '') . ' ' . ($labels[$locale] ?? strtoupper($locale)));
-        $html .= '<option value="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" lang="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"' . ($locale === $current ? ' selected' : '') . '>' . htmlspecialchars($optionLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</option>';
+        $classes = 'block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 ' . ($locale === $current ? 'bg-slate-800 text-sky-300' : 'text-slate-100');
+        $html .= '<a class="' . htmlspecialchars($classes, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" href="' . htmlspecialchars(kc_localized_url($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" lang="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($optionLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a>';
     }
 
-    return $html . '</select><noscript><button class="ml-2 rounded-md border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-100" type="submit">' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</button></noscript></form>';
+    return $html . '</div></details>';
 }
