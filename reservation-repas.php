@@ -46,6 +46,7 @@ unset($_SESSION['meal_public_old']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postedToken = (string)($_POST['csrf_token'] ?? '');
+    $postedSubmissionToken = (string)($_POST['meal_submission_token'] ?? '');
 
     $profileName = trim((string)($_POST['profile_name'] ?? ''));
     $contactEmail = trim((string)($_POST['contact_email'] ?? ''));
@@ -66,6 +67,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     ];
 
     if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
+        flash(kc_t('meal.flash.invalid_request'), 'error');
+        header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
+        exit;
+    }
+
+    if (!consume_meal_reservation_submission_token('public', $postedSubmissionToken)) {
         flash(kc_t('meal.flash.invalid_request'), 'error');
         header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
         exit;
@@ -157,6 +164,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
     exit;
 }
+
+$mealSubmissionToken = meal_reservation_submission_token('public');
 ?>
 <!doctype html>
 <html<?= kc_translate_guard_attr($locale) ?> lang="<?= e($locale) ?>" class="">
@@ -286,8 +295,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         <?php endif; ?>
 
-        <form method="post" action="<?= e(kc_localized_url($locale, '/reservation-repas.php')) ?>" class="mt-6 grid gap-4 md:grid-cols-2">
+        <form method="post" action="<?= e(kc_localized_url($locale, '/reservation-repas.php')) ?>" class="mt-6 grid gap-4 md:grid-cols-2" data-disable-on-submit>
           <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+          <input type="hidden" name="meal_submission_token" value="<?= e($mealSubmissionToken) ?>">
 
           <div class="md:col-span-2">
             <label for="profile_name" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.name')) ?></label>
@@ -324,7 +334,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <input type="checkbox" name="send_copy" value="1" <?= ((string)$old['send_copy'] === '1') ? 'checked' : '' ?>>
               <?= e(kc_t('meal.form.copy')) ?>
             </label>
-            <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition">
+            <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70">
               <?= e(kc_t('meal.form.submit')) ?>
             </button>
           </div>
@@ -382,6 +392,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (menuBtn && mobileNav) {
         menuBtn.addEventListener('click', function () { mobileNav.classList.toggle('hidden'); });
       }
+
+      document.querySelectorAll('form[data-disable-on-submit]').forEach(function (form) {
+        form.addEventListener('submit', function () {
+          if (form.dataset.submitting === '1') {
+            return;
+          }
+
+          form.dataset.submitting = '1';
+          form.querySelectorAll('button[type="submit"], button:not([type])').forEach(function (button) {
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+          });
+        });
+      });
     })();
   </script>
 </body>

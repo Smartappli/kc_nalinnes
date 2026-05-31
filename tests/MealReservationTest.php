@@ -34,6 +34,26 @@ final class MealReservationTest extends TestCase {
         $this->assertSame(42, compute_meal_total(2, 1, 16, 10));
     }
 
+    public function testMealReservationSubmissionTokenCanOnlyBeConsumedOnce(): void {
+        $_SESSION = [];
+
+        $token = meal_reservation_submission_token('public');
+
+        $this->assertTrue(consume_meal_reservation_submission_token('public', $token));
+        $this->assertFalse(consume_meal_reservation_submission_token('public', $token));
+    }
+
+    public function testMealReservationSubmissionTokenIsScoped(): void {
+        $_SESSION = [];
+
+        $publicToken = meal_reservation_submission_token('public');
+        $memberToken = meal_reservation_submission_token('member');
+
+        $this->assertFalse(consume_meal_reservation_submission_token('member', $publicToken));
+        $this->assertTrue(consume_meal_reservation_submission_token('public', $publicToken));
+        $this->assertTrue(consume_meal_reservation_submission_token('member', $memberToken));
+    }
+
     public function testMealReservationsExcelHeadersContainPublicReservationFields(): void {
         $this->assertSame(
             [

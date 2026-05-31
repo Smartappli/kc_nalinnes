@@ -121,7 +121,14 @@ try {
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'meal_reservation') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
+        $postedSubmissionToken = (string)($_POST['meal_submission_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
+            flash(kc_t('member.flash.csrf'), 'error');
+            header('Location: ' . member_dashboard_url(), true, 303);
+            exit;
+        }
+
+        if (!consume_meal_reservation_submission_token('member', $postedSubmissionToken)) {
             flash(kc_t('member.flash.csrf'), 'error');
             header('Location: ' . member_dashboard_url(), true, 303);
             exit;
@@ -343,6 +350,8 @@ try {
         exit;
     }
 
+    $mealSubmissionToken = meal_reservation_submission_token('member');
+
 } catch (\Throwable $e) {
     http_response_code(500);
     echo "<pre style='white-space:pre-wrap'>500 ERROR\n" . e($e->getMessage()) . "</pre>";
@@ -390,8 +399,9 @@ try {
 <section class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
   <h2 class="text-xl font-bold"><?= e(kc_t('member.meal.title')) ?></h2>
   <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('member.meal.description')) ?></p>
-  <form method="post" action="<?= e(member_dashboard_url()) ?>" class="mt-4 grid gap-3 md:grid-cols-2">
+  <form method="post" action="<?= e(member_dashboard_url()) ?>" class="mt-4 grid gap-3 md:grid-cols-2" data-disable-on-submit>
     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+    <input type="hidden" name="meal_submission_token" value="<?= e($mealSubmissionToken) ?>">
     <input type="hidden" name="action" value="meal_reservation">
     <div>
       <label class="block text-sm"><?= e(kc_t('member.meal.profile')) ?></label>
@@ -419,7 +429,7 @@ try {
     </div>
     <div class="md:col-span-2">
       <label class="inline-flex items-center gap-2 text-sm mb-2"><input type="checkbox" name="send_copy" value="1"> <?= e(kc_t('member.meal.copy')) ?></label><br>
-      <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('member.meal.reserve')) ?></button>
+      <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"><?= e(kc_t('member.meal.reserve')) ?></button>
     </div>
   </form>
 
@@ -507,4 +517,19 @@ try {
   </div>
 </section>
 
+<script>
+  document.querySelectorAll('form[data-disable-on-submit]').forEach(function (form) {
+    form.addEventListener('submit', function () {
+      if (form.dataset.submitting === '1') {
+        return;
+      }
+
+      form.dataset.submitting = '1';
+      form.querySelectorAll('button[type="submit"], button:not([type])').forEach(function (button) {
+        button.disabled = true;
+        button.setAttribute('aria-busy', 'true');
+      });
+    });
+  });
+</script>
 </main></body></html>

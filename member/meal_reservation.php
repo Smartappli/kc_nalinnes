@@ -14,6 +14,33 @@ function compute_meal_total(int $adultQty, int $childQty, int $adultPrice = 19, 
     return ($adultQty * $adultPrice) + ($childQty * $childPrice);
 }
 
+function meal_reservation_submission_token(string $scope): string {
+    if (!isset($_SESSION['meal_reservation_submission_tokens']) || !is_array($_SESSION['meal_reservation_submission_tokens'])) {
+        $_SESSION['meal_reservation_submission_tokens'] = [];
+    }
+
+    $token = bin2hex(random_bytes(32));
+    $_SESSION['meal_reservation_submission_tokens'][$scope] = $token;
+
+    return $token;
+}
+
+function consume_meal_reservation_submission_token(string $scope, string $token): bool {
+    $tokens = $_SESSION['meal_reservation_submission_tokens'] ?? [];
+    if (!is_array($tokens) || !isset($tokens[$scope]) || !is_string($tokens[$scope])) {
+        return false;
+    }
+
+    $expectedToken = $tokens[$scope];
+    if (!hash_equals($expectedToken, $token)) {
+        return false;
+    }
+
+    unset($_SESSION['meal_reservation_submission_tokens'][$scope]);
+
+    return true;
+}
+
 function ensure_meal_reservations_table(PDO $db): void {
     $db->exec('CREATE TABLE IF NOT EXISTS meal_reservations (id INT AUTO_INCREMENT PRIMARY KEY, member_user_id INT NOT NULL, profile_type VARCHAR(20) NOT NULL, dependent_id INT NULL, profile_name VARCHAR(255) NOT NULL, adult_qty INT NOT NULL DEFAULT 0, child_qty INT NOT NULL DEFAULT 0, total_amount DECIMAL(10,2) NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
 
