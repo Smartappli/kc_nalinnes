@@ -42,9 +42,18 @@ final class I18nTest extends TestCase {
     }
 
     public function testNewLocalesFallBackToTranslatedContent(): void {
-        foreach (['bg', 'de', 'es', 'ga', 'it', 'ja', 'pl', 'sv'] as $locale) {
+        foreach (['bg', 'cs', 'da', 'el', 'ga', 'hr', 'hu', 'lt', 'lv', 'mt', 'ro', 'sk', 'sl', 'sv'] as $locale) {
             $this->assertSame('Meal reservation', kc_t('meal.hero.title', [], $locale));
         }
+    }
+
+    public function testTranslatedMealReservationLocalesUseNativeContent(): void {
+        $this->assertSame('Essensreservierung', kc_t('meal.hero.title', [], 'de'));
+        $this->assertSame('Reserva de comida', kc_t('meal.hero.title', [], 'es'));
+        $this->assertSame('Prenotazione pasto', kc_t('meal.hero.title', [], 'it'));
+        $this->assertSame('食事予約', kc_t('meal.hero.title', [], 'ja'));
+        $this->assertSame('Rezerwacja posiłku', kc_t('meal.hero.title', [], 'pl'));
+        $this->assertSame('Reserva de refeição', kc_t('meal.hero.title', [], 'pt'));
     }
 
     public function testLocaleLabelsContainJapaneseAndEuLanguages(): void {
