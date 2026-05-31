@@ -46,9 +46,10 @@ function flash_classes(?array $flash): string {
 ?>
 
 <!doctype html>
-<html lang="<?= e($locale) ?>">
+<html translate="no" lang="<?= e($locale) ?>">
 <head>
     <meta charset="utf-8" />
+  <meta name="google" content="notranslate">
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 

@@ -231,9 +231,10 @@ try {
 }
 ?>
 <!doctype html>
-<html lang="<?= e($locale) ?>">
+<html translate="no" lang="<?= e($locale) ?>">
 <head>
     <meta charset="utf-8" />
+  <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title><?= e(kc_t('manager.meta.title')) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
