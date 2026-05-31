@@ -99,7 +99,7 @@ try {
         $userId = (string)($auth->getUserId() ?? '');
         $email  = (string)($auth->getEmail() ?? '');
         $user   = (string)($auth->getUsername() ?? '');
-        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
+        $adminEmails = get_configured_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
         $isAdmin = is_admin_email($email, $adminEmails);
     }
 
