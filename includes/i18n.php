@@ -229,14 +229,28 @@ function kc_redirect_url_with_locale(string $path): string {
     return kc_localized_url(kc_current_locale(), $path);
 }
 
+function kc_translate_guard_attr(string $locale): string {
+    return kc_normalize_locale($locale) === kc_default_locale() ? ' translate="no"' : '';
+}
+
+function kc_google_notranslate_meta(string $locale): string {
+    return kc_normalize_locale($locale) === kc_default_locale()
+        ? '<meta name="google" content="notranslate">' . PHP_EOL
+        : '';
+}
+
 function kc_should_use_page_translation(): bool {
     $script = basename((string)($_SERVER['SCRIPT_NAME'] ?? $_SERVER['SCRIPT_FILENAME'] ?? ''));
 
     return in_array($script, [
         'index.php',
+        'commandes.php',
+        'contact.php',
         'dojo-kun.php',
         'karate-shotokan.php',
         'kata-shotokan.php',
+        'membres.php',
+        'reservation-repas.php',
         'reviser_katas.php',
         'stretching.php',
         'technique_base.php',
@@ -244,6 +258,7 @@ function kc_should_use_page_translation(): bool {
         'vocabulaire-karate-shotokan.php',
         'mentions-legales.php',
         'politique-confidentialite.php',
+        'dashboard.php',
     ], true);
 }
 

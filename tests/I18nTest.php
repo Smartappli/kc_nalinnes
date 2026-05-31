@@ -41,6 +41,32 @@ final class I18nTest extends TestCase {
         }
     }
 
+    public function testEveryLocaleHasSameTranslationKeysAsFrench(): void {
+        foreach (kc_translation_modules() as $module) {
+            $frenchKeys = array_keys(kc_load_translation_file('fr', $module));
+            sort($frenchKeys);
+
+            foreach (kc_supported_locales() as $locale) {
+                $localeKeys = array_keys(kc_load_translation_file($locale, $module));
+                sort($localeKeys);
+
+                $this->assertSame($frenchKeys, $localeKeys, $locale . '/' . $module);
+            }
+        }
+    }
+
+    public function testTranslateGuardOnlyBlocksExternalTranslationOnFrenchPages(): void {
+        $this->assertSame(' translate="no"', kc_translate_guard_attr('fr'));
+        $this->assertSame('', kc_translate_guard_attr('en'));
+        $this->assertSame('', kc_translate_guard_attr('nl'));
+    }
+
+    public function testGoogleNoTranslateMetaOnlyRendersForFrenchPages(): void {
+        $this->assertSame('<meta name="google" content="notranslate">' . PHP_EOL, kc_google_notranslate_meta('fr'));
+        $this->assertSame('', kc_google_notranslate_meta('en'));
+        $this->assertSame('', kc_google_notranslate_meta('nl'));
+    }
+
     public function testTranslatedMealReservationLocalesUseNativeContent(): void {
         $expected = [
             'bg' => 'Резервация за хранене',

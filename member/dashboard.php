@@ -350,8 +350,8 @@ try {
 }
 ?>
 <!doctype html>
-<html translate="no" lang="<?= e($locale) ?>"><head><meta charset="utf-8"/>
-  <meta name="google" content="notranslate"><meta name="viewport" content="width=device-width, initial-scale=1"/><title><?= e(kc_t('member.meta.title')) ?></title><script src="https://cdn.tailwindcss.com"></script></head>
+<html<?= kc_translate_guard_attr($locale) ?> lang="<?= e($locale) ?>"><head><meta charset="utf-8"/>
+  <?= kc_google_notranslate_meta($locale) ?><meta name="viewport" content="width=device-width, initial-scale=1"/><title><?= e(kc_t('member.meta.title')) ?></title><script src="https://cdn.tailwindcss.com"></script></head>
 <body class="bg-slate-950 text-slate-100"><main class="mx-auto max-w-5xl px-4 py-10">
 <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
   <div>

@@ -9,10 +9,10 @@ function e(string $text): string {
   return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 ?><!doctype html>
-<html translate="no" lang="<?= e($locale) ?>">
+<html<?= kc_translate_guard_attr($locale) ?> lang="<?= e($locale) ?>">
 <head>
   <meta charset="utf-8" />
-  <meta name="google" content="notranslate">
+  <?= kc_google_notranslate_meta($locale) ?>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
