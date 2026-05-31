@@ -31,6 +31,14 @@ final class I18nTest extends TestCase {
         $this->assertSame('Ledendashboard', kc_t('member.heading', [], 'nl'));
     }
 
+    public function testEveryLocaleLoadsEveryTranslationModule(): void {
+        foreach (kc_supported_locales() as $locale) {
+            foreach (kc_translation_modules() as $module) {
+                $this->assertNotSame([], kc_load_translation_file($locale, $module), $locale . '/' . $module);
+            }
+        }
+    }
+
     public function testLocalizedUrlKeepsExistingQueryAndChangesLanguage(): void {
         $_GET = ['foo' => 'bar', 'lang' => 'fr'];
 
