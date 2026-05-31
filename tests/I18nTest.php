@@ -87,4 +87,17 @@ final class I18nTest extends TestCase {
 
         $this->assertSame('/reservation-repas.php?foo=bar&lang=nl', kc_localized_url('nl', '/reservation-repas.php'));
     }
+
+    public function testLanguageSwitcherSubmitsCurrentPageWithSelectedLocale(): void {
+        $_SERVER['REQUEST_URI'] = '/reservation-repas.php?foo=bar&lang=fr';
+        $_GET = ['foo' => 'bar', 'lang' => 'fr'];
+
+        $html = kc_language_switcher('test-switcher');
+
+        $this->assertStringContainsString('action="/reservation-repas.php"', $html);
+        $this->assertStringContainsString('name="foo" value="bar"', $html);
+        $this->assertStringContainsString('name="lang"', $html);
+        $this->assertStringContainsString('value="fr" lang="fr" selected', $html);
+        $this->assertStringContainsString('onchange="this.form.submit();"', $html);
+    }
 }
