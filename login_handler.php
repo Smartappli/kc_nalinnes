@@ -2,10 +2,15 @@
 declare(strict_types=1);
 
 require __DIR__ . '/vendor/autoload.php';
+require __DIR__ . '/includes/i18n.php';
 require __DIR__ . '/manager/admin_access.php';
 require __DIR__ . '/config/database.php';
 
 session_start();
+
+if (isset($_POST['lang']) && !isset($_GET['lang'])) {
+    $_GET['lang'] = (string)$_POST['lang'];
+}
 
 $redirectFail = 'membres.php';
 $redirectSuccess = 'member/dashboard.php';
@@ -16,14 +21,14 @@ function flash(string $message, string $type = 'info'): void {
 
 // Only POST
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    header('Location: ' . $redirectFail);
+    header('Location: ' . kc_redirect_url_with_locale($redirectFail));
     exit;
 }
 
 $loginBypassEnabled = is_temp_bypass_login_enabled();
 if ($loginBypassEnabled) {
-    flash('Bypass login temporaire actif.', 'info');
-    header('Location: /manager/dashboard.php', true, 303);
+    flash(kc_t('membres.flash.bypass'), 'info');
+    header('Location: ' . kc_redirect_url_with_locale('/manager/dashboard.php'), true, 303);
     exit;
 }
 
@@ -32,8 +37,8 @@ $postedToken = (string)($_POST['csrf_token'] ?? '');
 $sessionToken = (string)($_SESSION['csrf_token'] ?? '');
 
 if ($sessionToken === '' || !hash_equals($sessionToken, $postedToken)) {
-    flash('Requête invalide (CSRF).', 'error');
-    header('Location: ' . $redirectFail);
+    flash(kc_t('membres.flash.csrf'), 'error');
+    header('Location: ' . kc_redirect_url_with_locale($redirectFail));
     exit;
 }
 
@@ -62,26 +67,26 @@ try {
     $auth->login($email, $password, $rememberDuration);
 
     unset($_SESSION['old_email'], $_SESSION['old_remember']);
-    flash('Connexion réussie.', 'success');
+    flash(kc_t('membres.flash.success'), 'success');
     $redirectSuccess = resolve_dashboard_path($email, $db, (string) getenv('ADMIN_EMAILS'));
-    header('Location: ' . $redirectSuccess);
+    header('Location: ' . kc_redirect_url_with_locale($redirectSuccess));
     exit;
 }
 catch (\Delight\Auth\InvalidEmailException $e) {
-    flash('Adresse email incorrecte.', 'error');
+    flash(kc_t('membres.flash.invalid_email'), 'error');
 }
 catch (\Delight\Auth\InvalidPasswordException $e) {
-    flash('Mot de passe incorrect.', 'error');
+    flash(kc_t('membres.flash.invalid_password'), 'error');
 }
 catch (\Delight\Auth\EmailNotVerifiedException $e) {
-    flash('Email non vérifié.', 'error');
+    flash(kc_t('membres.flash.email_not_verified'), 'error');
 }
 catch (\Delight\Auth\TooManyRequestsException $e) {
-    flash('Trop de tentatives, réessaie plus tard.', 'error');
+    flash(kc_t('membres.flash.too_many_requests'), 'error');
 }
 catch (\Throwable $e) {
-    flash('Erreur interne. Merci de réessayer.', 'error');
+    flash(kc_t('membres.flash.internal'), 'error');
 }
 
-header('Location: ' . $redirectFail);
+header('Location: ' . kc_redirect_url_with_locale($redirectFail));
 exit;

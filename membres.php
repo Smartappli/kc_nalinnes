@@ -2,13 +2,15 @@
 declare(strict_types=1);
 
 require __DIR__ . '/manager/admin_access.php';
+require __DIR__ . '/includes/i18n.php';
 
 session_start();
 
+$locale = kc_current_locale();
 
 $loginBypassEnabled = is_temp_bypass_login_enabled();
 if ($loginBypassEnabled) {
-    header('Location: /manager/dashboard.php', true, 303);
+    header('Location: ' . kc_redirect_url_with_locale('/manager/dashboard.php'), true, 303);
     exit;
 }
 
@@ -44,31 +46,31 @@ function flash_classes(?array $flash): string {
 ?>
 
 <!doctype html>
-<html lang="fr">
+<html lang="<?= e($locale) ?>">
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Karaté Shotokan à Nalinnes — KC Nalinnes</title>
+    <title><?= e(kc_t('membres.meta.title')) ?></title>
 
-    <meta name="description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
+    <meta name="description" content="<?= e(kc_t('membres.meta.description')) ?>" />
     <meta name="robots" content="noindex,nofollow,noarchive" />
     <link rel="canonical" href="https://kc-nalinnes.be/membres.php" />
 
     <!-- Open Graph -->
-    <meta property="og:title" content="Karaté Shotokan à Nalinnes — KC Nalinnes" />
-    <meta property="og:description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
+    <meta property="og:title" content="<?= e(kc_t('membres.meta.title')) ?>" />
+    <meta property="og:description" content="<?= e(kc_t('membres.meta.description')) ?>" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://kc-nalinnes.be/membres.php" />
     <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
-    <meta property="og:locale" content="fr_BE" />
+    <meta property="og:locale" content="<?= e($locale) ?>" />
     <meta property="og:site_name" content="Karaté Club Nalinnes" />
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Karaté Shotokan à Nalinnes — KC Nalinnes" />
-    <meta name="twitter:description" content="Karaté Shotokan pour enfants, ados et adultes à Nalinnes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions. 1er cours d’essai gratuit." />
+    <meta name="twitter:title" content="<?= e(kc_t('membres.meta.title')) ?>" />
+    <meta name="twitter:description" content="<?= e(kc_t('membres.meta.description')) ?>" />
     <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
     <meta name="theme-color" content="#0f172a" />
@@ -263,45 +265,45 @@ function flash_classes(?array $flash): string {
                 </a>
 
                 <nav class="hidden md:flex items-center gap-6 text-sm">
-                    <a href="index.php#horaires" class="hover:text-sky-400 transition-colors">Horaires</a>
-                    <a href="index.php#calendrier" class="hover:text-sky-400 transition-colors">Calendrier</a>
-                    <a href="index.php#tarifs" class="hover:text-sky-400 transition-colors">Tarifs</a>
-                    <a href="index.php#coach" class="hover:text-sky-400 transition-colors">Instructeurs</a>
-                    <a href="index.php#actus" class="hover:text-sky-400 transition-colors">Actus</a>
-                    <a href="index.php#documents" class="hover:text-sky-400 transition-colors">Documents</a>
-                    <a href="index.php#contact" class="hover:text-sky-400 transition-colors">Contact</a>
-                    <a href="membres.php"
+                    <a href="index.php#horaires" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.schedule')) ?></a>
+                    <a href="index.php#calendrier" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.calendar')) ?></a>
+                    <a href="index.php#tarifs" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.prices')) ?></a>
+                    <a href="index.php#coach" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.instructors')) ?></a>
+                    <a href="index.php#actus" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.news')) ?></a>
+                    <a href="index.php#documents" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.documents')) ?></a>
+                    <a href="index.php#contact" class="hover:text-sky-400 transition-colors"><?= e(kc_t('common.nav.contact')) ?></a>
+                    <a href="<?= e(kc_localized_url($locale, 'membres.php')) ?>"
                        class="ml-2 rounded-full bg-red-600 px-4 py-2 font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 hover:translate-y-[1px] transition">
-                        Membres
+                        <?= e(kc_t('common.nav.members')) ?>
                     </a>
 
                     <!-- Bouton Light/Dark -->
                     <button id="themeToggle" class="ml-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
-                            aria-pressed="false" aria-label="Basculer le thème">
+                            aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
                         <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.8 1.8-1.79zm10.48 0l1.8-1.79 1.79 1.78-1.79 1.8-1.8-1.79zM12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 12H1v0h3v0zm19 0h-3v0h3v0zM6.76 19.16l-1.8 1.79-1.79-1.78 1.79-1.8 1.8 1.79zM17.24 19.16l1.8 1.79 1.79-1.78-1.79-1.8-1.8 1.79zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
                         <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
                         <span id="themeLabel">Dark</span>
                     </button>
                 </nav>
 
-                <button id="menuBtn" class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md bg-slate-800">☰</button>
+                <button id="menuBtn" class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md bg-slate-800" aria-label="<?= e(kc_t('common.menu.open')) ?>">☰</button>
             </div>
         </div>
 
         <nav id="mobileNav" class="md:hidden hidden border-t border-slate-800">
             <div class="mx-auto max-w-7xl px-4 py-3 space-y-2">
-                <a href="index.php#horaires" class="block">Horaires</a>
-                <a href="index.php#calendrier" class="block">Calendrier</a>
-                <a href="index.php#tarifs" class="block">Tarifs</a>
-                <a href="index.php#coach" class="block">Instructeurs</a>
-                <a href="index.php#actus" class="block">Actus</a>
-                <a href="index.php#documents" class="block">Documents</a>
-                <a href="index.php#contact" class="block">Contact</a>
-                <a href="membres.php" class="block font-semibold text-red-400">Membres</a>
+                <a href="index.php#horaires" class="block"><?= e(kc_t('common.nav.schedule')) ?></a>
+                <a href="index.php#calendrier" class="block"><?= e(kc_t('common.nav.calendar')) ?></a>
+                <a href="index.php#tarifs" class="block"><?= e(kc_t('common.nav.prices')) ?></a>
+                <a href="index.php#coach" class="block"><?= e(kc_t('common.nav.instructors')) ?></a>
+                <a href="index.php#actus" class="block"><?= e(kc_t('common.nav.news')) ?></a>
+                <a href="index.php#documents" class="block"><?= e(kc_t('common.nav.documents')) ?></a>
+                <a href="index.php#contact" class="block"><?= e(kc_t('common.nav.contact')) ?></a>
+                <a href="<?= e(kc_localized_url($locale, 'membres.php')) ?>" class="block font-semibold text-red-400"><?= e(kc_t('common.nav.members')) ?></a>
 
                 <!-- Bouton Light/Dark mobile -->
                 <button id="themeToggleMobile" class="mt-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
-                        aria-pressed="false" aria-label="Basculer le thème">
+                        aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
                     🌗 <span id="themeLabelMobile">Dark</span>
                 </button>
             </div>
@@ -312,8 +314,8 @@ function flash_classes(?array $flash): string {
         <section class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
             <div class="mx-auto max-w-md">
                 <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6 shadow-lg">
-                    <h1 class="text-2xl font-extrabold tracking-tight">Espace membres</h1>
-                    <p class="mt-2 text-sm text-slate-400">Connecte-toi avec ton email et ton mot de passe.</p>
+                    <h1 class="text-2xl font-extrabold tracking-tight"><?= e(kc_t('membres.heading')) ?></h1>
+                    <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('membres.subtitle')) ?></p>
 
                     <?php if (is_array($flash) && !empty($flash['message'])): ?>
                         <div class="mt-4 rounded-xl border px-4 py-3 <?= e(flash_classes($flash)) ?>">
@@ -323,6 +325,7 @@ function flash_classes(?array $flash): string {
 
                     <form method="post" action="login_handler.php" class="mt-6 space-y-4">
                         <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                        <input type="hidden" name="lang" value="<?= e($locale) ?>">
 
                         <div>
                             <label for="email" class="block text-sm font-semibold">Email</label>
@@ -339,7 +342,7 @@ function flash_classes(?array $flash): string {
                         </div>
 
                         <div>
-                            <label for="password" class="block text-sm font-semibold">Mot de passe</label>
+                            <label for="password" class="block text-sm font-semibold"><?= e(kc_t('membres.form.password')) ?></label>
                             <input
                                     id="password"
                                     name="password"
@@ -360,7 +363,7 @@ function flash_classes(?array $flash): string {
                                         class="h-4 w-4 rounded border-slate-600 bg-slate-950/50"
                                         <?= ($oldRemember === 1 ? 'checked' : '') ?>
                                 >
-                                Se souvenir de moi (1 an)
+                                <?= e(kc_t('membres.form.remember')) ?>
                             </label>
                         </div>
 
@@ -368,11 +371,11 @@ function flash_classes(?array $flash): string {
                                 type="submit"
                                 class="w-full rounded-xl bg-red-600 px-4 py-3 font-semibold text-white shadow-md shadow-red-900/40 hover:bg-red-500 hover:translate-y-[1px] transition"
                         >
-                            Se connecter
+                            <?= e(kc_t('membres.form.submit')) ?>
                         </button>
 
                         <div class="text-center text-xs text-slate-400">
-                            Retour au site : <a href="index.php" class="hover:text-sky-400 underline">kc-nalinnes.be</a>
+                            <?= e(kc_t('membres.back_label')) ?> <a href="<?= e(kc_localized_url($locale, 'index.php')) ?>" class="hover:text-sky-400 underline">kc-nalinnes.be</a>
                         </div>
                     </form>
                 </div>
@@ -383,10 +386,10 @@ function flash_classes(?array $flash): string {
 
     <footer class="border-t border-slate-800">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-slate-400 flex flex-col md:flex-row gap-3 items-center justify-between">
-            <p>© <span id="year"></span> KC Nalinnes. Tous droits réservés - Développé par <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
+            <p>© <span id="year"></span> KC Nalinnes. <?= e(kc_t('common.footer.rights')) ?> - <?= e(kc_t('common.footer.developed_by')) ?> <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
             <nav class="flex gap-4">
-                <a href="/mentions-legales.php" class="hover:text-orange-600">Mentions légales</a>
-                <a href="/politique-confidentialite.php" class="hover:text-orange-600">Politique de confidentialité</a>
+                <a href="<?= e(kc_localized_url($locale, '/mentions-legales.php')) ?>" class="hover:text-orange-600"><?= e(kc_t('common.footer.legal')) ?></a>
+                <a href="<?= e(kc_localized_url($locale, '/politique-confidentialite.php')) ?>" class="hover:text-orange-600"><?= e(kc_t('common.footer.privacy')) ?></a>
             </nav>
         </div>
     </footer>
