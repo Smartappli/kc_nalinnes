@@ -230,6 +230,8 @@ function kc_redirect_url_with_locale(string $path): string {
 }
 
 function kc_language_switcher(string $class = ''): string {
+    static $preserveScriptRendered = false;
+
     $current = kc_current_locale();
     $labels = kc_locale_labels();
     $flags = kc_locale_flags();
@@ -246,5 +248,12 @@ function kc_language_switcher(string $class = ''): string {
         $html .= '<a class="' . htmlspecialchars($classes, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" href="' . htmlspecialchars(kc_localized_url($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" lang="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($optionLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a>';
     }
 
-    return $html . '</div></details>';
+    $html .= '</div></details>';
+
+    if (!$preserveScriptRendered) {
+        $preserveScriptRendered = true;
+        $html .= '<script>(function(){var lang=' . json_encode($current) . ';if(!lang)return;function keepLang(){document.querySelectorAll("a[href]").forEach(function(a){try{var raw=a.getAttribute("href")||"";if(!raw||raw.charAt(0)==="#"||raw.indexOf("mailto:")===0||raw.indexOf("tel:")===0)return;var u=new URL(raw,window.location.href);if(u.origin!==window.location.origin)return;if(u.searchParams.has("lang"))return;if(!/^\/($|[^?#]*\.php$|#)/.test(u.pathname)&&u.pathname!=="/")return;u.searchParams.set("lang",lang);a.href=u.pathname+u.search+u.hash;}catch(e){}})}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",keepLang)}else{keepLang()}})();</script>';
+    }
+
+    return $html;
 }
