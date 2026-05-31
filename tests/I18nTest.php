@@ -41,19 +41,35 @@ final class I18nTest extends TestCase {
         }
     }
 
-    public function testNewLocalesFallBackToTranslatedContent(): void {
-        foreach (['bg', 'cs', 'da', 'el', 'ga', 'hr', 'hu', 'lt', 'lv', 'mt', 'ro', 'sk', 'sl', 'sv'] as $locale) {
-            $this->assertSame('Meal reservation', kc_t('meal.hero.title', [], $locale));
-        }
-    }
-
     public function testTranslatedMealReservationLocalesUseNativeContent(): void {
-        $this->assertSame('Essensreservierung', kc_t('meal.hero.title', [], 'de'));
-        $this->assertSame('Reserva de comida', kc_t('meal.hero.title', [], 'es'));
-        $this->assertSame('Prenotazione pasto', kc_t('meal.hero.title', [], 'it'));
-        $this->assertSame('食事予約', kc_t('meal.hero.title', [], 'ja'));
-        $this->assertSame('Rezerwacja posiłku', kc_t('meal.hero.title', [], 'pl'));
-        $this->assertSame('Reserva de refeição', kc_t('meal.hero.title', [], 'pt'));
+        $expected = [
+            'bg' => 'Резервация за хранене',
+            'cs' => 'Rezervace jídla',
+            'da' => 'Måltidsreservation',
+            'de' => 'Essensreservierung',
+            'el' => 'Κράτηση γεύματος',
+            'es' => 'Reserva de comida',
+            'et' => 'Söögi broneerimine',
+            'fi' => 'Ateriavaraus',
+            'ga' => 'Áirithint béile',
+            'hr' => 'Rezervacija obroka',
+            'hu' => 'Étkezésfoglalás',
+            'it' => 'Prenotazione pasto',
+            'ja' => '食事予約',
+            'lt' => 'Valgio rezervacija',
+            'lv' => 'Maltītes rezervācija',
+            'mt' => 'Riservazzjoni tal-ikla',
+            'pl' => 'Rezerwacja posiłku',
+            'pt' => 'Reserva de refeição',
+            'ro' => 'Rezervare masă',
+            'sk' => 'Rezervácia jedla',
+            'sl' => 'Rezervacija obroka',
+            'sv' => 'Måltidsbokning',
+        ];
+
+        foreach ($expected as $locale => $title) {
+            $this->assertSame($title, kc_t('meal.hero.title', [], $locale), $locale);
+        }
     }
 
     public function testLocaleLabelsContainJapaneseAndEuLanguages(): void {
