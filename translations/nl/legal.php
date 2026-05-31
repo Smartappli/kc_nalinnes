@@ -52,7 +52,7 @@ return [
     'legal.privacy.section.rights.title' => '8. Uw rechten',
     'legal.privacy.section.rights.p1' => 'U hebt recht op toegang, rectificatie, wissing, beperking, bezwaar, overdraagbaarheid en intrekking van toestemming wanneer de verwerking daarop gebaseerd is.',
     'legal.privacy.section.rights.p2' => 'Om deze rechten uit te oefenen, kunt u contact opnemen met privacy@kc-nalinnes.be. U kunt ook een klacht indienen bij de Belgische Gegevensbeschermingsautoriteit.',
-    'legal.privacy.section.cookies.title' => '9. Cookies',
+    'legal.privacy.section.cookies.title' => '9. Koekjes',
     'legal.privacy.section.cookies.p1' => 'De website kan technische cookies gebruiken die nodig zijn voor de werking en meetinstrumenten om bezoeken te begrijpen en de website te verbeteren.',
     'legal.privacy.section.cookies.p2' => 'U kunt uw browser instellen om cookies te blokkeren of te verwijderen. Sommige functies kunnen dan worden beïnvloed.',
     'legal.privacy.section.update.title' => '10. Updates van dit beleid',

@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Bambino - 10 EUR',
     'meal.card.child.description' => '1 salsiccia o 1 spiedino.',
     'meal.form.name' => 'Nome e cognome',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'E-mail',
     'meal.form.phone' => 'Telefono',
     'meal.form.adults' => 'Pasti adulti',
     'meal.form.children' => 'Pasti bambini',

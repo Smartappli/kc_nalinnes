@@ -11,7 +11,7 @@ return [
     'page.dojo_kun.meaning.body' => 'O dojo kun é recitado para manter claro o espírito de treinamento. Ele conecta a disciplina no tatame com o comportamento na vida cotidiana.',
     'page.dojo_kun.principles.title' => 'Princípios',
     'page.dojo_kun.principles.body' => 'As ideias principais são caráter, lealdade, esforço, etiqueta e controle. Eles fornecem uma estrutura simples para o progresso em todas as idades.',
-    'page.dojo_kun.practice.title' => 'Pratique',
+    'page.dojo_kun.practice.title' => 'Prático',
     'page.dojo_kun.practice.body' => 'Esses princípios não são apenas teoria. São aplicados por meio de pontualidade, escuta, técnicas controladas e respeito aos parceiros.',
     'page.dojo_kun.club.title' => 'No clube',
     'page.dojo_kun.club.body' => 'No KC Nalinnes, o dojo kun mantém uma atmosfera exigente, mas familiar, onde todos podem progredir no seu próprio ritmo.',

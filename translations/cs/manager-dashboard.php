@@ -23,7 +23,7 @@ return [
     'manager.users.title' => 'Správa uživatelů',
     'manager.users.description' => 'Změňte roli správce/člena z řídicího panelu správce.',
     'manager.users.id' => 'ID',
-    'manager.users.email' => 'Email',
+    'manager.users.email' => 'E-mail',
     'manager.users.username' => 'Uživatelské jméno',
     'manager.users.grade' => 'stupeň',
     'manager.users.role' => 'Role',

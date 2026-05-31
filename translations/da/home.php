@@ -33,5 +33,5 @@ return [
     'home.contact.name' => 'Dit navn',
     'home.contact.email' => 'E-mail',
     'home.contact.message' => 'Besked',
-    'home.contact.submit' => 'Send',
+    'home.contact.submit' => 'Sende',
 ];

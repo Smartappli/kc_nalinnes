@@ -31,7 +31,7 @@ return [
     'home.contact.title' => 'Επικοινωνία',
     'home.contact.body' => 'Στείλτε μας ένα μήνυμα για ένα δοκιμαστικό μάθημα, μια ερώτηση εγγραφής ή οποιαδήποτε πρακτική πληροφορία.',
     'home.contact.name' => 'Το όνομά σου',
-    'home.contact.email' => 'Email',
+    'home.contact.email' => 'E-mail',
     'home.contact.message' => 'Μήνυμα',
     'home.contact.submit' => 'Αποστολή',
 ];

@@ -52,7 +52,7 @@ return [
     'manager.calendar.edit' => 'Rediger begivenhed',
     'manager.calendar.description' => 'Opret, rediger, flyt og slet begivenheder.',
     'manager.calendar.field_title' => 'Titel',
-    'manager.calendar.start' => 'Start',
+    'manager.calendar.start' => 'Starte',
     'manager.calendar.end' => 'Slut',
     'manager.calendar.field_description' => 'Beskrivelse',
     'manager.calendar.delete' => 'Slet',

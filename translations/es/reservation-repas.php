@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Niño - 10 EUR',
     'meal.card.child.description' => '1 salchicha o 1 brocheta.',
     'meal.form.name' => 'Nombre y apellidos',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'Correo electrónico',
     'meal.form.phone' => 'Teléfono',
     'meal.form.adults' => 'Comidas de adultos',
     'meal.form.children' => 'Comidas de niños',

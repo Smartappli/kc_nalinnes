@@ -12,7 +12,7 @@ return [
     'contact.mail.subject' => 'Nieuw bericht via de website van KC Nalinnes',
     'contact.mail.intro' => 'U hebt een nieuw bericht ontvangen via het contactformulier van de website van KC Nalinnes.',
     'contact.mail.name' => 'Naam',
-    'contact.mail.email' => 'Email',
+    'contact.mail.email' => 'E-mail',
     'contact.mail.message' => 'Bericht',
     'contact.success.title' => 'Bedankt voor uw bericht',
     'contact.success.heading' => 'Bedankt',

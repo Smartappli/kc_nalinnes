@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Criança - 10 EUR',
     'meal.card.child.description' => '1 salsicha ou 1 espetada.',
     'meal.form.name' => 'Nome e apelido',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'E-mail',
     'meal.form.phone' => 'Telefone',
     'meal.form.adults' => 'Refeições de adultos',
     'meal.form.children' => 'Refeições de crianças',

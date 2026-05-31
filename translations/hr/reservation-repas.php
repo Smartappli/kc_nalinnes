@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Dijete - 10 EUR',
     'meal.card.child.description' => '1 kobasica ili 1 ražnjić.',
     'meal.form.name' => 'Ime i prezime',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'E-mail',
     'meal.form.phone' => 'Telefon',
     'meal.form.adults' => 'Obroci za odrasle',
     'meal.form.children' => 'Obroci za djecu',

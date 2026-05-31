@@ -2,10 +2,10 @@
 declare(strict_types=1);
 
 return [
-    'home.meta.title' => 'Shotokan karate in Nalinnes - KC Nalinnes',
+    'home.meta.title' => 'Shotokan-karate in Nalinnes - KC Nalinnes',
     'home.meta.description' => 'Shotokan karatelessen voor kinderen, jongeren en volwassenen in Nalinnes. Familiale sfeer, gekwalificeerde instructeurs en aangepaste vooruitgang.',
     'home.hero.kicker' => 'Shotokan karateclub',
-    'home.hero.title' => 'Shotokan karate in Nalinnes',
+    'home.hero.title' => 'Shotokan-karate in Nalinnes',
     'home.hero.body' => 'KC Nalinnes verwelkomt kinderen, jongeren en volwassenen voor regelmatige karatetraining in een respectvolle, familiale en veeleisende sfeer.',
     'home.hero.cta_contact' => 'Contacteer de club',
     'home.hero.cta_meal' => 'Maaltijdreservatie',
@@ -31,7 +31,7 @@ return [
     'home.contact.title' => 'Contact',
     'home.contact.body' => 'Stuur ons een bericht voor een proefles, een inschrijvingsvraag of praktische informatie.',
     'home.contact.name' => 'Uw naam',
-    'home.contact.email' => 'Email',
+    'home.contact.email' => 'E-mail',
     'home.contact.message' => 'Bericht',
     'home.contact.submit' => 'Verzenden',
 ];

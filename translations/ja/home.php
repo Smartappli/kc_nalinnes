@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 return [
     'home.meta.title' => 'ナリンネスの松濤館空手 - KC ナリンネス',
-    'home.meta.description' => 'Shotokan karate classes for children, teenagers and adults in Nalinnes. Family atmosphere, qualified instructors and progressive training.',
+    'home.meta.description' => 'ナリンヌの子供、ティーンエイジャー、大人を対象とした松濤館空手クラス。家庭的な雰囲気、資格のあるインストラクター、進歩的なトレーニング。',
     'home.hero.kicker' => '松濤館空手部',
     'home.hero.title' => 'ナリンネスの松濤館空手',
-    'home.hero.body' => 'KC Nalinnes welcomes children, teenagers and adults for regular karate training in a respectful, family-minded and demanding atmosphere.',
+    'home.hero.body' => 'KC Nalinnes は、子供、ティーンエイジャー、大人を歓迎し、敬意を持って家族思いで厳しい雰囲気の中で定期的に空手のトレーニングを受けています。',
     'home.hero.cta_contact' => 'クラブに連絡する',
     'home.hero.cta_meal' => 'お食事のご予約',
     'home.quick.title' => '実用的な情報',

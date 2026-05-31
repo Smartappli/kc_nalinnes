@@ -6,7 +6,7 @@ return [
     'member.heading' => '会員ダッシュボード',
     'member.subtitle' => 'ログイン中の会員エリア - 管理可能なプロフィール: {count}',
     'member.logout' => 'ログアウト',
-    'member.user.username_empty' => '—',
+    'member.user.username_empty' => '–',
     'member.flash.csrf' => '無効なリクエストです（CSRF）。',
     'member.flash.logged_out' => 'ログアウトしました。',
     'member.flash.login_required' => '会員ダッシュボードにアクセスするにはログインしてください。',

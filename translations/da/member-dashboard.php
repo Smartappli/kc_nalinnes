@@ -35,7 +35,7 @@ return [
     'member.meal.adult_label' => 'Voksne (19 EUR) - 1 spyd + 1 pølse',
     'member.meal.child_label' => 'Børn (EUR 10) - 1 pølse eller 1 spyd + pommes frites',
     'member.meal.copy' => 'Modtag en kopi af reservationen på e-mail',
-    'member.meal.reserve' => 'Reserve',
+    'member.meal.reserve' => 'Reservere',
     'member.meal.mine' => 'Mine forbehold',
     'member.meal.list_adults' => 'Voksne',
     'member.meal.list_children' => 'Børn',

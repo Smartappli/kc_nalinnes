@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Copil - 10 EUR',
     'meal.card.child.description' => '1 cârnat sau 1 frigăruie.',
     'meal.form.name' => 'Nume și prenume',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'E-mail',
     'meal.form.phone' => 'Telefon',
     'meal.form.adults' => 'Mese adulți',
     'meal.form.children' => 'Mese copii',

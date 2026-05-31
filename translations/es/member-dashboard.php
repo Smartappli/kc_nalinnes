@@ -6,7 +6,7 @@ return [
     'member.heading' => 'Panel de miembro',
     'member.subtitle' => 'Área de miembro conectada - perfiles gestionables: {count}',
     'member.logout' => 'Cerrar sesión',
-    'member.user.username_empty' => '—',
+    'member.user.username_empty' => '-',
     'member.flash.csrf' => 'Solicitud no válida (CSRF).',
     'member.flash.logged_out' => 'Ha cerrado sesión.',
     'member.flash.login_required' => 'Inicie sesión para acceder al panel de miembro.',

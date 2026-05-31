@@ -20,7 +20,7 @@ return [
     'home.schedule.body' => 'Sesiunile de antrenament sunt organizate pe parcursul sezonului pe grupe de vârstă și niveluri. Contactați clubul pentru a confirma programul curent.',
     'home.prices.title' => 'Preturi',
     'home.prices.body' => 'Taxele de membru sunt menținute accesibile și depind de sezon și de profilul membrului. Clubul poate oferi detaliile actuale la cerere.',
-    'home.calendar.title' => 'Calendar',
+    'home.calendar.title' => 'Calendaristic',
     'home.calendar.body' => 'Cursurile, examenele, stagiile, evenimentele și competițiile sunt anunțate prin calendarul clubului și canalele de comunicare.',
     'home.instructors.title' => 'Instructori',
     'home.instructors.body' => 'Clasele sunt supravegheate de instructori cu experiență care se concentrează pe progresul tehnic, siguranța și respectul pentru fiecare practicant.',

@@ -5,7 +5,7 @@ return [
     'common.brand' => 'KC Nalinnes',
     'common.nav.schedule' => 'Program',
     'common.nav.prices' => 'Prețuri',
-    'common.nav.calendar' => 'Calendar',
+    'common.nav.calendar' => 'Calendaristic',
     'common.nav.instructors' => 'Instructori',
     'common.nav.documents' => 'Documente',
     'common.nav.news' => 'Noutăți',

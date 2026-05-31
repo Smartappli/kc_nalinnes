@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Παιδί - 10 EUR',
     'meal.card.child.description' => '1 λουκάνικο ή 1 σουβλάκι.',
     'meal.form.name' => 'Όνομα και επώνυμο',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'E-mail',
     'meal.form.phone' => 'Τηλέφωνο',
     'meal.form.adults' => 'Γεύματα ενηλίκων',
     'meal.form.children' => 'Γεύματα παιδιών',

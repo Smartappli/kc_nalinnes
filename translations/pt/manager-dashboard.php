@@ -23,7 +23,7 @@ return [
     'manager.users.title' => 'Gestao de utilizadores',
     'manager.users.description' => 'Altere a funcao admin/membro a partir do painel de administracao.',
     'manager.users.id' => 'ID',
-    'manager.users.email' => 'Email',
+    'manager.users.email' => 'E-mail',
     'manager.users.username' => 'Nome de utilizador',
     'manager.users.grade' => 'Graduacao',
     'manager.users.role' => 'Funcao',

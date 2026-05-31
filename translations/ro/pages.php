@@ -89,7 +89,7 @@ return [
     'page.techniques_kumite.distance.body' => 'Distanța corectă vă permite să atacați sau să vă apărați fără să vă grăbiți. Se învață prin mișcare și observație.',
     'page.techniques_kumite.timing.title' => 'Timpul',
     'page.techniques_kumite.timing.body' => 'Timing înseamnă a acționa la momentul potrivit: înainte, în timpul sau după acțiunea partenerului.',
-    'page.techniques_kumite.control.title' => 'Control',
+    'page.techniques_kumite.control.title' => 'Controla',
     'page.techniques_kumite.control.body' => 'Controlul este esențial. Tehnicile trebuie să fie precise și decisive, fără a pune partenerul în pericol.',
     'page.techniques_kumite.respect.title' => 'Respect',
     'page.techniques_kumite.respect.body' => 'Kumite rămâne un exercițiu de învățare. Salutul, ascultarea și autocontrolul sunt la fel de importante ca eficiența tehnică.',

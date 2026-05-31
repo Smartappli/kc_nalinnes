@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 return [
-    'manager.meta.title' => 'Dashboard - KC Nalinnes',
-    'manager.heading' => 'Dashboard',
+    'manager.meta.title' => 'Cruscotto - KC Nalinnes',
+    'manager.heading' => 'Pannello di controllo',
     'manager.subtitle' => 'Area membri',
     'manager.logout' => 'Disconnetti',
     'manager.flash.csrf' => 'Richiesta non valida (CSRF).',
@@ -23,7 +23,7 @@ return [
     'manager.users.title' => 'Gestione utenti',
     'manager.users.description' => 'Cambia il ruolo admin/membro dalla dashboard admin.',
     'manager.users.id' => 'ID',
-    'manager.users.email' => 'Email',
+    'manager.users.email' => 'E-mail',
     'manager.users.username' => 'Nome utente',
     'manager.users.grade' => 'Grado',
     'manager.users.role' => 'Ruolo',

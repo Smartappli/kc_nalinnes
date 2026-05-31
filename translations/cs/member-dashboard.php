@@ -26,7 +26,7 @@ return [
     'member.active.self' => 'Já sám',
     'member.active.child' => 'Nezletilé dítě',
     'member.active.choose_child' => '-- Vyberte si dítě --',
-    'member.active.set' => 'Set',
+    'member.active.set' => 'Soubor',
     'member.meal.title' => 'Rezervace stravy na konec roku',
     'member.meal.description' => 'Můžete si rezervovat pro sebe nebo pro řízené nezletilé dítě.',
     'member.meal.profile' => 'Profil',

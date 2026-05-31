@@ -6,7 +6,7 @@ return [
     'member.heading' => 'Painel de membro',
     'member.subtitle' => 'Área de membro ligada - perfis geríveis: {count}',
     'member.logout' => 'Terminar sessão',
-    'member.user.username_empty' => '—',
+    'member.user.username_empty' => '-',
     'member.flash.csrf' => 'Pedido inválido (CSRF).',
     'member.flash.logged_out' => 'A sessão foi terminada.',
     'member.flash.login_required' => 'Inicie sessão para aceder ao painel de membro.',

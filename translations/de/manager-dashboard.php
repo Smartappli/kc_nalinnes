@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 return [
-    'manager.meta.title' => 'Dashboard - KC Nalinnes',
-    'manager.heading' => 'Dashboard',
+    'manager.meta.title' => 'Armaturenbrett – KC Nalinnes',
+    'manager.heading' => 'Armaturenbrett',
     'manager.subtitle' => 'Mitgliederbereich',
     'manager.logout' => 'Abmelden',
     'manager.flash.csrf' => 'Ungultige Anfrage (CSRF).',

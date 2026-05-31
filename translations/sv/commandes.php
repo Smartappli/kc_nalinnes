@@ -13,7 +13,7 @@ return [
     'commandes.table.total' => 'Totalt',
     'commandes.menu.adults' => 'Vuxna: en amerikansk bifftartar med pommes frites',
     'commandes.menu.children' => 'Barn: en köttbulle med pommes frites',
-    'commandes.reservation.title' => 'Reservation',
+    'commandes.reservation.title' => 'Bokning',
     'commandes.form.last_name' => 'Efternamn',
     'commandes.form.last_name_placeholder' => 'Karateka efternamn',
     'commandes.form.first_name' => 'Förnamn',

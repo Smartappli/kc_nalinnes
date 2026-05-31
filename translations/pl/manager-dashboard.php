@@ -23,7 +23,7 @@ return [
     'manager.users.title' => 'Zarządzanie użytkownikami',
     'manager.users.description' => 'Zmień rolę administratora/członka z panelu administratora.',
     'manager.users.id' => 'ID',
-    'manager.users.email' => 'Email',
+    'manager.users.email' => 'E-mail',
     'manager.users.username' => 'Nazwa użytkownika',
     'manager.users.grade' => 'Stopień',
     'manager.users.role' => 'Rola',

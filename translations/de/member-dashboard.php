@@ -6,7 +6,7 @@ return [
     'member.heading' => 'Mitglieder-Dashboard',
     'member.subtitle' => 'Verbundenes Mitgliederbereich - verwaltbare Profile: {count}',
     'member.logout' => 'Abmelden',
-    'member.user.username_empty' => '—',
+    'member.user.username_empty' => '–',
     'member.flash.csrf' => 'Ungültige Anfrage (CSRF).',
     'member.flash.logged_out' => 'Sie sind abgemeldet.',
     'member.flash.login_required' => 'Bitte melden Sie sich an, um auf das Mitglieder-Dashboard zuzugreifen.',
