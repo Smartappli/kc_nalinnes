@@ -23,13 +23,28 @@ function get_db_admin_emails(\PDO $db): array {
     return array_values(array_filter(array_map('normalize_email', $emails ?: [])));
 }
 
-function get_effective_admin_emails(\PDO $db, string $raw): array {
+function get_configured_admin_emails(\PDO $db, string $raw): array {
     $fromEnv = parse_admin_emails($raw);
-    $fromDb = get_db_admin_emails($db);
-    $all = array_values(array_unique(array_merge($fromEnv, $fromDb)));
+
+    try {
+        $fromDb = get_db_admin_emails($db);
+    }
+    catch (\Throwable $e) {
+        if ($fromEnv !== []) {
+            return $fromEnv;
+        }
+
+        throw $e;
+    }
+
+    return array_values(array_unique(array_merge($fromEnv, $fromDb)));
+}
+
+function get_effective_admin_emails(\PDO $db, string $raw): array {
+    $all = get_configured_admin_emails($db, $raw);
 
     if ($all === []) {
-        throw new \RuntimeException('Aucun admin configuré (ADMIN_EMAILS et admin_users vides).');
+        throw new \RuntimeException('Aucun admin configure (ADMIN_EMAILS et admin_users vides).');
     }
 
     return $all;
@@ -40,10 +55,9 @@ function is_admin_email(string $email, array $adminEmails): bool {
 }
 
 function resolve_dashboard_path(string $email, \PDO $db, string $adminEmailsRaw): string {
-    $adminEmails = get_effective_admin_emails($db, $adminEmailsRaw);
+    $adminEmails = get_configured_admin_emails($db, $adminEmailsRaw);
     return is_admin_email($email, $adminEmails) ? '/manager/dashboard.php' : '/member/dashboard.php';
 }
-
 
 function is_temp_bypass_login_enabled(): bool {
     $raw = getenv('TEMP_BYPASS_LOGIN');
@@ -61,8 +75,15 @@ function set_admin_role(\PDO $db, string $email, bool $isAdmin): void {
     $email = normalize_email($email);
 
     if ($isAdmin) {
-        $stmt = $db->prepare('INSERT IGNORE INTO admin_users (email) VALUES (:email)');
-        $stmt->execute([':email' => $email]);
+        try {
+            $stmt = $db->prepare('INSERT INTO admin_users (email) VALUES (:email)');
+            $stmt->execute([':email' => $email]);
+        }
+        catch (\PDOException $e) {
+            if ($e->getCode() !== '23000') {
+                throw $e;
+            }
+        }
         return;
     }
 

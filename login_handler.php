@@ -68,7 +68,13 @@ try {
 
     unset($_SESSION['old_email'], $_SESSION['old_remember']);
     flash(kc_t('membres.flash.success'), 'success');
-    $redirectSuccess = resolve_dashboard_path($email, $db, (string) getenv('ADMIN_EMAILS'));
+    try {
+        $redirectSuccess = resolve_dashboard_path($email, $db, (string) getenv('ADMIN_EMAILS'));
+    }
+    catch (\Throwable $e) {
+        error_log('Dashboard resolution failed after login: ' . $e->getMessage());
+        $redirectSuccess = '/member/dashboard.php';
+    }
     header('Location: ' . kc_redirect_url_with_locale($redirectSuccess));
     exit;
 }
