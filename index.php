@@ -30,7 +30,7 @@ function e(string $text): string {
   <meta property="og:url" content="https://kc-nalinnes.be/" />
   <meta property="og:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
   <meta property="og:locale" content="fr_BE" />
-  <meta property="og:site_name" content="Karaté Club Nalinnes" />
+  <meta property="og:site_name" content="KaratÃ© Club Nalinnes" />
 
   <!-- Twitter -->
   <meta name="twitter:card" content="summary_large_image" />
@@ -39,16 +39,16 @@ function e(string $text): string {
   <meta name="twitter:image" content="https://kc-nalinnes.be/assets/og-karate.jpg" />
 
   <meta name="theme-color" content="#0f172a" />
-  <link rel="alternate" type="application/json" href="/ai-summary.json" title="Résumé factuel KC Nalinnes pour moteurs génératifs" />
-  <link rel="alternate" type="application/ld+json" href="/entity.jsonld" title="Entité KC Nalinnes en JSON-LD" />
-  <link rel="alternate" type="application/json" href="/answers.json" title="Réponses directes KC Nalinnes" />
+  <link rel="alternate" type="application/json" href="/ai-summary.json" title="RÃ©sumÃ© factuel KC Nalinnes pour moteurs gÃ©nÃ©ratifs" />
+  <link rel="alternate" type="application/ld+json" href="/entity.jsonld" title="EntitÃ© KC Nalinnes en JSON-LD" />
+  <link rel="alternate" type="application/json" href="/answers.json" title="RÃ©ponses directes KC Nalinnes" />
 
   <!-- PWA -->
   <link rel="manifest" href="/manifest.webmanifest">
   <link rel="apple-touch-icon" href="/assets/icons/icon-192x192.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Karaté Club Nalinnes">
+  <meta name="apple-mobile-web-app-title" content="KaratÃ© Club Nalinnes">
   <meta name="mobile-web-app-capable" content="yes">
 
   <link rel="icon" href="/favicon.ico" />
@@ -62,7 +62,7 @@ function e(string $text): string {
   <link rel="stylesheet" href="css/index.css">
 
   <script>
-    // Theme boot : applique le thème enregistré avant le paint
+    // Theme boot : applique le thÃ¨me enregistrÃ© avant le paint
     (function(){
       try{
         var saved = localStorage.getItem('themeMode');
@@ -71,17 +71,17 @@ function e(string $text): string {
     })();
   </script>
 
-  <!-- Données structurées Local Business / SportsClub -->
+  <!-- DonnÃ©es structurÃ©es Local Business / SportsClub -->
   <script type="application/ld+json">
   {
     "@context": "https://schema.org",
     "@type": "SportsClub",
     "name": "KC Nalinnes",
-    "alternateName": ["Karaté Club Nalinnes", "Karate Club Nalinnes"],
+    "alternateName": ["KaratÃ© Club Nalinnes", "Karate Club Nalinnes"],
     "url": "https://kc-nalinnes.be/",
     "logo": "https://kc-nalinnes.be/assets/logo-kc-nalinnes1.png",
     "image": "https://kc-nalinnes.be/assets/og-karate.jpg",
-    "description": "Karaté Shotokan pour tous niveaux — enfants (5+), ados, adultes. Ambiance familiale, instructeurs diplômés, progression ceintures, stages & compétitions.",
+    "description": "KaratÃ© Shotokan pour tous niveaux â€” enfants (5+), ados, adultes. Ambiance familiale, instructeurs diplÃ´mÃ©s, progression ceintures, stages & compÃ©titions.",
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "Rue des Monts 18",
@@ -113,14 +113,14 @@ function e(string $text): string {
       "Charleroi",
       "Hainaut"
     ],
-    "sport": "Karaté Shotokan",
+    "sport": "KaratÃ© Shotokan",
     "knowsAbout": [
-      "Karaté Shotokan",
+      "KaratÃ© Shotokan",
       "Kata Shotokan",
-      "Kumité",
+      "KumitÃ©",
       "Kihon",
       "Dojo Kun",
-      "Préparation aux passages de ceinture"
+      "PrÃ©paration aux passages de ceinture"
     ],
     "sameAs": [
       "https://www.facebook.com/KarateClubNalinnes"
@@ -153,13 +153,13 @@ function e(string $text): string {
   {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    "name": "Karaté Club Nalinnes",
+    "name": "KaratÃ© Club Nalinnes",
     "url": "https://kc-nalinnes.be/",
     "inLanguage": "fr-BE",
     "about": {
       "@type": "SportsClub",
       "name": "KC Nalinnes",
-      "sport": "Karaté Shotokan",
+      "sport": "KaratÃ© Shotokan",
       "address": "Rue des Monts 18, 6120 Nalinnes, Belgique"
     }
   }
@@ -172,10 +172,10 @@ function e(string $text): string {
     "mainEntity": [
       {
         "@type": "Question",
-        "name": "À partir de quel âge peut-on commencer le karaté ?",
+        "name": "Ã€ partir de quel Ã¢ge peut-on commencer le karatÃ© ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Les cours sont accessibles dès 5 ans, ainsi qu'aux adolescents et aux adultes."
+          "text": "Les cours sont accessibles dÃ¨s 5 ans, ainsi qu'aux adolescents et aux adultes."
         }
       },
       {
@@ -188,15 +188,15 @@ function e(string $text): string {
       },
       {
         "@type": "Question",
-        "name": "Quelle discipline est enseignée ?",
+        "name": "Quelle discipline est enseignÃ©e ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Le club enseigne le Karaté Shotokan, avec une progression adaptée à tous les niveaux."
+          "text": "Le club enseigne le KaratÃ© Shotokan, avec une progression adaptÃ©e Ã  tous les niveaux."
         }
       },
       {
         "@type": "Question",
-        "name": "Où se trouve le KC Nalinnes ?",
+        "name": "OÃ¹ se trouve le KC Nalinnes ?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Le club se trouve au Centre sportif Jules Roulin-Dorvillez, Rue des Monts 18, 6120 Nalinnes, Belgique."
@@ -207,7 +207,7 @@ function e(string $text): string {
         "name": "Quels sont les horaires principaux ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Les cours ont lieu principalement le lundi de 17h00 à 20h30 et le vendredi de 18h00 à 20h30, selon les groupes d'âge et de niveau."
+          "text": "Les cours ont lieu principalement le lundi de 17h00 Ã  20h30 et le vendredi de 18h00 Ã  20h30, selon les groupes d'Ã¢ge et de niveau."
         }
       },
       {
@@ -215,7 +215,7 @@ function e(string $text): string {
         "name": "Comment contacter le club ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Le club peut être contacté par email à info@kc-nalinnes.be, par téléphone au +32 497 25 12 14 ou au +32 488 09 50 27."
+          "text": "Le club peut Ãªtre contactÃ© par email Ã  info@kc-nalinnes.be, par tÃ©lÃ©phone au +32 497 25 12 14 ou au +32 488 09 50 27."
         }
       }
     ]
@@ -284,7 +284,7 @@ function e(string $text): string {
                   aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
             <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.8 1.8-1.79zm10.48 0l1.8-1.79 1.79 1.78-1.79 1.8-1.8-1.79zM12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 12H1v0h3v0zm19 0h-3v0h3v0zM6.76 19.16l-1.8 1.79-1.79-1.78 1.79-1.8 1.8 1.79zM17.24 19.16l1.8 1.79 1.79-1.78-1.79-1.8-1.8 1.79zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
             <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
-            <span id="themeLabel">Dark</span>
+            <span id="themeLabel"><?= e(kc_t('home.theme.dark')) ?></span>
           </button>
         </nav>
 
@@ -292,7 +292,7 @@ function e(string $text): string {
           class="md:hidden inline-flex h-10 w-10 items-center justify-center rounded-md
                 bg-slate-800 text-slate-100 border border-transparent
                 hover:bg-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500"
-          aria-label="<?= e(kc_t('common.menu.open')) ?>" type="button">☰</button>
+          aria-label="<?= e(kc_t('common.menu.open')) ?>" type="button">â˜°</button>
       </div>
     </div>
 
@@ -311,7 +311,7 @@ function e(string $text): string {
         <!-- Bouton Light/Dark mobile -->
         <button id="themeToggleMobile" class="mt-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
                 aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
-          🌗 <span id="themeLabelMobile">Dark</span>
+          ðŸŒ— <span id="themeLabelMobile"><?= e(kc_t('home.theme.dark')) ?></span>
         </button>
       </div>
     </nav>
@@ -354,7 +354,7 @@ function e(string $text): string {
 
   <!-- Hero -->
   <section class="relative section" id="accueil">
-    <!-- Image de fond + dégradé -->
+    <!-- Image de fond + dÃ©gradÃ© -->
     <div class="absolute inset-0">
       <img
         src="/assets/hero-karate.jpg"
@@ -408,11 +408,11 @@ function e(string $text): string {
           </div>
         </div>
 
-        <!-- Colonne vidéo + carte (même largeur) -->
+        <!-- Colonne vidÃ©o + carte (mÃªme largeur) -->
         <div class="relative lg:justify-self-end">
-          <!-- Largeur commune (VIDÉO + CARTE) -->
+          <!-- Largeur commune (VIDÃ‰O + CARTE) -->
           <div class="mx-auto w-full max-w-[22rem] lg:mx-0 lg:ml-auto">
-            <!-- Bloc vidéo -->
+            <!-- Bloc vidÃ©o -->
             <div class="relative">
               <!-- Glow -->
               <div
@@ -435,7 +435,7 @@ function e(string $text): string {
                   </span>
                 </div>
 
-                <!-- Vidéo responsive -->
+                <!-- VidÃ©o responsive -->
                 <div class="aspect-video">
                   <iframe
                     id="random-youtube"
@@ -452,7 +452,7 @@ function e(string $text): string {
               </div>
             </div>
 
-            <!-- Carte groupes (même largeur) -->
+            <!-- Carte groupes (mÃªme largeur) -->
             <div class="mt-4">
               <div class="rounded-2xl bg-slate-900/80 border border-slate-700/70 p-5 shadow-xl backdrop-blur">
                 <p class="text-xs uppercase tracking-[0.18em] text-slate-400 mb-3">
@@ -509,7 +509,7 @@ function e(string $text): string {
         </div>
         <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <dt class="font-semibold text-slate-100"><?= e(kc_t('home.essential.contact.label')) ?></dt>
-          <dd class="mt-1 text-slate-300">info@kc-nalinnes.be · +32 497 25 12 14 · +32 488 09 50 27</dd>
+          <dd class="mt-1 text-slate-300">info@kc-nalinnes.be Â· +32 497 25 12 14 Â· +32 488 09 50 27</dd>
         </div>
       </dl>
     </div>
@@ -552,28 +552,28 @@ function e(string $text): string {
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-          <div class="text-2xl mb-2">🥋</div>
+          <div class="text-2xl mb-2">ðŸ¥‹</div>
           <h3 class="font-semibold"><a href="karate-shotokan.php"><?= e(kc_t('page.karate_shotokan.heading')) ?></a> <a href="https://www.ffkama.be/">FFKAMA/GFK</a></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
             <?= e(kc_t('home.why.affiliated.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-          <div class="text-2xl mb-2">👨‍👩‍👧</div>
+          <div class="text-2xl mb-2">ðŸ‘¨â€ðŸ‘©â€ðŸ‘§</div>
           <h3 class="font-semibold"><?= e(kc_t('home.why.all_ages.title')) ?></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
             <?= e(kc_t('home.why.all_ages.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-          <div class="text-2xl mb-2">🎓</div>
+          <div class="text-2xl mb-2">ðŸŽ“</div>
           <h3 class="font-semibold"><?= e(kc_t('home.why.grades.title')) ?></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
             <?= e(kc_t('home.why.grades.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
-          <div class="text-2xl mb-2">🏆</div>
+          <div class="text-2xl mb-2">ðŸ†</div>
           <h3 class="font-semibold"><?= e(kc_t('home.why.events.title')) ?></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
             <?= e(kc_t('home.why.events.body')) ?>
@@ -642,7 +642,7 @@ function e(string $text): string {
     </div>
   </section>
 
-  <!-- Tarifs septembre à juin -->
+  <!-- Tarifs septembre Ã  juin -->
   <section id="tarifs" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <h2 class="text-3xl font-bold"><?= e(kc_t('home.prices.full_year.title')) ?></h2>
@@ -654,7 +654,7 @@ function e(string $text): string {
         <div class="rounded-2xl border border-slate-800 p-6">
           <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.children.title')) ?></h3>
           <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.children.subtitle')) ?></p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="150" data-monthly="20">150</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
+          <p class="mt-4 text-4xl font-extrabold">â‚¬<span class="price-amount" data-annual="150" data-monthly="20">150</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
             <li><?= e(kc_t('home.prices.feature.license')) ?></li>
             <li><?= e(kc_t('home.prices.feature.one_class')) ?></li>
@@ -665,7 +665,7 @@ function e(string $text): string {
         <div class="rounded-2xl border border-sky-700 p-6 ring-1 ring-sky-700">
           <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.all.title')) ?></h3>
           <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.all.subtitle')) ?></p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="250" data-monthly="35">250</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
+          <p class="mt-4 text-4xl font-extrabold">â‚¬<span class="price-amount" data-annual="250" data-monthly="35">250</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
             <li><?= e(kc_t('home.prices.feature.license')) ?></li>
             <li><?= e(kc_t('home.prices.feature.two_classes')) ?></li>
@@ -676,7 +676,7 @@ function e(string $text): string {
         <div class="rounded-2xl border border-slate-800 p-6">
           <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.family.title')) ?></h3>
           <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.family.second_child')) ?></p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="200" data-monthly="30">200</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
+          <p class="mt-4 text-4xl font-extrabold">â‚¬<span class="price-amount" data-annual="200" data-monthly="30">200</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
             <li><?= e(kc_t('home.prices.feature.discount')) ?></li>
             <li><?= e(kc_t('home.prices.feature.installments')) ?></li>
@@ -699,7 +699,7 @@ function e(string $text): string {
     </div>
   </section>
 
-  <!-- Tarifs janvier à juin -->
+  <!-- Tarifs janvier Ã  juin -->
   <section id="tarifs2" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <h2 class="text-3xl font-bold"><?= e(kc_t('home.prices.half_year.title')) ?></h2>
@@ -711,7 +711,7 @@ function e(string $text): string {
         <div class="rounded-2xl border border-slate-800 p-6">
           <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.children.title')) ?></h3>
           <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.children.subtitle')) ?></p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="90" data-monthly="20">90</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
+          <p class="mt-4 text-4xl font-extrabold">â‚¬<span class="price-amount2" data-annual="90" data-monthly="20">90</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
             <li><?= e(kc_t('home.prices.feature.license')) ?></li>
             <li><?= e(kc_t('home.prices.feature.one_class')) ?></li>
@@ -722,7 +722,7 @@ function e(string $text): string {
         <div class="rounded-2xl border border-sky-700 p-6 ring-1 ring-sky-700">
           <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.all.title')) ?></h3>
           <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.all.subtitle')) ?></p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="150" data-monthly="35">150</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
+          <p class="mt-4 text-4xl font-extrabold">â‚¬<span class="price-amount2" data-annual="150" data-monthly="35">150</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
             <li><?= e(kc_t('home.prices.feature.license')) ?></li>
             <li><?= e(kc_t('home.prices.feature.two_classes')) ?></li>
@@ -733,7 +733,7 @@ function e(string $text): string {
         <div class="rounded-2xl border border-slate-800 p-6">
           <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.family.title')) ?></h3>
           <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.family.second_child')) ?></p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="120" data-monthly="30">120</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
+          <p class="mt-4 text-4xl font-extrabold">â‚¬<span class="price-amount2" data-annual="120" data-monthly="30">120</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
             <li><?= e(kc_t('home.prices.feature.discount')) ?></li>
             <li><?= e(kc_t('home.prices.feature.installments')) ?></li>
@@ -808,39 +808,39 @@ function e(string $text): string {
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
           <img
             src="./assets/senpai2.jpg"
-            alt="Senpai Hervé Lowie"
+            alt="Senpai HervÃ© Lowie"
             class="h-80 max-w-xs mx-auto rounded-xl object-cover"
           />
-          <h3 class="mt-4 text-xl font-semibold">Senpai Hervé Lowie</h3>
+          <h3 class="mt-4 text-xl font-semibold">Senpai HervÃ© Lowie</h3>
           <p class="text-slate-300"><?= e(kc_t('home.instructors.herve.body')) ?></p>
         </article>
       </div>
-      <!-- Trésorier / Secrétaire -->
+      <!-- TrÃ©sorier / SecrÃ©taire -->
       <!--<div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
           <img
             src="./assets/"
-            alt="Secrétaire"
+            alt="SecrÃ©taire"
             class="h-80 max-w-xs mx-auto rounded-xl object-cover"
           />
-          <h3 class="mt-4 text-xl font-semibold">Secrétaire</h3>
+          <h3 class="mt-4 text-xl font-semibold">SecrÃ©taire</h3>
           <p class="text-slate-300">Ceinture.</p>
         </article>
 
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
           <img
             src="./assets/"
-            alt="Trésorier"
+            alt="TrÃ©sorier"
             class="h-80 max-w-xs mx-auto rounded-xl object-cover"
           />
-          <h3 class="mt-4 text-xl font-semibold">Trésorier</h3>
+          <h3 class="mt-4 text-xl font-semibold">TrÃ©sorier</h3>
           <p class="text-slate-300">Ceinture.</p>
         </article>
       </div>-->
     </div>
   </section>
 
-  <!-- Témoignages -->
+  <!-- TÃ©moignages -->
   <section id="temoignages" class="section bg-slate-900/40">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <h2 class="text-3xl font-bold"><?= e(kc_t('home.testimonials.title')) ?></h2>
@@ -879,13 +879,13 @@ function e(string $text): string {
       <h2 class="text-3xl font-bold"><?= e(kc_t('home.calendar.title')) ?></h2>
       <p class="mt-2 text-slate-300"><?= e(kc_t('home.calendar.short_body')) ?></p>
 
-      <!-- Boutons ICS : 4 fichiers séparés -->
+      <!-- Boutons ICS : 4 fichiers sÃ©parÃ©s -->
       <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 text-xs sm:text-sm">
 
         <button id="btnExportICSenfants"
                 class="group inline-flex items-center gap-2 rounded-xl border border-blue-400/70 bg-blue-500/10 px-4 py-2 font-semibold text-blue-100 hover:bg-blue-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
           <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-blue-500/20 group-hover:bg-blue-600/80">
-            📅
+            ðŸ“…
           </span>
           <span class="text-left leading-tight">
             <span class="block"><?= e(kc_t('home.calendar.ics.children')) ?></span>
@@ -896,7 +896,7 @@ function e(string $text): string {
         <button id="btnExportICSados"
                 class="group inline-flex items-center gap-2 rounded-xl border border-orange-400/70 bg-orange-500/10 px-4 py-2 font-semibold text-orange-100 hover:bg-orange-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
           <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-orange-500/20 group-hover:bg-orange-600/80">
-            📅
+            ðŸ“…
           </span>
           <span class="text-left leading-tight">
             <span class="block"><?= e(kc_t('home.calendar.ics.teens')) ?></span>
@@ -907,7 +907,7 @@ function e(string $text): string {
         <button id="btnExportICSadultes"
                 class="group inline-flex items-center gap-2 rounded-xl border border-green-400/70 bg-green-500/10 px-4 py-2 font-semibold text-green-100 hover:bg-green-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
           <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-green-500/20 group-hover:bg-green-600/80">
-            📅
+            ðŸ“…
           </span>
           <span class="text-left leading-tight">
             <span class="block"><?= e(kc_t('home.calendar.ics.adults')) ?></span>
@@ -918,7 +918,7 @@ function e(string $text): string {
         <button id="btnExportICStout"
                 class="group inline-flex items-center gap-2 rounded-xl border border-sky-400/80 bg-slate-900/60 px-4 py-2 font-semibold text-slate-100 hover:bg-gradient-to-r hover:from-blue-500 hover:via-orange-500 hover:to-green-500 hover:text-slate-900 hover:shadow-lg hover:-translate-y-[1px] transition">
           <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-slate-800 group-hover:bg-slate-900/10">
-            ⭐
+            â­
           </span>
           <span class="text-left leading-tight">
             <span class="block"><?= e(kc_t('home.calendar.ics.club')) ?></span>
@@ -958,7 +958,7 @@ function e(string $text): string {
           <a href="/docs/fichier_modulable_licence_pratiquant_avec_carnet.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -967,7 +967,7 @@ function e(string $text): string {
           </a>
         </article>
 
-        <!-- Programme et conditions pour les épreuves Shiken G.F.K.-->
+        <!-- Programme et conditions pour les Ã©preuves Shiken G.F.K.-->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
             <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.shiken.title')) ?></h3>
@@ -978,7 +978,7 @@ function e(string $text): string {
           <a href="/docs/programme-shiken-092025-3.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -987,7 +987,7 @@ function e(string $text): string {
           </a>
         </article>
 
-        <!-- Déclaration d'assurance Ethias -->
+        <!-- DÃ©claration d'assurance Ethias -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
             <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.accident.title')) ?></h3>
@@ -998,7 +998,7 @@ function e(string $text): string {
           <a href="/docs/Ethias_D_E9clarationAccident_45.339.711.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1022,7 +1022,7 @@ function e(string $text): string {
           <a href="/docs/mc_formulaire_AC_SPORT_A4_FR_2024_V2.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1042,7 +1042,7 @@ function e(string $text): string {
           <a href="/docs/Formulaire-de-demande-dintervention-Sports-2025.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1051,7 +1051,7 @@ function e(string $text): string {
           </a>
         </article>
 
-        <!-- Prime Mutualité neutre -->
+        <!-- Prime MutualitÃ© neutre -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
             <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.neutral.title')) ?></h3>
@@ -1062,7 +1062,7 @@ function e(string $text): string {
           <a href="/docs/SC - sport.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1075,7 +1075,7 @@ function e(string $text): string {
       <!-- Ligne 3 -->
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
 
-        <!-- Prime Mutualité libérale -->
+        <!-- Prime MutualitÃ© libÃ©rale -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
             <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.liberal.title')) ?></h3>
@@ -1086,7 +1086,7 @@ function e(string $text): string {
           <a href="/docs/409-FACVA024.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1106,7 +1106,7 @@ function e(string $text): string {
           <a href="/docs/mutualia-ac-sport-fr.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1126,7 +1126,7 @@ function e(string $text): string {
           <a href="/docs/avantage-inscription club sportif.pdf" download
              class="mt-4 inline-flex items-center justify-center gap-2 rounded-xl border border-sky-400/70 bg-sky-500/10 px-4 py-2 text-sm font-semibold text-sky-100 hover:bg-sky-500 hover:text-slate-900 hover:shadow-md hover:-translate-y-[1px] transition">
             <span class="inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-500/20">
-              ⬇️
+              â¬‡ï¸
             </span>
             <span class="text-left leading-tight">
               <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
@@ -1138,7 +1138,7 @@ function e(string $text): string {
     </div>
   </section>
 
-  <!-- Compétitions -->
+  <!-- CompÃ©titions -->
   <section id="competitions" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
       <h2 class="text-3xl font-bold"><?= e(kc_t('home.competitions.title')) ?></h2>
@@ -1161,7 +1161,7 @@ function e(string $text): string {
             </a>
 
             <a
-              href="./assets/competitions/Carolo Cup - règlement.pdf"
+              href="./assets/competitions/Carolo Cup - rÃ¨glement.pdf"
               download
               class="inline-flex items-center justify-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 border border-slate-700 transition"
             >
@@ -1186,11 +1186,11 @@ function e(string $text): string {
             </a>
             <!--
             <a
-              href="./assets/competitions/Carolo Cup - règlement.pdf"
+              href="./assets/competitions/Carolo Cup - rÃ¨glement.pdf"
               download
               class="inline-flex items-center justify-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 border border-slate-700 transition"
             >
-              Règlement
+              RÃ¨glement
             </a>
             -->
           </div>
@@ -1314,10 +1314,10 @@ function e(string $text): string {
         </div>
 
         <ul class="mt-4 space-y-2 text-slate-300">
-          <li>📧 <a class="underline decoration-sky-500/50 underline-offset-4" href="mailto:info@kc-nalinnes.be">info@kc-nalinnes.be</a></li>
-          <li>📞 <a class="underline decoration-sky-500/50 underline-offset-4" href="tel:+32497251214">Olivier Lowie: +32 497 25 12 14</a></li>
-          <li>📞 <a class="underline decoration-sky-500/50 underline-offset-4" href="tel:+32488095027">Frank Duchesne: +32 488 09 50 27</a></li>
-          <li>📱 <a class="underline decoration-sky-500/50 underline-offset-4" href="https://www.facebook.com/KarateClubNalinnes">Facebook</a><!-- · <a class="underline decoration-sky-500/50 underline-offset-4" href="#">Instagram</a></li>-->
+          <li>ðŸ“§ <a class="underline decoration-sky-500/50 underline-offset-4" href="mailto:info@kc-nalinnes.be">info@kc-nalinnes.be</a></li>
+          <li>ðŸ“ž <a class="underline decoration-sky-500/50 underline-offset-4" href="tel:+32497251214">Olivier Lowie: +32 497 25 12 14</a></li>
+          <li>ðŸ“ž <a class="underline decoration-sky-500/50 underline-offset-4" href="tel:+32488095027">Frank Duchesne: +32 488 09 50 27</a></li>
+          <li>ðŸ“± <a class="underline decoration-sky-500/50 underline-offset-4" href="https://www.facebook.com/KarateClubNalinnes">Facebook</a><!-- Â· <a class="underline decoration-sky-500/50 underline-offset-4" href="#">Instagram</a></li>-->
         </ul>
       </div>
 
@@ -1347,35 +1347,35 @@ function e(string $text): string {
   <section class="section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
       <a href="karate-shotokan.php" class="kc-badge-link">
-        <span class="kc-badge-icon">🥋</span>
+        <span class="kc-badge-icon">ðŸ¥‹</span>
         <span class="kc-badge-label"><?= e(kc_t('page.karate_shotokan.heading')) ?></span>
       </a>
       <a href="kata-shotokan.php" class="kc-badge-link">
-        <span class="kc-badge-icon">🌀</span>
+        <span class="kc-badge-icon">ðŸŒ€</span>
         <span class="kc-badge-label"><?= e(kc_t('page.kata_shotokan.heading')) ?></span>
       </a>
       <a href="vocabulaire-karate-shotokan.php" class="kc-badge-link">
-        <span class="kc-badge-icon">📖</span>
+        <span class="kc-badge-icon">ðŸ“–</span>
         <span class="kc-badge-label"><?= e(kc_t('page.vocabulaire.heading')) ?></span>
       </a>
       <a href="dojo-kun.php" class="kc-badge-link">
-        <span class="kc-badge-icon">🧠</span>
+        <span class="kc-badge-icon">ðŸ§ </span>
         <span class="kc-badge-label"><?= e(kc_t('page.dojo_kun.heading')) ?></span>
       </a>
       <a href="technique_base.php" class="kc-badge-link">
-        <span class="kc-badge-icon">👊</span>
+        <span class="kc-badge-icon">ðŸ‘Š</span>
         <span class="kc-badge-label"><?= e(kc_t('page.technique_base.heading')) ?></span>
       </a>
       <a href="techniques_kumite.php" class="kc-badge-link">
-        <span class="kc-badge-icon">🥊</span>
+        <span class="kc-badge-icon">ðŸ¥Š</span>
         <span class="kc-badge-label"><?= e(kc_t('page.techniques_kumite.heading')) ?></span>
       </a>
       <a href="reviser_katas.php" class="kc-badge-link">
-        <span class="kc-badge-icon">📝</span>
+        <span class="kc-badge-icon">ðŸ“</span>
         <span class="kc-badge-label"><?= e(kc_t('page.reviser_katas.heading')) ?></span>
       </a>
       <a href="stretching.php" class="kc-badge-link">
-        <span class="kc-badge-icon">🧘</span>
+        <span class="kc-badge-icon">ðŸ§˜</span>
         <span class="kc-badge-label"><?= e(kc_t('page.stretching.heading')) ?></span>
       </a>
     </div>
@@ -1384,7 +1384,7 @@ function e(string $text): string {
   <!-- Footer -->
   <footer class="border-t border-slate-800">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-slate-400 flex flex-col md:flex-row gap-3 items-center justify-between">
-      <p>© <span id="year"></span> KC Nalinnes. <?= e(kc_t('common.footer.rights')) ?> - <?= e(kc_t('common.footer.developed_by')) ?> <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
+      <p>Â© <span id="year"></span> KC Nalinnes. <?= e(kc_t('common.footer.rights')) ?> - <?= e(kc_t('common.footer.developed_by')) ?> <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
       <nav class="flex gap-4">
         <a href="/mentions-legales.php" class="hover:text-orange-600"><?= e(kc_t('common.footer.legal')) ?></a>
         <a href="/politique-confidentialite.php" class="hover:text-orange-600"><?= e(kc_t('common.footer.privacy')) ?></a>
@@ -1409,6 +1409,24 @@ function e(string $text): string {
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
+      const homeI18n = {
+        themeLight: <?= json_encode(kc_t('home.theme.light'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        themeDark: <?= json_encode(kc_t('home.theme.dark'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventChildren: <?= json_encode(kc_t('home.calendar.event.children'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventTeens: <?= json_encode(kc_t('home.calendar.event.teens'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventAdults: <?= json_encode(kc_t('home.calendar.event.adults'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventSaintNicholas: <?= json_encode(kc_t('home.calendar.event.saint_nicholas'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventSaintNicholasChildren: <?= json_encode(kc_t('home.calendar.event.saint_nicholas_children'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventGrading: <?= json_encode(kc_t('home.calendar.event.grading'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventTeensAdults: <?= json_encode(kc_t('home.calendar.event.teens_adults'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventTeensAdultsOctober: <?= json_encode(kc_t('home.calendar.event.teens_adults_october'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventTeensAdultsFebruary: <?= json_encode(kc_t('home.calendar.event.teens_adults_february'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        eventTeensAdultsEaster: <?= json_encode(kc_t('home.calendar.event.teens_adults_easter'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        icsChildrenName: <?= json_encode(kc_t('home.calendar.ics.name.children'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        icsTeensName: <?= json_encode(kc_t('home.calendar.ics.name.teens'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        icsAdultsName: <?= json_encode(kc_t('home.calendar.ics.name.adults'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        icsClubName: <?= json_encode(kc_t('home.calendar.ics.name.club'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+      };
 
       // --- Sakura (actif du 1/3 au 31/3) -----------------------------
       try {
@@ -1425,7 +1443,7 @@ function e(string $text): string {
           container.id = 'sakuraContainer';
           document.body.appendChild(container);
 
-          const petals = ['🌸', '🌸', '🌸']; 
+          const petals = ['ðŸŒ¸', 'ðŸŒ¸', 'ðŸŒ¸']; 
 
           for (let i = 0; i < PETAL_COUNT; i++) {
             const petal = document.createElement('span');
@@ -1436,8 +1454,8 @@ function e(string $text): string {
             const startLeft = Math.random() * 100;        // 0..100 vw
             const size = 0.8 + Math.random() * 1.4;       // 0.8rem..2.2rem
             const duration = 9 + Math.random() * 10;      // 9s..19s
-            const delay = -Math.random() * 20;            // démarrage échelonné
-            const drift = -40 + Math.random() * 120;      // dérive gauche/droite
+            const delay = -Math.random() * 20;            // dÃ©marrage Ã©chelonnÃ©
+            const drift = -40 + Math.random() * 120;      // dÃ©rive gauche/droite
             const spin = (Math.random() < 0.5 ? -1 : 1) * (180 + Math.random() * 540);
 
             petal.style.left = startLeft + 'vw';
@@ -1446,8 +1464,8 @@ function e(string $text): string {
             petal.style.animationDelay = delay + 's';
             petal.style.opacity = (0.45 + Math.random() * 0.45).toFixed(2);
 
-            // petite variation par pétale (dérive + rotation) via variable CSS
-            // on “triche” en ajoutant un transform initial via translateX et rotate
+            // petite variation par pÃ©tale (dÃ©rive + rotation) via variable CSS
+            // on â€œtricheâ€ en ajoutant un transform initial via translateX et rotate
             petal.style.transform = `translate3d(0, -120%, 0) rotate(${Math.random() * 360}deg)`;
             petal.style.animationName = 'sakuraFall';
 
@@ -1482,7 +1500,7 @@ function e(string $text): string {
           document.body.appendChild(container);
 
           // Emojis feuilles (simple et efficace)
-          const leaves = ['🍁','🍂','🍃'];
+          const leaves = ['ðŸ','ðŸ‚','ðŸƒ'];
 
           for (let i = 0; i < LEAF_COUNT; i++) {
             const leaf = document.createElement('span');
@@ -1500,12 +1518,12 @@ function e(string $text): string {
             leaf.style.fontSize = size + 'rem';
             leaf.style.opacity = (0.35 + Math.random() * 0.55).toFixed(2);
 
-            // Fallback CSS (au cas où)
+            // Fallback CSS (au cas oÃ¹)
             leaf.style.animationName = 'leafFall';
             leaf.style.animationDuration = duration + 's';
             leaf.style.animationDelay = delay + 's';
 
-            // Animation plus “vivante” (trajet personnalisé)
+            // Animation plus â€œvivanteâ€ (trajet personnalisÃ©)
             if (leaf.animate) {
               leaf.animate(
                 [
@@ -1531,11 +1549,11 @@ function e(string $text): string {
       // --- Flocons de neige (actifs du 1/12 au 6/1) ----------------
       try {
         const now = new Date();
-        const month = now.getMonth();  // 0 = janvier, 11 = décembre
+        const month = now.getMonth();  // 0 = janvier, 11 = dÃ©cembre
         const day   = now.getDate();   // 1..31
 
         const isSnowSeason =
-          (month === 11 && day >= 1) ||   // du 1 au 31 décembre
+          (month === 11 && day >= 1) ||   // du 1 au 31 dÃ©cembre
           (month === 0  && day <= 6);     // du 1 au 6 janvier
 
         if (isSnowSeason) {
@@ -1547,12 +1565,12 @@ function e(string $text): string {
           for (let i = 0; i < SNOWFLAKE_COUNT; i++) {
             const flake = document.createElement('span');
             flake.className = 'snowflake';
-            flake.textContent = '❄';
+            flake.textContent = 'â„';
 
-            const size = 0.6 + Math.random() * 1.1;   // 0.6rem à 1.7rem
-            const startLeft = Math.random() * 100;    // 0 à 100 vw
-            const duration = 8 + Math.random() * 10;  // 8s à 18s
-            const delay = -Math.random() * 20;        // démarrage échelonné
+            const size = 0.6 + Math.random() * 1.1;   // 0.6rem Ã  1.7rem
+            const startLeft = Math.random() * 100;    // 0 Ã  100 vw
+            const duration = 8 + Math.random() * 10;  // 8s Ã  18s
+            const delay = -Math.random() * 20;        // dÃ©marrage Ã©chelonnÃ©
 
             flake.style.left = startLeft + 'vw';
             flake.style.fontSize = size + 'rem';
@@ -1567,7 +1585,7 @@ function e(string $text): string {
         console.error('Erreur neige :', e);
       }
 
-      // --- Thème Light/Dark -----------------------------------------
+      // --- ThÃ¨me Light/Dark -----------------------------------------
       function setTheme(mode){
         const root = document.documentElement;
         const isLight = mode === 'light';
@@ -1576,8 +1594,8 @@ function e(string $text): string {
         const label = document.getElementById('themeLabel');
         const labelM = document.getElementById('themeLabelMobile');
         const sun = document.getElementById('iconSun'), moon = document.getElementById('iconMoon');
-        if(label) label.textContent = isLight ? 'Light' : 'Dark';
-        if(labelM) labelM.textContent = isLight ? 'Light' : 'Dark';
+        if(label) label.textContent = isLight ? homeI18n.themeLight : homeI18n.themeDark;
+        if(labelM) labelM.textContent = isLight ? homeI18n.themeLight : homeI18n.themeDark;
         if(sun && moon){ sun.classList.toggle('hidden', !isLight); moon.classList.toggle('hidden', isLight); }
       }
 
@@ -1626,11 +1644,11 @@ function e(string $text): string {
             slotMaxTime: '21:30:00',
             events: [
               // =========================
-              // COURS RÉCURRENTS (SAISON)
+              // COURS RÃ‰CURRENTS (SAISON)
               // =========================
               {
                 groupId: 'cours-enfants-p1',
-                title: 'Cours Enfants (5+)',
+                title: homeI18n.eventChildren,
                 daysOfWeek: [1],
                 startTime: '17:00',
                 endTime: '18:00',
@@ -1640,7 +1658,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-enfants-p2',
-                title: 'Cours Enfants (5+)',
+                title: homeI18n.eventChildren,
                 daysOfWeek: [1],
                 startTime: '17:00',
                 endTime: '18:00',
@@ -1650,7 +1668,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-enfants-p3',
-                title: 'Cours Enfants (5+)',
+                title: homeI18n.eventChildren,
                 daysOfWeek: [1],
                 startTime: '17:00',
                 endTime: '18:00',
@@ -1660,7 +1678,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-enfants-p4',
-                title: 'Cours Enfants (5+)',
+                title: homeI18n.eventChildren,
                 daysOfWeek: [1],
                 startTime: '17:00',
                 endTime: '18:00',
@@ -1670,7 +1688,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-enfants-p5',
-                title: 'Cours Enfants (5+)',
+                title: homeI18n.eventChildren,
                 daysOfWeek: [1],
                 startTime: '17:00',
                 endTime: '18:00',
@@ -1680,7 +1698,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-ados-p1',
-                title: 'Cours Ados',
+                title: homeI18n.eventTeens,
                 daysOfWeek: [1, 5],
                 startTime: '18:00',
                 endTime: '19:00',
@@ -1690,7 +1708,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-ados-p2',
-                title: 'Cours Ados',
+                title: homeI18n.eventTeens,
                 daysOfWeek: [1, 5],
                 startTime: '18:00',
                 endTime: '19:00',
@@ -1700,7 +1718,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-ados-p3a',
-                title: 'Cours Ados',
+                title: homeI18n.eventTeens,
                 daysOfWeek: [1, 5],
                 startTime: '18:00',
                 endTime: '19:00',
@@ -1710,7 +1728,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-ados-p3b',
-                title: 'Cours Ados',
+                title: homeI18n.eventTeens,
                 daysOfWeek: [1, 5],
                 startTime: '18:00',
                 endTime: '19:00',
@@ -1720,7 +1738,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-ados-p4',
-                title: 'Cours Ados',
+                title: homeI18n.eventTeens,
                 daysOfWeek: [1, 5],
                 startTime: '18:00',
                 endTime: '19:00',
@@ -1730,7 +1748,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-ados-p5',
-                title: 'Cours Ados',
+                title: homeI18n.eventTeens,
                 daysOfWeek: [1, 5],
                 startTime: '18:00',
                 endTime: '19:00',
@@ -1740,7 +1758,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-adultes-p1',
-                title: 'Cours Adultes',
+                title: homeI18n.eventAdults,
                 daysOfWeek: [1, 5],
                 startTime: '19:00',
                 endTime: '20:30',
@@ -1750,7 +1768,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-adultes-p2',
-                title: 'Cours Adultes',
+                title: homeI18n.eventAdults,
                 daysOfWeek: [1, 5],
                 startTime: '19:00',
                 endTime: '20:30',
@@ -1760,7 +1778,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-adultes-p3a',
-                title: 'Cours Adultes',
+                title: homeI18n.eventAdults,
                 daysOfWeek: [1, 5],
                 startTime: '19:00',
                 endTime: '20:30',
@@ -1770,7 +1788,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-adultes-p3b',
-                title: 'Cours Adultes',
+                title: homeI18n.eventAdults,
                 daysOfWeek: [1, 5],
                 startTime: '19:00',
                 endTime: '20:30',
@@ -1780,7 +1798,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-adultes-p4',
-                title: 'Cours Adultes',
+                title: homeI18n.eventAdults,
                 daysOfWeek: [1, 5],
                 startTime: '19:00',
                 endTime: '20:30',
@@ -1790,7 +1808,7 @@ function e(string $text): string {
               },
               {
                 groupId: 'cours-adultes-p5',
-                title: 'Cours Adultes',
+                title: homeI18n.eventAdults,
                 daysOfWeek: [1, 5],
                 startTime: '19:00',
                 endTime: '20:30',
@@ -1800,70 +1818,70 @@ function e(string $text): string {
               },
 
               // =========================
-              // ÉVÉNEMENTS SPÉCIAUX
+              // Ã‰VÃ‰NEMENTS SPÃ‰CIAUX
               // =========================
               {
-                title: 'Saint Nicolas',
+                title: homeI18n.eventSaintNicholas,
                 start: '2025-12-01T17:00:00',
                 end:   '2025-12-01T19:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Passage de grade',
+                title: homeI18n.eventGrading,
                 start: '2026-01-30T18:00:00',
                 end:   '2026-01-30T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Passage de grade',
+                title: homeI18n.eventGrading,
                 start: '2026-06-26T18:00:00',
                 end:   '2026-06-26T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2025-10-27T18:00:00',
                 end:   '2025-10-27T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2025-10-31T18:00:00',
                 end:   '2025-10-31T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2026-02-16T18:00:00',
                 end:   '2026-02-16T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2026-02-20T18:00:00',
                 end:   '2026-02-20T20:00:00',
                 color: '#b91c1c'
               },              
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2026-02-23T18:00:00',
                 end:   '2026-02-23T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2026-02-27T18:00:00',
                 end:   '2026-02-27T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2026-05-04T18:00:00',
                 end:   '2026-05-04T20:00:00',
                 color: '#b91c1c'
               },
               {
-                title: 'Cours Ados/Adultes',
+                title: homeI18n.eventTeensAdults,
                 start: '2026-05-08T18:00:00',
                 end:   '2026-05-08T20:00:00',
                 color: '#b91c1c'
@@ -1871,7 +1889,7 @@ function e(string $text): string {
             ],
             eventClick: function(info){
               if(info.event.url){ return; }
-              const t = info.event.title + (info.event.start ? (' — ' + info.event.start.toLocaleString()) : '');
+              const t = info.event.title + (info.event.start ? (' â€” ' + info.event.start.toLocaleString()) : '');
               alert(t);
             }
           });
@@ -1986,7 +2004,7 @@ function e(string $text): string {
         return out;
       }
 
-      // Segments pour enfants (lundi 17–18)
+      // Segments pour enfants (lundi 17â€“18)
       const SEGMENTS_ENFANTS = [
         { start: '2025-09-01', end: '2025-10-19' },
         { start: '2025-11-03', end: '2025-12-20' },
@@ -2005,14 +2023,14 @@ function e(string $text): string {
         { start: '2026-05-11', end: '2026-06-26' }
       ];
 
-      // --- Construction des événements par groupe -------------------
+      // --- Construction des Ã©vÃ©nements par groupe -------------------
       function buildEventsEnfants() {
         const events = [];
 
-        // Cours hebdomadaires (lundi 17–18), sans exclusion : Saint Nicolas est en plus
+        // Cours hebdomadaires (lundi 17â€“18), sans exclusion : Saint Nicolas est en plus
         events.push(
           ...generateWeeklySessions({
-            title: 'Cours Enfants (5+)',
+            title: homeI18n.eventChildren,
             dayOfWeek: 1, // lundi
             timeStart: '17:00',
             timeEnd: '18:00',
@@ -2023,7 +2041,7 @@ function e(string $text): string {
 
         // Saint Nicolas (en plus des cours)
         events.push({
-          title: 'Saint Nicolas (enfants)',
+          title: homeI18n.eventSaintNicholasChildren,
           start: '2025-12-01T17:00:00',
           end:   '2025-12-01T19:00:00',
           description: 'Visite de Saint Nicolas au dojo KC Nalinnes.'
@@ -2032,13 +2050,13 @@ function e(string $text): string {
         // Passages de grade (communs, ils peuvent y participer)
         events.push(
           {
-            title: 'Passage de grade',
+            title: homeI18n.eventGrading,
             start: '2026-01-30T18:00:00',
             end:   '2026-01-30T20:00:00',
             description: 'Passage de grade - tous niveaux.'
           },
           {
-            title: 'Passage de grade',
+            title: homeI18n.eventGrading,
             start: '2026-06-26T18:00:00',
             end:   '2026-06-26T20:00:00',
             description: 'Passage de grade - tous niveaux.'
@@ -2051,12 +2069,12 @@ function e(string $text): string {
 
       function buildEventsAdos() {
         const events = [];
-        const skipDates = []; // Saint Nicolas n’est plus un remplacement
+        const skipDates = []; // Saint Nicolas nâ€™est plus un remplacement
 
-        // Lundi 18–19
+        // Lundi 18â€“19
         events.push(
           ...generateWeeklySessions({
-            title: 'Cours Ados',
+            title: homeI18n.eventTeens,
             dayOfWeek: 1,
             timeStart: '18:00',
             timeEnd: '19:00',
@@ -2065,10 +2083,10 @@ function e(string $text): string {
           })
         );
 
-        // Vendredi 18–19
+        // Vendredi 18â€“19
         events.push(
           ...generateWeeklySessions({
-            title: 'Cours Ados',
+            title: homeI18n.eventTeens,
             dayOfWeek: 5,
             timeStart: '18:00',
             timeEnd: '19:00',
@@ -2077,61 +2095,61 @@ function e(string $text): string {
           })
         );
 
-        // Spéciaux / vacances + Saint Nicolas + passages de grade
+        // SpÃ©ciaux / vacances + Saint Nicolas + passages de grade
         events.push(
           {
-            title: 'Saint Nicolas',
+            title: homeI18n.eventSaintNicholas,
             start: '2025-12-01T17:00:00',
             end:   '2025-12-01T19:00:00',
             description: 'Visite de Saint Nicolas au dojo KC Nalinnes.'
           },
           {
-            title: 'Cours Ados/Adultes (vacances d’octobre)',
+            title: homeI18n.eventTeensAdultsOctober,
             start: '2025-10-27T18:00:00',
             end:   '2025-10-27T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances d’octobre)',
+            title: homeI18n.eventTeensAdultsOctober,
             start: '2025-10-31T18:00:00',
             end:   '2025-10-31T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-15T18:00:00',
             end:   '2026-02-15T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-20T18:00:00',
             end:   '2026-02-20T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-23T18:00:00',
             end:   '2026-02-23T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-27T18:00:00',
             end:   '2026-02-27T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de Pâques)',
+            title: homeI18n.eventTeensAdultsEaster,
             start: '2026-05-04T18:00:00',
             end:   '2026-05-04T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de Pâques)',
+            title: homeI18n.eventTeensAdultsEaster,
             start: '2026-05-08T18:00:00',
             end:   '2026-05-08T20:00:00'
           },
           {
-            title: 'Passage de grade',
+            title: homeI18n.eventGrading,
             start: '2026-01-30T18:00:00',
             end:   '2026-01-30T20:00:00'
           },
           {
-            title: 'Passage de grade',
+            title: homeI18n.eventGrading,
             start: '2026-06-26T18:00:00',
             end:   '2026-06-26T20:00:00'
           }
@@ -2143,12 +2161,12 @@ function e(string $text): string {
 
       function buildEventsAdultes() {
         const events = [];
-        const skipDates = []; // Saint Nicolas n’est plus un remplacement
+        const skipDates = []; // Saint Nicolas nâ€™est plus un remplacement
 
-        // Lundi 19–20:30
+        // Lundi 19â€“20:30
         events.push(
           ...generateWeeklySessions({
-            title: 'Cours Adultes',
+            title: homeI18n.eventAdults,
             dayOfWeek: 1,
             timeStart: '19:00',
             timeEnd: '20:30',
@@ -2157,10 +2175,10 @@ function e(string $text): string {
           })
         );
 
-        // Vendredi 19–20:30
+        // Vendredi 19â€“20:30
         events.push(
           ...generateWeeklySessions({
-            title: 'Cours Adultes',
+            title: homeI18n.eventAdults,
             dayOfWeek: 5,
             timeStart: '19:00',
             timeEnd: '20:30',
@@ -2169,61 +2187,61 @@ function e(string $text): string {
           })
         );
 
-        // Spéciaux / vacances + Saint Nicolas + passages de grade
+        // SpÃ©ciaux / vacances + Saint Nicolas + passages de grade
         events.push(
           {
-            title: 'Saint Nicolas',
+            title: homeI18n.eventSaintNicholas,
             start: '2025-12-01T17:00:00',
             end:   '2025-12-01T19:00:00',
             description: 'Visite de Saint Nicolas au dojo KC Nalinnes.'
           },
           {
-            title: 'Cours Ados/Adultes (vacances d’octobre)',
+            title: homeI18n.eventTeensAdultsOctober,
             start: '2025-10-27T18:00:00',
             end:   '2025-10-27T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances d’octobre)',
+            title: homeI18n.eventTeensAdultsOctober,
             start: '2025-10-31T18:00:00',
             end:   '2025-10-31T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-15T18:00:00',
             end:   '2026-02-15T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-20T18:00:00',
             end:   '2026-02-20T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-23T18:00:00',
             end:   '2026-02-23T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de février)',
+            title: homeI18n.eventTeensAdultsFebruary,
             start: '2026-02-27T18:00:00',
             end:   '2026-02-27T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de Pâques)',
+            title: homeI18n.eventTeensAdultsEaster,
             start: '2026-05-04T18:00:00',
             end:   '2026-05-04T20:00:00'
           },
           {
-            title: 'Cours Ados/Adultes (vacances de Pâques)',
+            title: homeI18n.eventTeensAdultsEaster,
             start: '2026-05-08T18:00:00',
             end:   '2026-05-08T20:00:00'
           },
           {
-            title: 'Passage de grade',
+            title: homeI18n.eventGrading,
             start: '2026-01-30T18:00:00',
             end:   '2026-01-30T20:00:00'
           },
           {
-            title: 'Passage de grade',
+            title: homeI18n.eventGrading,
             start: '2026-06-26T18:00:00',
             end:   '2026-06-26T20:00:00'
           }
@@ -2243,7 +2261,7 @@ function e(string $text): string {
         return deduped;
       }
 
-      // --- Boutons : téléchargement des 4 fichiers ------------------
+      // --- Boutons : tÃ©lÃ©chargement des 4 fichiers ------------------
       const btnEnfants = document.getElementById('btnExportICSenfants');
       const btnAdos    = document.getElementById('btnExportICSados');
       const btnAdultes = document.getElementById('btnExportICSadultes');
@@ -2252,25 +2270,25 @@ function e(string $text): string {
       if (btnEnfants) {
         btnEnfants.addEventListener('click', function () {
           const evts = buildEventsEnfants();
-          downloadICS(evts, 'kc-nalinnes-enfants-2025-2026.ics', 'KC Nalinnes - Enfants 2025-2026');
+          downloadICS(evts, 'kc-nalinnes-enfants-2025-2026.ics', homeI18n.icsChildrenName);
         });
       }
       if (btnAdos) {
         btnAdos.addEventListener('click', function () {
           const evts = buildEventsAdos();
-          downloadICS(evts, 'kc-nalinnes-ados-2025-2026.ics', 'KC Nalinnes - Ados 2025-2026');
+          downloadICS(evts, 'kc-nalinnes-ados-2025-2026.ics', homeI18n.icsTeensName);
         });
       }
       if (btnAdultes) {
         btnAdultes.addEventListener('click', function () {
           const evts = buildEventsAdultes();
-          downloadICS(evts, 'kc-nalinnes-adultes-2025-2026.ics', 'KC Nalinnes - Adultes 2025-2026');
+          downloadICS(evts, 'kc-nalinnes-adultes-2025-2026.ics', homeI18n.icsAdultsName);
         });
       }
       if (btnTout) {
         btnTout.addEventListener('click', function () {
           const evts = buildEventsToutClub();
-          downloadICS(evts, 'kc-nalinnes-tout-club-2025-2026.ics', 'KC Nalinnes - Tout le club 2025-2026');
+          downloadICS(evts, 'kc-nalinnes-tout-club-2025-2026.ics', homeI18n.icsClubName);
         });
       }
 
@@ -2368,10 +2386,10 @@ function e(string $text): string {
       window.addEventListener('load', function () {
         navigator.serviceWorker.register('/service-worker.js')
           .then(function (registration) {
-            console.log('ServiceWorker enregistré avec succès :', registration.scope);
+            console.log('ServiceWorker enregistrÃ© avec succÃ¨s :', registration.scope);
           })
           .catch(function (error) {
-            console.error('Échec de l\'enregistrement du ServiceWorker :', error);
+            console.error('Ã‰chec de l\'enregistrement du ServiceWorker :', error);
           });
       });
     }
@@ -2393,7 +2411,7 @@ function e(string $text): string {
 
       const params = new URLSearchParams({
         autoplay: "1",
-        mute: "1",             // essentiel pour l’autoplay
+        mute: "1",             // essentiel pour lâ€™autoplay
         playsinline: "1",
         rel: "0",
         modestbranding: "1",
