@@ -90,19 +90,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $db = create_database_connection();
         $total = compute_meal_total($adultQty, $childQty, 19, 10);
         $reservationDate = date('Y-m-d H:i:s');
+        $reservationId = null;
 
-        $reservationId = save_public_meal_reservation($db, [
-            'profile_name' => $profileName,
-            'contact_email' => $contactEmail,
-            'contact_phone' => $contactPhone,
-            'adult_qty' => $adultQty,
-            'child_qty' => $childQty,
-            'total_amount' => $total,
-            'notes' => $notes,
-        ]);
+        try {
+            $db = create_database_connection();
+            $reservationId = save_public_meal_reservation($db, [
+                'profile_name' => $profileName,
+                'contact_email' => $contactEmail,
+                'contact_phone' => $contactPhone,
+                'adult_qty' => $adultQty,
+                'child_qty' => $childQty,
+                'total_amount' => $total,
+                'notes' => $notes,
+            ]);
+        }
+        catch (Throwable $dbError) {
+            error_log('Meal reservation database save failed: ' . $dbError->getMessage());
+        }
 
         append_meal_reservation_to_excel([
             'date' => $reservationDate,
@@ -120,7 +126,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
         $subject = kc_t('meal.mail.admin_subject');
         $message = kc_t('meal.mail.heading') . "\n"
-            . kc_t('meal.mail.reservation_id') . ": " . $reservationId . "\n"
+            . kc_t('meal.mail.reservation_id') . ": " . ($reservationId !== null ? (string)$reservationId : 'excel-only') . "\n"
             . kc_t('meal.mail.name') . ": " . $profileName . "\n"
             . "Email: " . $contactEmail . "\n"
             . kc_t('meal.mail.phone') . ": " . ($contactPhone !== '' ? $contactPhone : '-') . "\n"
@@ -144,6 +150,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash(kc_t('meal.flash.success'), 'success');
     }
     catch (Throwable $e) {
+        error_log('Meal reservation save failed: ' . $e->getMessage());
         flash(kc_t('meal.flash.error'), 'error');
     }
 
