@@ -375,28 +375,28 @@ try {
 
     <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
         <div class="flex items-center justify-between gap-3">
-            <h2 class="text-xl font-bold">Gestion du calendrier (admin)</h2>
-            <button id="btnNewEvent" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500">Nouvel événement</button>
+            <h2 class="text-xl font-bold"><?= e(kc_t('manager.calendar.title')) ?></h2>
+            <button id="btnNewEvent" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.calendar.new')) ?></button>
         </div>
-        <p class="mt-2 text-sm text-slate-400">Créer, modifier, déplacer et supprimer des événements.</p>
+        <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('manager.calendar.description')) ?></p>
         <div id="adminCalendar" class="mt-6"></div>
     </section>
 
     <dialog id="eventDialog" class="rounded-xl p-0 backdrop:bg-black/70">
       <form method="dialog" id="eventForm" class="w-[92vw] max-w-lg bg-slate-900 text-slate-100 p-5 space-y-4">
-        <h3 class="text-lg font-bold" id="dialogTitle">Nouvel événement</h3>
+        <h3 class="text-lg font-bold" id="dialogTitle"><?= e(kc_t('manager.calendar.new')) ?></h3>
         <input type="hidden" id="eventId">
-        <div><label class="block text-sm">Titre</label><input id="eventTitle" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required></div>
+        <div><label class="block text-sm"><?= e(kc_t('manager.calendar.field_title')) ?></label><input id="eventTitle" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required></div>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div><label class="block text-sm">Début</label><input type="datetime-local" id="eventStart" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required></div>
-          <div><label class="block text-sm">Fin</label><input type="datetime-local" id="eventEnd" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></div>
+          <div><label class="block text-sm"><?= e(kc_t('manager.calendar.start')) ?></label><input type="datetime-local" id="eventStart" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required></div>
+          <div><label class="block text-sm"><?= e(kc_t('manager.calendar.end')) ?></label><input type="datetime-local" id="eventEnd" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></div>
         </div>
-        <div><label class="block text-sm">Description</label><textarea id="eventDesc" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea></div>
+        <div><label class="block text-sm"><?= e(kc_t('manager.calendar.field_description')) ?></label><textarea id="eventDesc" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea></div>
         <div class="flex justify-between">
-          <button type="button" id="btnDeleteEvent" class="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 hidden">Supprimer</button>
+          <button type="button" id="btnDeleteEvent" class="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 hidden"><?= e(kc_t('manager.calendar.delete')) ?></button>
           <div class="ml-auto flex gap-2">
-            <button type="button" id="btnCancel" class="rounded-lg border border-slate-600 px-3 py-2 text-sm">Annuler</button>
-            <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500">Enregistrer</button>
+            <button type="button" id="btnCancel" class="rounded-lg border border-slate-600 px-3 py-2 text-sm"><?= e(kc_t('manager.calendar.cancel')) ?></button>
+            <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('manager.calendar.save')) ?></button>
           </div>
         </div>
       </form>
@@ -406,6 +406,11 @@ try {
 
 <script>
 (() => {
+  const calendarTexts = <?= json_encode([
+      'locale' => $locale,
+      'new' => kc_t('manager.calendar.new'),
+      'edit' => kc_t('manager.calendar.edit'),
+  ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
   const storageKey = 'kc_admin_calendar_events';
   const loadEvents = () => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch(e){ return []; } };
   const saveEvents = (events) => localStorage.setItem(storageKey, JSON.stringify(events));
@@ -429,7 +434,7 @@ try {
 
   const calendar = new FullCalendar.Calendar(document.getElementById('adminCalendar'), {
     initialView: 'dayGridMonth',
-    locale: 'fr',
+    locale: calendarTexts.locale,
     editable: true,
     selectable: true,
     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' },
@@ -449,7 +454,7 @@ try {
   }
 
   function openDialog(data = {}) {
-    document.getElementById('dialogTitle').textContent = data.id ? 'Modifier événement' : 'Nouvel événement';
+    document.getElementById('dialogTitle').textContent = data.id ? calendarTexts.edit : calendarTexts.new;
     fields.id.value = data.id || '';
     fields.title.value = data.title || '';
     fields.start.value = toLocalInput(data.start);
