@@ -82,6 +82,36 @@ function kc_locale_labels(): array {
     ];
 }
 
+function kc_locale_flags(): array {
+    return [
+        'bg' => '🇧🇬',
+        'cs' => '🇨🇿',
+        'da' => '🇩🇰',
+        'de' => '🇩🇪',
+        'el' => '🇬🇷',
+        'en' => '🇬🇧',
+        'es' => '🇪🇸',
+        'et' => '🇪🇪',
+        'fi' => '🇫🇮',
+        'fr' => '🇫🇷',
+        'ga' => '🇮🇪',
+        'hr' => '🇭🇷',
+        'hu' => '🇭🇺',
+        'it' => '🇮🇹',
+        'ja' => '🇯🇵',
+        'lt' => '🇱🇹',
+        'lv' => '🇱🇻',
+        'mt' => '🇲🇹',
+        'nl' => '🇳🇱',
+        'pl' => '🇵🇱',
+        'pt' => '🇵🇹',
+        'ro' => '🇷🇴',
+        'sk' => '🇸🇰',
+        'sl' => '🇸🇮',
+        'sv' => '🇸🇪',
+    ];
+}
+
 function kc_normalize_locale(?string $locale): string {
     $locale = strtolower(trim((string)$locale));
     $locale = str_replace('_', '-', $locale);
@@ -189,16 +219,18 @@ function kc_redirect_url_with_locale(string $path): string {
 function kc_language_switcher(string $class = ''): string {
     $current = kc_current_locale();
     $labels = kc_locale_labels();
-    $class = trim($class . ' flex-wrap');
-    $html = '<div class="' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" aria-label="' . htmlspecialchars(kc_t('common.language.label'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
+    $flags = kc_locale_flags();
+    $label = kc_t('common.language.label');
+    $class = trim($class);
+    $selectId = 'kc-language-select-' . substr(hash('sha256', $class . ($_SERVER['REQUEST_URI'] ?? '')), 0, 8);
+    $html = '<form class="' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" action="" method="get">';
+    $html .= '<label class="sr-only" for="' . htmlspecialchars($selectId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</label>';
+    $html .= '<select id="' . htmlspecialchars($selectId, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" name="lang" class="rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 hover:border-sky-500 focus:border-sky-500 focus:outline-none" aria-label="' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" onchange="var option=this.options[this.selectedIndex]; if(option.dataset.url){window.location.href=option.dataset.url;}">';
 
     foreach (kc_supported_locales() as $locale) {
-        $active = $locale === $current;
-        $classes = $active
-            ? 'rounded-md bg-sky-500 px-2 py-1 text-xs font-semibold text-white'
-            : 'rounded-md border border-slate-700 px-2 py-1 text-xs font-semibold text-slate-300 hover:border-sky-500 hover:text-sky-300';
-        $html .= '<a class="' . $classes . '" href="' . htmlspecialchars(kc_localized_url($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" hreflang="' . $locale . '" lang="' . $locale . '">' . htmlspecialchars($labels[$locale] ?? strtoupper($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a>';
+        $optionLabel = trim(($flags[$locale] ?? '') . ' ' . ($labels[$locale] ?? strtoupper($locale)));
+        $html .= '<option value="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" data-url="' . htmlspecialchars(kc_localized_url($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" lang="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '"' . ($locale === $current ? ' selected' : '') . '>' . htmlspecialchars($optionLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</option>';
     }
 
-    return $html . '</div>';
+    return $html . '</select><noscript><button class="ml-2 rounded-md border border-slate-700 px-3 py-2 text-sm font-semibold text-slate-100" type="submit">' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</button></noscript></form>';
 }
