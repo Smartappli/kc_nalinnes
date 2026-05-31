@@ -213,13 +213,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?= e(kc_t('common.nav.members')) ?>
           </a>
 
+          <?= kc_language_switcher('ml-2 inline-flex') ?>
+
           <button id="themeToggle" class="ml-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
                   aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
             <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.8 1.8-1.79zm10.48 0l1.8-1.79 1.79 1.78-1.79 1.8-1.8-1.79zM12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 12H1v0h3v0zm19 0h-3v0h3v0zM6.76 19.16l-1.8 1.79-1.79-1.78 1.79-1.8 1.8 1.79zM17.24 19.16l1.8 1.79 1.79-1.78-1.79-1.8-1.8 1.79zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
             <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
             <span id="themeLabel">Dark</span>
           </button>
-          <?= kc_language_switcher('flex items-center gap-1') ?>
         </nav>
 
         <button id="menuBtn"
@@ -240,6 +241,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="/#actus" class="block"><?= e(kc_t('common.nav.news')) ?></a>
         <a href="/#contact" class="block"><?= e(kc_t('common.nav.contact')) ?></a>
         <a href="/membres.php" class="block font-semibold text-red-400"><?= e(kc_t('common.nav.members')) ?></a>
+
+        <?= kc_language_switcher('mt-2 block') ?>
 
         <button id="themeToggleMobile" class="mt-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
                 aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
