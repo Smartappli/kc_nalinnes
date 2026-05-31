@@ -237,7 +237,7 @@ function kc_language_switcher(string $class = ''): string {
     $flags = kc_locale_flags();
     $label = kc_t('common.language.label');
     $class = trim($class);
-    $currentLabel = trim(($flags[$current] ?? '') . ' ' . strtoupper($current));
+    $currentLabel = trim(($flags[$current] ?? '') . ' ' . ($labels[$current] ?? strtoupper($current)));
     $html = '<details class="relative ' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
     $html .= '<summary class="list-none cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 hover:border-sky-500 focus:border-sky-500 focus:outline-none" aria-label="' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($currentLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</summary>';
     $html .= '<div class="absolute right-0 z-50 mt-2 max-h-80 min-w-48 overflow-y-auto rounded-lg border border-slate-700 bg-slate-950 p-2 shadow-xl">';
