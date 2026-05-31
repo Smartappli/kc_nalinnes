@@ -9,11 +9,6 @@ function e(string $text): string {
   return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
 
-if ($locale !== 'fr') {
-  require __DIR__ . '/includes/static_page.php';
-  kc_render_home_page();
-  exit;
-}
 ?>
 <!doctype html>
 <html lang="<?= e($locale) ?>" class="">
