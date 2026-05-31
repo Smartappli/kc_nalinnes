@@ -8,7 +8,6 @@ $locale = kc_current_locale();
 function e(string $text): string {
   return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
 }
-
 ?>
 <!doctype html>
 <html lang="<?= e($locale) ?>" class="">
