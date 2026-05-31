@@ -592,108 +592,108 @@ function e(string $text): string {
         <table class="min-w-full divide-y divide-slate-800">
           <thead class="bg-slate-900/60">
             <tr>
-              <th class="px-4 py-3 text-left text-sm font-semibold">Jour</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold">Début</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold">Fin</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold">Groupe</th>
-              <th class="px-4 py-3 text-left text-sm font-semibold">Niveau</th>
+              <th class="px-4 py-3 text-left text-sm font-semibold"><?= e(kc_t('home.schedule.table.day')) ?></th>
+              <th class="px-4 py-3 text-left text-sm font-semibold"><?= e(kc_t('home.schedule.table.start')) ?></th>
+              <th class="px-4 py-3 text-left text-sm font-semibold"><?= e(kc_t('home.schedule.table.end')) ?></th>
+              <th class="px-4 py-3 text-left text-sm font-semibold"><?= e(kc_t('home.schedule.table.group')) ?></th>
+              <th class="px-4 py-3 text-left text-sm font-semibold"><?= e(kc_t('home.schedule.table.level')) ?></th>
             </tr>
           </thead>
           <tbody class="divide-y divide-slate-800">
             <tr>
-              <td class="px-4 py-3">Lundi</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.monday')) ?></td>
               <td class="px-4 py-3">17:00</td>
               <td class="px-4 py-3">18:00</td>
-              <td class="px-4 py-3">Enfants (5 à 7 ans)</td>
-              <td class="px-4 py-3">Débutants (ceintures blanches, jaunes, oranges)</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.group.children_5_7')) ?></td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.level.beginner')) ?></td>
             </tr>
             <tr>
-              <td class="px-4 py-3">Lundi</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.monday')) ?></td>
               <td class="px-4 py-3">18:00</td>
               <td class="px-4 py-3">19:00</td>
-              <td class="px-4 py-3">Enfants (7 à 12 ans)</td>
-              <td class="px-4 py-3">Cours avancé (A partir de ceinture jaune)</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.group.children_7_12')) ?></td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.level.advanced')) ?></td>
             </tr>
             <tr>
-              <td class="px-4 py-3">Lundi</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.monday')) ?></td>
               <td class="px-4 py-3">19:00</td>
               <td class="px-4 py-3">20:30</td>
-              <td class="px-4 py-3">Adultes (12 à 99 ans)</td>
-              <td class="px-4 py-3">Tous niveaux</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.group.adults')) ?></td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.level.all')) ?></td>
             </tr>
             <tr>
-              <td class="px-4 py-3">Vendredi</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.friday')) ?></td>
               <td class="px-4 py-3">18:00</td>
               <td class="px-4 py-3">19:00</td>
-              <td class="px-4 py-3">Enfants (7 à 12 ans)</td>
-              <td class="px-4 py-3">Cours avancé (A partir de ceinture jaune)</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.group.children_7_12')) ?></td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.level.advanced')) ?></td>
             </tr>
             <tr>
-              <td class="px-4 py-3">Vendredi</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.friday')) ?></td>
               <td class="px-4 py-3">19:00</td>
               <td class="px-4 py-3">20:30</td>
-              <td class="px-4 py-3">Adultes (12 à 99 ans)</td>
-              <td class="px-4 py-3">Tous niveaux</td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.group.adults')) ?></td>
+              <td class="px-4 py-3"><?= e(kc_t('home.schedule.level.all')) ?></td>
             </tr>
           </tbody>
         </table>
       </div>
-      <p class="mt-3 text-sm text-slate-400">⚠️ Pendant les vacances scolaires, les horaires peuvent changer.</p>
+      <p class="mt-3 text-sm text-slate-400"><?= e(kc_t('home.schedule.warning')) ?></p>
     </div>
   </section>
 
   <!-- Tarifs septembre à juin -->
   <section id="tarifs" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Tarifs pour l'année (septembre à juin)</h2>
-      <div class="mt-4 inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1" role="tablist" aria-label="Basculer la période de prix">
-        <button id="btn-annual" role="tab" aria-selected="true" class="price-toggle active rounded-lg px-3 py-1 text-sm font-semibold bg-slate-800">Annuel</button>
-        <button id="btn-monthly" role="tab" aria-selected="false" class="price-toggle rounded-lg px-3 py-1 text-sm font-semibold hover:bg-slate-800">Mensuel</button>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.prices.full_year.title')) ?></h2>
+      <div class="mt-4 inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1" role="tablist" aria-label="<?= e(kc_t('home.prices.toggle_aria')) ?>">
+        <button id="btn-annual" role="tab" aria-selected="true" class="price-toggle active rounded-lg px-3 py-1 text-sm font-semibold bg-slate-800"><?= e(kc_t('home.prices.annual')) ?></button>
+        <button id="btn-monthly" role="tab" aria-selected="false" class="price-toggle rounded-lg px-3 py-1 text-sm font-semibold hover:bg-slate-800"><?= e(kc_t('home.prices.monthly')) ?></button>
       </div>
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Enfants</h3>
-          <p class="mt-2 text-slate-300">Moins de 7 ans</p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="150" data-monthly="20">150</span><span class="text-base font-medium text-slate-400 price-period">/an</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.children.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.children.subtitle')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="150" data-monthly="20">150</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Licence & assurance</li>
-            <li>1 cours / semaine</li>
-            <li>Prépa ceintures</li>
+            <li><?= e(kc_t('home.prices.feature.license')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.one_class')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.belts')) ?></li>
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
         <div class="rounded-2xl border border-sky-700 p-6 ring-1 ring-sky-700">
-          <h3 class="text-xl font-semibold">Enfants/Ados/Adultes</h3>
-          <p class="mt-2 text-slate-300">7 ans et plus</p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="250" data-monthly="35">250</span><span class="text-base font-medium text-slate-400 price-period">/an</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.all.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.all.subtitle')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="250" data-monthly="35">250</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Licence & assurance</li>
-            <li>2 cours / semaine</li>
-            <li>Prépa ceintures</li>
+            <li><?= e(kc_t('home.prices.feature.license')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.two_classes')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.belts')) ?></li>
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
         <div class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Famille</h3>
-          <p class="mt-2 text-slate-300">2ème enfant</p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="200" data-monthly="30">200</span><span class="text-base font-medium text-slate-400 price-period">/an</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.family.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.family.second_child')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount" data-annual="200" data-monthly="30">200</span><span class="text-base font-medium text-slate-400 price-period"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Réduction immédiate</li>
-            <li>Paiement échelonné</li>
+            <li><?= e(kc_t('home.prices.feature.discount')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.installments')) ?></li>
             <!-- <li>Stage inclus</li>-->
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
         <div class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Famille</h3>
-          <p class="mt-2 text-slate-300">3ème enfant et au-dela</p>
-          <p class="mt-4 text-4xl font-extrabold"><span class="price-amount2" data-annual="gratuit" data-monthly="gratuit">gratuit</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.family.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.family.third_child')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold"><span class="price-amount2" data-annual="<?= e(kc_t('home.prices.free')) ?>" data-monthly="<?= e(kc_t('home.prices.free')) ?>"><?= e(kc_t('home.prices.free')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Réduction immédiate</li>
-            <li>Paiement échelonné</li>
+            <li><?= e(kc_t('home.prices.feature.discount')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.installments')) ?></li>
             <!-- <li>Stage inclus</li>-->
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
       </div>
     </div>
@@ -702,55 +702,55 @@ function e(string $text): string {
   <!-- Tarifs janvier à juin -->
   <section id="tarifs2" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Tarifs pour une demi année (janvier à juin)</h2>
-      <div class="mt-4 inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1" role="tablist" aria-label="Basculer la période de prix">
-        <button id="btn-annual2" role="tab" aria-selected="true" class="price-toggle active rounded-lg px-3 py-1 text-sm font-semibold bg-slate-800">Annuel</button>
-        <button id="btn-monthly2" role="tab" aria-selected="false" class="price-toggle rounded-lg px-3 py-1 text-sm font-semibold hover:bg-slate-800">Mensuel</button>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.prices.half_year.title')) ?></h2>
+      <div class="mt-4 inline-flex items-center gap-1 rounded-xl border border-slate-800 p-1" role="tablist" aria-label="<?= e(kc_t('home.prices.toggle_aria')) ?>">
+        <button id="btn-annual2" role="tab" aria-selected="true" class="price-toggle active rounded-lg px-3 py-1 text-sm font-semibold bg-slate-800"><?= e(kc_t('home.prices.annual')) ?></button>
+        <button id="btn-monthly2" role="tab" aria-selected="false" class="price-toggle rounded-lg px-3 py-1 text-sm font-semibold hover:bg-slate-800"><?= e(kc_t('home.prices.monthly')) ?></button>
       </div>
       <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Enfants</h3>
-          <p class="mt-2 text-slate-300">Moins de 7 ans</p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="90" data-monthly="20">90</span><span class="text-base font-medium text-slate-400 price-period2">/an</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.children.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.children.subtitle')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="90" data-monthly="20">90</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Licence & assurance</li>
-            <li>1 cours / semaine</li>
-            <li>Prépa ceintures</li>
+            <li><?= e(kc_t('home.prices.feature.license')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.one_class')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.belts')) ?></li>
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
         <div class="rounded-2xl border border-sky-700 p-6 ring-1 ring-sky-700">
-          <h3 class="text-xl font-semibold">Enfants/Ados/Adultes</h3>
-          <p class="mt-2 text-slate-300">7 ans et plus</p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="150" data-monthly="35">150</span><span class="text-base font-medium text-slate-400 price-period2">/an</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.all.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.all.subtitle')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="150" data-monthly="35">150</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Licence & assurance</li>
-            <li>2 cours / semaine</li>
-            <li>Prépa ceintures</li>
+            <li><?= e(kc_t('home.prices.feature.license')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.two_classes')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.belts')) ?></li>
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
         <div class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Famille</h3>
-          <p class="mt-2 text-slate-300">2ème enfant</p>
-          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="120" data-monthly="30">120</span><span class="text-base font-medium text-slate-400 price-period2">/an</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.family.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.family.second_child')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold">€<span class="price-amount2" data-annual="120" data-monthly="30">120</span><span class="text-base font-medium text-slate-400 price-period2"><?= e(kc_t('home.prices.period.year')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Réduction immédiate</li>
-            <li>Paiement échelonné</li>
+            <li><?= e(kc_t('home.prices.feature.discount')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.installments')) ?></li>
             <!-- <li>Stage inclus</li> -->
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
         <div class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Famille</h3>
-          <p class="mt-2 text-slate-300">3ème enfant et au-dela</p>
-          <p class="mt-4 text-4xl font-extrabold"><span class="price-amount2" data-annual="gratuit" data-monthly="gratuit">gratuit</span></p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.prices.family.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.prices.family.third_child')) ?></p>
+          <p class="mt-4 text-4xl font-extrabold"><span class="price-amount2" data-annual="<?= e(kc_t('home.prices.free')) ?>" data-monthly="<?= e(kc_t('home.prices.free')) ?>"><?= e(kc_t('home.prices.free')) ?></span></p>
           <ul class="mt-4 space-y-2 text-sm text-slate-300">
-            <li>Réduction immédiate</li>
-            <li>Paiement échelonné</li>
+            <li><?= e(kc_t('home.prices.feature.discount')) ?></li>
+            <li><?= e(kc_t('home.prices.feature.installments')) ?></li>
             <!-- <li>Stage inclus</li> -->
           </ul>
-          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30">S'inscrire</a>
+          <a href="#inscription" class="mt-6 inline-block rounded-xl bg-red-600 px-4 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/30"><?= e(kc_t('home.prices.register')) ?></a>
         </div>
       </div>
     </div>
@@ -759,16 +759,16 @@ function e(string $text): string {
   <!-- Inscription CTA -->
   <section id="inscription" class="section bg-gradient-to-br from-sky-900/30 to-slate-900/30">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 text-center">
-      <h2 class="text-3xl font-extrabold">Prêt·e à monter sur le tatami ?</h2>
-      <p class="mt-2 text-slate-300">Remplissez le formulaire d'inscription et venez essayer — c'est offert !</p>
-      <a href="#contact" class="mt-6 inline-block rounded-xl bg-red-600 px-6 py-3 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-md shadow-red-900/40">Nous contacter</a>
+      <h2 class="text-3xl font-extrabold"><?= e(kc_t('home.registration.title')) ?></h2>
+      <p class="mt-2 text-slate-300"><?= e(kc_t('home.registration.body')) ?></p>
+      <a href="#contact" class="mt-6 inline-block rounded-xl bg-red-600 px-6 py-3 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-md shadow-red-900/40"><?= e(kc_t('home.hero.cta_contact')) ?></a>
     </div>
   </section>
 
   <!-- Coachs -->
   <section id="coach" class="section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold text-center">Instructeurs</h2>
+      <h2 class="text-3xl font-bold text-center"><?= e(kc_t('home.instructors.title')) ?></h2>
 
       <div class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
@@ -779,8 +779,7 @@ function e(string $text): string {
           />
           <h3 class="mt-4 text-xl font-semibold">Sensei Frank Duchesne</h3>
           <p class="text-slate-300">
-            45 ans de pratique. Plusieurs fois champion de Belgique. Vice-champion d'Europe.
-            5e mondial en kata par équipe. 10 ans en équipe nationale.
+            <?= e(kc_t('home.instructors.frank.body')) ?>
           </p>
         </article>
 
@@ -792,8 +791,7 @@ function e(string $text): string {
           />
           <h3 class="mt-4 text-xl font-semibold">Sensei Olivier Lowie</h3>
           <p class="text-slate-300">
-            Plusieurs fois champion de Belgique. Vice-champion d'Europe. 5e mondial en kata par équipe.
-            Participation à plusieurs championnats d'Europe et du monde. 10 ans en équipe nationale.
+            <?= e(kc_t('home.instructors.olivier.body')) ?>
           </p>
         </article>
 
@@ -804,7 +802,7 @@ function e(string $text): string {
             class="h-80 max-w-xs mx-auto rounded-xl object-cover"
           />
           <h3 class="mt-4 text-xl font-semibold">Sensei Matyas Simon</h3>
-          <p class="text-slate-300">Président du club.</p>
+          <p class="text-slate-300"><?= e(kc_t('home.instructors.matyas.body')) ?></p>
         </article>
 
         <article class="rounded-2xl border border-slate-800 p-6 text-center">
@@ -814,7 +812,7 @@ function e(string $text): string {
             class="h-80 max-w-xs mx-auto rounded-xl object-cover"
           />
           <h3 class="mt-4 text-xl font-semibold">Senpai Hervé Lowie</h3>
-          <p class="text-slate-300">Ceinture noire 3e Dan.</p>
+          <p class="text-slate-300"><?= e(kc_t('home.instructors.herve.body')) ?></p>
         </article>
       </div>
       <!-- Trésorier / Secrétaire -->
@@ -845,30 +843,30 @@ function e(string $text): string {
   <!-- Témoignages -->
   <section id="temoignages" class="section bg-slate-900/40">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Ce qu’en disent les parents et les élèves</h2>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.testimonials.title')) ?></h2>
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
         <figure class="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 shadow-sm">
           <blockquote class="text-slate-200 italic">
-            « Mon fils attend le cours du lundi toute la semaine. Il a gagné en confiance et en concentration. »
+            <?= e(kc_t('home.testimonials.1.quote')) ?>
           </blockquote>
           <figcaption class="mt-3 text-xs text-slate-400">
-            — Parent d’un enfant 8–10 ans
+            <?= e(kc_t('home.testimonials.1.author')) ?>
           </figcaption>
         </figure>
         <figure class="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 shadow-sm">
           <blockquote class="text-slate-200 italic">
-            « Super ambiance, on progresse vraiment tout en respectant le niveau de chacun. »
+            <?= e(kc_t('home.testimonials.2.quote')) ?>
           </blockquote>
           <figcaption class="mt-3 text-xs text-slate-400">
-            — Membre adulte, ceinture verte
+            <?= e(kc_t('home.testimonials.2.author')) ?>
           </figcaption>
         </figure>
         <figure class="rounded-2xl border border-slate-800 bg-slate-950/60 p-5 shadow-sm">
           <blockquote class="text-slate-200 italic">
-            « Les horaires sont pratiques et la communication est claire, on reçoit les infos importantes à temps. »
+            <?= e(kc_t('home.testimonials.3.quote')) ?>
           </blockquote>
           <figcaption class="mt-3 text-xs text-slate-400">
-            — Parent d’ado
+            <?= e(kc_t('home.testimonials.3.author')) ?>
           </figcaption>
         </figure>
       </div>
@@ -878,8 +876,8 @@ function e(string $text): string {
   <!-- Calendrier -->
   <section id="calendrier" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Calendrier</h2>
-      <p class="mt-2 text-slate-300">Cours hebdomadaires, cours spéciaux, passages de grade.</p>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.calendar.title')) ?></h2>
+      <p class="mt-2 text-slate-300"><?= e(kc_t('home.calendar.short_body')) ?></p>
 
       <!-- Boutons ICS : 4 fichiers séparés -->
       <div class="mt-4 flex flex-col gap-2 sm:flex-row sm:justify-end sm:gap-3 text-xs sm:text-sm">
@@ -890,8 +888,8 @@ function e(string $text): string {
             📅
           </span>
           <span class="text-left leading-tight">
-            <span class="block">Calendrier Enfants</span>
-            <span class="block text-[0.7rem] font-normal opacity-80">Ajouter au calendrier (.ics)</span>
+            <span class="block"><?= e(kc_t('home.calendar.ics.children')) ?></span>
+            <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.calendar.ics.add')) ?></span>
           </span>
         </button>
 
@@ -901,8 +899,8 @@ function e(string $text): string {
             📅
           </span>
           <span class="text-left leading-tight">
-            <span class="block">Calendrier Ados</span>
-            <span class="block text-[0.7rem] font-normal opacity-80">Ajouter au calendrier (.ics)</span>
+            <span class="block"><?= e(kc_t('home.calendar.ics.teens')) ?></span>
+            <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.calendar.ics.add')) ?></span>
           </span>
         </button>
 
@@ -912,8 +910,8 @@ function e(string $text): string {
             📅
           </span>
           <span class="text-left leading-tight">
-            <span class="block">Calendrier Adultes</span>
-            <span class="block text-[0.7rem] font-normal opacity-80">Ajouter au calendrier (.ics)</span>
+            <span class="block"><?= e(kc_t('home.calendar.ics.adults')) ?></span>
+            <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.calendar.ics.add')) ?></span>
           </span>
         </button>
 
@@ -923,8 +921,8 @@ function e(string $text): string {
             ⭐
           </span>
           <span class="text-left leading-tight">
-            <span class="block">Tout le club</span>
-            <span class="block text-[0.7rem] font-normal opacity-80">Tous les cours & événements (.ics)</span>
+            <span class="block"><?= e(kc_t('home.calendar.ics.club')) ?></span>
+            <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.calendar.ics.club_note')) ?></span>
           </span>
         </button>
 
@@ -934,16 +932,16 @@ function e(string $text): string {
       <div class="mt-6 rounded-2xl border border-slate-800 p-2">
         <div id="calendar" class="bg-slate-950 rounded-xl p-2"></div>
       </div>
-      <p class="mt-3 text-sm text-slate-400">Astuce : clique sur « Semaine » ou « Liste » pour d'autres vues. Les cours récurrents sont déjà encodés.</p>
+      <p class="mt-3 text-sm text-slate-400"><?= e(kc_t('home.calendar.tip')) ?></p>
     </div>
   </section>
 
   <!-- Documents -->
   <section id="documents" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Documents utiles</h2>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.documents.title')) ?></h2>
       <p class="mt-2 text-slate-300">
-        Téléchargez les documents au format PDF (inscription, déclaration d'accident, formulaires de demande de prime des mutuelles…)
+        <?= e(kc_t('home.documents.intro')) ?>
       </p>
 
       <!-- Ligne 1 -->
@@ -952,9 +950,9 @@ function e(string $text): string {
         <!-- Licence FFKAMA -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Licence - Assurance <a href="https://www.ffkama.be/">FFKAMA</a></h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.license.title')) ?> <a href="https://www.ffkama.be/">FFKAMA</a></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Fiche d'inscription officielle à la <a href="https://www.ffkama.be/">FFKAMA</a>.
+              <?= e(kc_t('home.documents.license.body')) ?> <a href="https://www.ffkama.be/">FFKAMA</a>.
             </p>
           </div>
           <a href="/docs/fichier_modulable_licence_pratiquant_avec_carnet.pdf" download
@@ -963,8 +961,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Licence & assurance</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.license.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -972,9 +970,9 @@ function e(string $text): string {
         <!-- Programme et conditions pour les épreuves Shiken G.F.K.-->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Epreuves Shiken G.F.K.</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.shiken.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Programme et conditions pour les épreuves Shiken G.F.K.
+              <?= e(kc_t('home.documents.shiken.body')) ?>
             </p>
           </div>
           <a href="/docs/programme-shiken-092025-3.pdf" download
@@ -983,8 +981,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Epreuves Shiken G.F.K.</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.shiken.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -992,9 +990,9 @@ function e(string $text): string {
         <!-- Déclaration d'assurance Ethias -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Déclaration d'assurance</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.accident.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour déclarer un accident auprès d'Ethias.
+              <?= e(kc_t('home.documents.accident.body')) ?>
             </p>
           </div>
           <a href="/docs/Ethias_D_E9clarationAccident_45.339.711.pdf" download
@@ -1003,8 +1001,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Déclaration d’accident</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.accident.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1016,9 +1014,9 @@ function e(string $text): string {
         <!-- Prime MC -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Prime Mutualité Chrétienne</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.mc.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour obtenir la prime de votre mutuelle (jusque 100&nbsp;€).
+              <?= kc_t('home.documents.mc.body_html') ?>
             </p>
           </div>
           <a href="/docs/mc_formulaire_AC_SPORT_A4_FR_2024_V2.pdf" download
@@ -1027,8 +1025,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Prime MC (sport)</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.mc.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1036,9 +1034,9 @@ function e(string $text): string {
         <!-- Prime Solidaris -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Prime Solidaris</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.solidaris.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour obtenir la prime de votre mutuelle (jusque 60&nbsp;€).
+              <?= kc_t('home.documents.solidaris.body_html') ?>
             </p>
           </div>
           <a href="/docs/Formulaire-de-demande-dintervention-Sports-2025.pdf" download
@@ -1047,8 +1045,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Prime Solidaris</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.solidaris.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1056,9 +1054,9 @@ function e(string $text): string {
         <!-- Prime Mutualité neutre -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Prime Mutualité neutre</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.neutral.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour obtenir la prime de votre mutuelle (jusque 50&nbsp;€).
+              <?= kc_t('home.documents.neutral.body_html') ?>
             </p>
           </div>
           <a href="/docs/SC - sport.pdf" download
@@ -1067,8 +1065,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Prime mutualité neutre</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.neutral.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1080,9 +1078,9 @@ function e(string $text): string {
         <!-- Prime Mutualité libérale -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Prime Mutualité libérale</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.liberal.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour obtenir la prime de votre mutuelle (jusque 50&nbsp;€).
+              <?= kc_t('home.documents.liberal.body_html') ?>
             </p>
           </div>
           <a href="/docs/409-FACVA024.pdf" download
@@ -1091,8 +1089,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Prime mutualité libérale</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.liberal.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1100,9 +1098,9 @@ function e(string $text): string {
         <!-- Prime Mutualia -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Prime Mutualia</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.mutualia.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour obtenir la prime de votre mutuelle (jusque 60&nbsp;€).
+              <?= kc_t('home.documents.mutualia.body_html') ?>
             </p>
           </div>
           <a href="/docs/mutualia-ac-sport-fr.pdf" download
@@ -1111,8 +1109,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Prime Mutualia</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.mutualia.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1120,9 +1118,9 @@ function e(string $text): string {
         <!-- Prime Partenamut -->
         <article class="rounded-2xl border border-slate-800 p-6 flex flex-col justify-between">
           <div>
-            <h3 class="text-xl font-semibold">Prime Partenamut</h3>
+            <h3 class="text-xl font-semibold"><?= e(kc_t('home.documents.partenamut.title')) ?></h3>
             <p class="mt-2 text-slate-300 text-sm">
-              Formulaire à compléter pour obtenir la prime de votre mutuelle (jusque 50&nbsp;€).
+              <?= kc_t('home.documents.partenamut.body_html') ?>
             </p>
           </div>
           <a href="/docs/avantage-inscription club sportif.pdf" download
@@ -1131,8 +1129,8 @@ function e(string $text): string {
               ⬇️
             </span>
             <span class="text-left leading-tight">
-              <span class="block">Télécharger</span>
-              <span class="block text-[0.7rem] font-normal opacity-80">PDF — Prime Partenamut</span>
+              <span class="block"><?= e(kc_t('home.documents.download')) ?></span>
+              <span class="block text-[0.7rem] font-normal opacity-80"><?= e(kc_t('home.documents.partenamut.pdf')) ?></span>
             </span>
           </a>
         </article>
@@ -1143,7 +1141,7 @@ function e(string $text): string {
   <!-- Compétitions -->
   <section id="competitions" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Compétitions</h2>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.competitions.title')) ?></h2>
 
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6">
@@ -1159,7 +1157,7 @@ function e(string $text): string {
               download
               class="inline-flex items-center justify-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 border border-slate-700 transition"
             >
-              Inscription
+              <?= e(kc_t('home.competitions.registration')) ?>
             </a>
 
             <a
@@ -1167,7 +1165,7 @@ function e(string $text): string {
               download
               class="inline-flex items-center justify-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 border border-slate-700 transition"
             >
-              Règlement
+              <?= e(kc_t('home.competitions.rules')) ?>
             </a>
           </div>
         </article>
@@ -1184,7 +1182,7 @@ function e(string $text): string {
               download
               class="inline-flex items-center justify-center rounded-xl bg-slate-800 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 border border-slate-700 transition"
             >
-              Lien
+              <?= e(kc_t('home.competitions.link')) ?>
             </a>
             <!--
             <a
@@ -1205,57 +1203,57 @@ function e(string $text): string {
   <!-- Actus -->
   <section id="actus" class="section bg-slate-900/50">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">Actualités</h2>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.news.title')) ?></h2>
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Vacances de février 2026</h3>
-          <p class="mt-2 text-slate-300">Pas de cours la semaine du 16 au 27 février 2026 pour les moins de 12 ans. Cours de 18 à 20h les 19, 16, 23 et 27 février 2026 pour les plus de 12 ans, moyennant le paiement de 3€ par cours.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.feb_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.feb_2026.body')) ?></p>
         </article>
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Vacances de Pâques 2026</h3>
-          <p class="mt-2 text-slate-300">Pas de cours la semaine du 27 avril 2026 au 1er mai 2026. Cours de 18 à 20h les 4 et 8 mai 2026.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.easter_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.easter_2026.body')) ?></p>
         </article>
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Passage de grade - Juin 2026</h3>
-          <p class="mt-2 text-slate-300">26 juin 2026 à 18h.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.grade_june_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.grade_june_2026.body')) ?></p>
         </article>
       </div>
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Reprise des cours - saison 26-27</h3>
-          <p class="mt-2 text-slate-300">31 août 2026.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.restart_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.restart_2026.body')) ?></p>
         </article>
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Vacances d'automne 2026</h3>
-          <p class="mt-2 text-slate-300">Pas de cours du 19 octobre 2026 au 25 octobre 2026. Cours de 18 à 20h les 26 et 30 octobre 2026.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.autumn_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.autumn_2026.body')) ?></p>
         </article>
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Saint Nicolas 2026</h3>
-          <p class="mt-2 text-slate-300">Le grand Saint nous rendra visite ce 30 novembre 2026.</p>
-        </article>
-      </div>
-      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
-        <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Vacances de décembre 2026</h3>
-          <p class="mt-2 text-slate-300">Pas de cours du 21 décembre 2026 au 3 janvier 2027. Reprise des cours le 4 janvier 2027.</p>
-        </article>
-        <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Passage de grade - Janvier 2027</h3>
-          <p class="mt-2 text-slate-300">29 janvier 2027 à 18h.</p>
-        </article>
-        <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Vacances de février 2027</h3>
-          <p class="mt-2 text-slate-300">Pas de cours la semaine du 22 au 28 février 2027. Cours de 18 à 20h les 1er et 5 mars 2027.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.saint_nicolas_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.saint_nicolas_2026.body')) ?></p>
         </article>
       </div>
       <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Vacances de Pâques 2027</h3>
-          <p class="mt-2 text-slate-300">Pas de cours la semaine du 26 avril 2026 au 2 mai 2027. Cours de 18 à 20h les 3 et 7 mai 2026.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.december_2026.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.december_2026.body')) ?></p>
         </article>
         <article class="rounded-2xl border border-slate-800 p-6">
-          <h3 class="text-xl font-semibold">Passage de grade - Juin 2027</h3>
-          <p class="mt-2 text-slate-300">25 juin 2027 à 18h.</p>
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.grade_jan_2027.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.grade_jan_2027.body')) ?></p>
+        </article>
+        <article class="rounded-2xl border border-slate-800 p-6">
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.feb_2027.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.feb_2027.body')) ?></p>
+        </article>
+      </div>
+      <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        <article class="rounded-2xl border border-slate-800 p-6">
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.easter_2027.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.easter_2027.body')) ?></p>
+        </article>
+        <article class="rounded-2xl border border-slate-800 p-6">
+          <h3 class="text-xl font-semibold"><?= e(kc_t('home.news.grade_june_2027.title')) ?></h3>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.news.grade_june_2027.body')) ?></p>
         </article>
       </div>
     </div>
@@ -1264,31 +1262,31 @@ function e(string $text): string {
   <!-- FAQ -->
   <section class="section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
-      <h2 class="text-3xl font-bold">FAQ</h2>
+      <h2 class="text-3xl font-bold"><?= e(kc_t('home.faq.title')) ?></h2>
       <div class="mt-6 space-y-4">
         <details class="rounded-xl border border-slate-800 p-4">
-          <summary class="font-semibold">Faut-il un équipement pour commencer ?</summary>
-          <p class="mt-2 text-slate-300">Non. Un t-shirt et un pantalon de sport suffisent pour les premiers cours. Nous vous conseillons d'acheter un kimono après quelques séances.</p>
+          <summary class="font-semibold"><?= e(kc_t('home.faq.equipment.question')) ?></summary>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.faq.equipment.answer')) ?></p>
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
-          <summary class="font-semibold">Puis-je essayer gratuitement ?</summary>
-          <p class="mt-2 text-slate-300">Oui, les 3 premiers cours d’essai sont gratuits.</p>
+          <summary class="font-semibold"><?= e(kc_t('home.faq.trial.question')) ?></summary>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.faq.trial.answer')) ?></p>
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
-          <summary class="font-semibold">À partir de quel âge ?</summary>
-          <p class="mt-2 text-slate-300">À partir de 5 ans. Groupes aussi pour ados et adultes, tous niveaux.</p>
+          <summary class="font-semibold"><?= e(kc_t('home.faq.age.question')) ?></summary>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.faq.age.answer')) ?></p>
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
-          <summary class="font-semibold">Où se trouve le club ?</summary>
-          <p class="mt-2 text-slate-300">Le dojo principal est au Centre sportif Jules Roulin-Dorvillez, Rue des Monts 18, 6120 Nalinnes, Belgique.</p>
+          <summary class="font-semibold"><?= e(kc_t('home.faq.location.question')) ?></summary>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.faq.location.answer')) ?></p>
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
-          <summary class="font-semibold">Quels sont les horaires principaux ?</summary>
-          <p class="mt-2 text-slate-300">Les cours ont lieu principalement le lundi de 17h00 à 20h30 et le vendredi de 18h00 à 20h30, selon le groupe d’âge et le niveau.</p>
+          <summary class="font-semibold"><?= e(kc_t('home.faq.schedule.question')) ?></summary>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.faq.schedule.answer')) ?></p>
         </details>
         <details class="rounded-xl border border-slate-800 p-4">
-          <summary class="font-semibold">Comment contacter le KC Nalinnes ?</summary>
-          <p class="mt-2 text-slate-300">Par email à info@kc-nalinnes.be, par téléphone au +32 497 25 12 14 ou au +32 488 09 50 27.</p>
+          <summary class="font-semibold"><?= e(kc_t('home.faq.contact.question')) ?></summary>
+          <p class="mt-2 text-slate-300"><?= e(kc_t('home.faq.contact.answer')) ?></p>
         </details>
       </div>
     </div>
@@ -1298,11 +1296,11 @@ function e(string $text): string {
   <section id="contact" class="section">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 grid lg:grid-cols-2 gap-10 items-start">
       <div>
-        <h2 class="text-3xl font-bold">Contact</h2>
-        <p class="mt-2 text-slate-300">18 rue des Monts, 6120 Nalinnes, Belgique</p>
+        <h2 class="text-3xl font-bold"><?= e(kc_t('home.contact.title')) ?></h2>
+        <p class="mt-2 text-slate-300"><?= e(kc_t('home.contact.address')) ?></p>
 
         <div class="mt-4 rounded-2xl border border-slate-800 overflow-hidden">
-          <iframe title="Carte — 18 rue des Monts, 6120 Nalinnes"
+          <iframe title="<?= e(kc_t('home.contact.map_title')) ?>"
                   class="w-full h-64"
                   style="border:0"
                   loading="lazy"
@@ -1311,7 +1309,7 @@ function e(string $text): string {
           </iframe>
           <p class="mt-2 text-sm px-2 py-1">
             <a class="underline decoration-sky-500/50 underline-offset-4" target="_blank" rel="noopener"
-               href="https://maps.google.com/?q=18%20rue%20des%20Monts%2C%206120%20Nalinnes%2C%20Belgique">Itinéraire Google Maps</a>
+               href="https://maps.google.com/?q=18%20rue%20des%20Monts%2C%206120%20Nalinnes%2C%20Belgique"><?= e(kc_t('home.contact.directions')) ?></a>
           </p>
         </div>
 
@@ -1326,21 +1324,21 @@ function e(string $text): string {
       <form name="contact" method="POST" action="/contact.php" class="rounded-2xl border border-slate-800 p-6 space-y-4" name="contact" netlify>
         <input type="hidden" name="lang" value="<?= e($locale) ?>">
         <p class="hidden">
-          <label>Ne pas remplir : <input name="website" /></label>
+          <label><?= e(kc_t('home.contact.honeypot')) ?> <input name="website" /></label>
         </p>
         <div>
-          <label class="block text-sm text-slate-300">Votre nom</label>
+          <label class="block text-sm text-slate-300"><?= e(kc_t('home.contact.name')) ?></label>
           <input class="mt-1 w-full rounded-lg bg-slate-900 border border-slate-800 px-3 py-2" name="name" required />
         </div>
         <div>
-          <label class="block text-sm text-slate-300">Email</label>
+          <label class="block text-sm text-slate-300"><?= e(kc_t('home.contact.email')) ?></label>
           <input type="email" class="mt-1 w-full rounded-lg bg-slate-900 border border-slate-800 px-3 py-2" name="email" required />
         </div>
         <div>
-          <label class="block text-sm text-slate-300">Message</label>
+          <label class="block text-sm text-slate-300"><?= e(kc_t('home.contact.message')) ?></label>
           <textarea class="mt-1 w-full rounded-lg bg-slate-900 border border-slate-800 px-3 py-2" rows="4" name="message" required></textarea>
         </div>
-        <button class="rounded-xl bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/40">Envoyer</button>
+        <button class="rounded-xl bg-red-600 px-5 py-2 font-semibold text-white hover:bg-red-500 hover:translate-y-[1px] transition shadow-sm shadow-red-900/40"><?= e(kc_t('home.contact.submit')) ?></button>
       </form>
     </div>
   </section>
@@ -1350,35 +1348,35 @@ function e(string $text): string {
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 grid grid-cols-2 md:grid-cols-4 gap-4">
       <a href="karate-shotokan.php" class="kc-badge-link">
         <span class="kc-badge-icon">🥋</span>
-        <span class="kc-badge-label">Karaté Shotokan</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.karate_shotokan.heading')) ?></span>
       </a>
       <a href="kata-shotokan.php" class="kc-badge-link">
         <span class="kc-badge-icon">🌀</span>
-        <span class="kc-badge-label">Kata Shotokan</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.kata_shotokan.heading')) ?></span>
       </a>
       <a href="vocabulaire-karate-shotokan.php" class="kc-badge-link">
         <span class="kc-badge-icon">📖</span>
-        <span class="kc-badge-label">Vocabulaire</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.vocabulaire.heading')) ?></span>
       </a>
       <a href="dojo-kun.php" class="kc-badge-link">
         <span class="kc-badge-icon">🧠</span>
-        <span class="kc-badge-label">Dojo Kun</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.dojo_kun.heading')) ?></span>
       </a>
       <a href="technique_base.php" class="kc-badge-link">
         <span class="kc-badge-icon">👊</span>
-        <span class="kc-badge-label">Techniques de base</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.technique_base.heading')) ?></span>
       </a>
       <a href="techniques_kumite.php" class="kc-badge-link">
         <span class="kc-badge-icon">🥊</span>
-        <span class="kc-badge-label">Techniques de Kumité</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.techniques_kumite.heading')) ?></span>
       </a>
       <a href="reviser_katas.php" class="kc-badge-link">
         <span class="kc-badge-icon">📝</span>
-        <span class="kc-badge-label">Réviser mes katas</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.reviser_katas.heading')) ?></span>
       </a>
       <a href="stretching.php" class="kc-badge-link">
         <span class="kc-badge-icon">🧘</span>
-        <span class="kc-badge-label">Stretching</span>
+        <span class="kc-badge-label"><?= e(kc_t('page.stretching.heading')) ?></span>
       </a>
     </div>
   </section>
@@ -1386,10 +1384,10 @@ function e(string $text): string {
   <!-- Footer -->
   <footer class="border-t border-slate-800">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 text-sm text-slate-400 flex flex-col md:flex-row gap-3 items-center justify-between">
-      <p>© <span id="year"></span> KC Nalinnes. Tous droits réservés - Développé par <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
+      <p>© <span id="year"></span> KC Nalinnes. <?= e(kc_t('common.footer.rights')) ?> - <?= e(kc_t('common.footer.developed_by')) ?> <a href="https://smartappli.eu">SmartAppli&reg;</a></p>
       <nav class="flex gap-4">
-        <a href="/mentions-legales.php" class="hover:text-orange-600">Mentions légales</a>
-        <a href="/politique-confidentialite.php" class="hover:text-orange-600">Politique de confidentialité</a>
+        <a href="/mentions-legales.php" class="hover:text-orange-600"><?= e(kc_t('common.footer.legal')) ?></a>
+        <a href="/politique-confidentialite.php" class="hover:text-orange-600"><?= e(kc_t('common.footer.privacy')) ?></a>
       </nav>
     </div>
   </footer>
@@ -1398,11 +1396,11 @@ function e(string $text): string {
   <div class="fixed inset-x-0 bottom-0 z-40 bg-slate-950/95 backdrop-blur border-t border-slate-800 md:hidden">
     <div class="mx-auto max-w-7xl px-4 py-2 flex items-center justify-between gap-3">
       <span class="text-xs text-slate-200">
-        1<sup>er</sup> cours d’essai gratuit
+        <?= kc_t('home.mobile.trial_html') ?>
       </span>
       <a href="#inscription"
          class="inline-flex items-center gap-2 rounded-lg bg-red-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-red-500">
-        Essai gratuit
+        <?= e(kc_t('home.mobile.trial_cta')) ?>
       </a>
     </div>
   </div>
@@ -1604,15 +1602,21 @@ function e(string $text): string {
             height: 'auto',
             contentHeight: 'auto',
             expandRows: true,
-            locale: 'fr',
+            locale: <?= json_encode($locale, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
             firstDay: 1,
             dayMaxEventRows: 3,
             headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,listWeek' },
-            buttonText: { today: "Aujourd’hui", month: "Mois", week: "Semaine", day: "Jour", list: "Liste" },
+            buttonText: {
+              today: <?= json_encode(kc_t('home.calendar.button.today'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+              month: <?= json_encode(kc_t('home.calendar.button.month'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+              week: <?= json_encode(kc_t('home.calendar.button.week'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+              day: <?= json_encode(kc_t('home.calendar.button.day'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+              list: <?= json_encode(kc_t('home.calendar.button.list'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+            },
             views: {
-              dayGridMonth: { buttonText: "Mois" },
-              timeGridWeek: { buttonText: "Semaine" },
-              listWeek:     { buttonText: "Liste" }
+              dayGridMonth: { buttonText: <?= json_encode(kc_t('home.calendar.button.month'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?> },
+              timeGridWeek: { buttonText: <?= json_encode(kc_t('home.calendar.button.week'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?> },
+              listWeek:     { buttonText: <?= json_encode(kc_t('home.calendar.button.list'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?> }
             },
             navLinks: true,
             nowIndicator: true,
@@ -2294,7 +2298,7 @@ function e(string $text): string {
               el.textContent = Number.isFinite(num) ? String(num) : raw;
             }
           });
-          periods.forEach(el => { el.textContent = mode === 'monthly' ? '/mois' : '/an'; });
+          periods.forEach(el => { el.textContent = mode === 'monthly' ? <?= json_encode(kc_t('home.prices.period.month'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?> : <?= json_encode(kc_t('home.prices.period.year'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>; });
           try { localStorage.setItem('pricingMode', mode); } catch (_) {}
           setActive(mode === 'monthly' ? 'monthly' : 'annual');
         }
@@ -2332,7 +2336,7 @@ function e(string $text): string {
               el.textContent = Number.isFinite(num) ? String(num) : raw;
             }
           });
-          periods2.forEach(el => { el.textContent = mode === 'monthly' ? '/mois' : '/an'; });
+          periods2.forEach(el => { el.textContent = mode === 'monthly' ? <?= json_encode(kc_t('home.prices.period.month'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?> : <?= json_encode(kc_t('home.prices.period.year'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>; });
           try { localStorage.setItem('pricingMode2', mode); } catch (_) {}
           setActive2(mode === 'monthly' ? 'monthly' : 'annual');
         }
