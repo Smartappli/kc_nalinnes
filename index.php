@@ -326,20 +326,20 @@ function e(string $text): string {
             <p class="text-xs font-semibold uppercase tracking-[0.2em] text-orange-300"><?= e(kc_t('meal.hero.kicker')) ?></p>
             <h2 class="mt-2 text-2xl font-extrabold text-slate-100"><?= e(kc_t('meal.hero.title')) ?></h2>
             <p class="mt-2 max-w-3xl text-sm text-slate-300">
-              Passage de grade le <strong class="text-slate-100">26 juin 2026 à 18h</strong>. Le repas de fin de saison du <strong class="text-slate-100">26 juin 2026 à 20h</strong> est aussi ouvert aux réservations pour les membres et leurs proches.
+              <?= kc_t('home.season.summary_html') ?>
             </p>
             <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div class="season-meal-card rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
-                <p class="font-semibold text-slate-100">Repas enfant — 10 €</p>
-                <p class="mt-1 text-slate-300">1 brochette ou 1 saucisse.</p>
+                <p class="font-semibold text-slate-100"><?= e(kc_t('home.season.child_meal.title')) ?></p>
+                <p class="mt-1 text-slate-300"><?= e(kc_t('home.season.child_meal.body')) ?></p>
               </div>
               <div class="season-meal-card rounded-xl border border-slate-700/70 bg-slate-900/70 p-3">
-                <p class="font-semibold text-slate-100">Repas adulte — 19 €</p>
-                <p class="mt-1 text-slate-300">1 brochette et 1 saucisse.</p>
+                <p class="font-semibold text-slate-100"><?= e(kc_t('home.season.adult_meal.title')) ?></p>
+                <p class="mt-1 text-slate-300"><?= e(kc_t('home.season.adult_meal.body')) ?></p>
               </div>
             </div>
             <p class="mt-3 text-sm font-semibold text-orange-200">
-              Boisson non comprise. Date limite de réservation : <strong class="text-slate-100">22 juin 2026 à midi</strong>.
+              <?= kc_t('home.season.deadline_html') ?>
             </p>
           </div>
           <div class="flex flex-col gap-3 sm:flex-row lg:shrink-0">
@@ -358,7 +358,7 @@ function e(string $text): string {
     <div class="absolute inset-0">
       <img
         src="/assets/hero-karate.jpg"
-        alt="Cours de karaté au KC Nalinnes"
+        alt="<?= e(kc_t('home.hero.image_alt')) ?>"
         class="h-full w-full object-cover opacity-40"
       >
       <div class="absolute inset-0 bg-gradient-to-br from-slate-950 via-slate-950/90 to-slate-900/95"></div>
@@ -428,10 +428,10 @@ function e(string $text): string {
                     <span class="h-2.5 w-2.5 rounded-full bg-red-500"></span>
                     <span class="h-2.5 w-2.5 rounded-full bg-yellow-500"></span>
                     <span class="h-2.5 w-2.5 rounded-full bg-green-500"></span>
-                    <span class="ml-2 text-xs text-slate-400">Kata Empi — Makaro</span>
+                    <span class="ml-2 text-xs text-slate-400"><?= e(kc_t('home.video.caption')) ?></span>
                   </div>
                   <span class="rounded-full border border-slate-700/80 bg-slate-900/60 px-2.5 py-1 text-[11px] text-slate-300">
-                    ▶ autoplay (muet)
+                    <?= e(kc_t('home.video.autoplay')) ?>
                   </span>
                 </div>
 
@@ -441,7 +441,7 @@ function e(string $text): string {
                     id="random-youtube"
                     class="h-full w-full"
                     src=""
-                    title="Vidéo YouTube"
+                    title="<?= e(kc_t('home.video.title')) ?>"
                     frameborder="0"
                     loading="lazy"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -456,26 +456,26 @@ function e(string $text): string {
             <div class="mt-4">
               <div class="rounded-2xl bg-slate-900/80 border border-slate-700/70 p-5 shadow-xl backdrop-blur">
                 <p class="text-xs uppercase tracking-[0.18em] text-slate-400 mb-3">
-                  Groupes & couleurs dans le calendrier
+                  <?= e(kc_t('home.groups.title')) ?>
                 </p>
 
                 <ul class="space-y-2 text-sm text-slate-100">
                   <li class="flex items-center gap-2">
                     <span class="h-3 w-3 rounded-full bg-blue-500"></span>
-                    <span>Enfants (lundi 17–18h)</span>
+                    <span><?= e(kc_t('home.groups.children')) ?></span>
                   </li>
                   <li class="flex items-center gap-2">
                     <span class="h-3 w-3 rounded-full bg-orange-500"></span>
-                    <span>Ados (lundi & vendredi 18–19h)</span>
+                    <span><?= e(kc_t('home.groups.teens')) ?></span>
                   </li>
                   <li class="flex items-center gap-2">
                     <span class="h-3 w-3 rounded-full bg-green-500"></span>
-                    <span>Adultes (lundi & vendredi 19–20h30)</span>
+                    <span><?= e(kc_t('home.groups.adults')) ?></span>
                   </li>
                 </ul>
 
                 <p class="mt-4 text-xs text-slate-400">
-                  Retrouve ces couleurs dans le calendrier et dans les fichiers
+                  <?= e(kc_t('home.groups.note_before')) ?>
                   <code class="text-slate-300">.ics</code>.
                 </p>
               </div>
@@ -490,25 +490,25 @@ function e(string $text): string {
   <!-- Informations essentielles -->
   <section id="informations-essentielles" class="section bg-slate-900/40">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
-      <h2 class="text-2xl md:text-3xl font-extrabold">KC Nalinnes en bref</h2>
+      <h2 class="text-2xl md:text-3xl font-extrabold"><?= e(kc_t('home.essential.title')) ?></h2>
       <p class="mt-3 max-w-3xl text-slate-300">
-        KC Nalinnes est un club de Karaté Shotokan situé à Nalinnes, dans la commune de Ham-sur-Heure-Nalinnes, près de Charleroi. Le club accueille les enfants dès 5 ans, les adolescents et les adultes, avec 3 premiers cours d’essai gratuits.
+        <?= e(kc_t('home.essential.body')) ?>
       </p>
       <dl class="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4 text-sm">
         <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-          <dt class="font-semibold text-slate-100">Discipline</dt>
-          <dd class="mt-1 text-slate-300">Karaté Shotokan, kata, kihon, kumité et préparation aux grades.</dd>
+          <dt class="font-semibold text-slate-100"><?= e(kc_t('home.essential.discipline.label')) ?></dt>
+          <dd class="mt-1 text-slate-300"><?= e(kc_t('home.essential.discipline.value')) ?></dd>
         </div>
         <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-          <dt class="font-semibold text-slate-100">Adresse</dt>
-          <dd class="mt-1 text-slate-300">Rue des Monts 18, 6120 Nalinnes, Belgique.</dd>
+          <dt class="font-semibold text-slate-100"><?= e(kc_t('home.essential.address.label')) ?></dt>
+          <dd class="mt-1 text-slate-300"><?= e(kc_t('home.essential.address.value')) ?></dd>
         </div>
         <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-          <dt class="font-semibold text-slate-100">Public</dt>
-          <dd class="mt-1 text-slate-300">Enfants dès 5 ans, adolescents, adultes, débutants et confirmés.</dd>
+          <dt class="font-semibold text-slate-100"><?= e(kc_t('home.essential.audience.label')) ?></dt>
+          <dd class="mt-1 text-slate-300"><?= e(kc_t('home.essential.audience.value')) ?></dd>
         </div>
         <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-          <dt class="font-semibold text-slate-100">Contact</dt>
+          <dt class="font-semibold text-slate-100"><?= e(kc_t('home.essential.contact.label')) ?></dt>
           <dd class="mt-1 text-slate-300">info@kc-nalinnes.be · +32 497 25 12 14 · +32 488 09 50 27</dd>
         </div>
       </dl>
@@ -519,25 +519,25 @@ function e(string $text): string {
   <section class="section" id="publics">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 pb-10 pt-10">
       <h2 class="text-2xl md:text-3xl font-extrabold mb-6">
-        Pour qui ?
+        <?= e(kc_t('home.audience.title')) ?>
       </h2>
       <div class="grid gap-4 md:grid-cols-3 text-sm text-slate-200">
         <div class="rounded-2xl border border-blue-500/40 bg-blue-500/10 p-4">
-          <h3 class="font-semibold mb-1 text-blue-100">Enfants</h3>
+          <h3 class="font-semibold mb-1 text-blue-100"><?= e(kc_t('home.audience.children.title')) ?></h3>
           <p class="text-xs sm:text-sm">
-            Découverte du karaté, coordination, respect des règles, concentration… le tout dans le jeu et la bienveillance.
+            <?= e(kc_t('home.audience.children.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-orange-500/40 bg-orange-500/10 p-4">
-          <h3 class="font-semibold mb-1 text-orange-100">Ados</h3>
+          <h3 class="font-semibold mb-1 text-orange-100"><?= e(kc_t('home.audience.teens.title')) ?></h3>
           <p class="text-xs sm:text-sm">
-            Développement de la confiance, discipline, gestion de l’effort, préparation aux grades et aux compétitions.
+            <?= e(kc_t('home.audience.teens.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-green-500/40 bg-green-500/10 p-4">
-          <h3 class="font-semibold mb-1 text-green-100">Adultes</h3>
+          <h3 class="font-semibold mb-1 text-green-100"><?= e(kc_t('home.audience.adults.title')) ?></h3>
           <p class="text-xs sm:text-sm">
-            Activité complète pour le corps et l’esprit : technique, souplesse, self-control, chacun à son propre rythme.
+            <?= e(kc_t('home.audience.adults.body')) ?>
           </p>
         </div>
       </div>
@@ -548,35 +548,35 @@ function e(string $text): string {
   <section class="section" id="pourquoi">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10">
       <h2 class="text-2xl md:text-3xl font-extrabold mb-6">
-        Pourquoi choisir le KC Nalinnes ?
+        <?= e(kc_t('home.why.title')) ?>
       </h2>
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
           <div class="text-2xl mb-2">🥋</div>
-          <h3 class="font-semibold"><a href="karate-shotokan.php">Karaté Shotokan</a> <a href="https://www.ffkama.be/">FFKAMA/GFK</a></h3>
+          <h3 class="font-semibold"><a href="karate-shotokan.php"><?= e(kc_t('page.karate_shotokan.heading')) ?></a> <a href="https://www.ffkama.be/">FFKAMA/GFK</a></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
-            Club affilié, karaté traditionnel et sportif dans le respect du code moral.
+            <?= e(kc_t('home.why.affiliated.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
           <div class="text-2xl mb-2">👨‍👩‍👧</div>
-          <h3 class="font-semibold">Enfants, ados, adultes</h3>
+          <h3 class="font-semibold"><?= e(kc_t('home.why.all_ages.title')) ?></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
-            À partir de 5 ans, groupes adaptés à chaque âge et niveau, chacun progresse à son rythme.
+            <?= e(kc_t('home.why.all_ages.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
           <div class="text-2xl mb-2">🎓</div>
-          <h3 class="font-semibold">Ceintures & grades</h3>
+          <h3 class="font-semibold"><?= e(kc_t('home.why.grades.title')) ?></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
-            Préparation sérieuse aux passages de ceintures avec objectifs clairs pour motiver toute l’année.
+            <?= e(kc_t('home.why.grades.body')) ?>
           </p>
         </div>
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-4">
           <div class="text-2xl mb-2">🏆</div>
-          <h3 class="font-semibold">Stages & compétitions</h3>
+          <h3 class="font-semibold"><?= e(kc_t('home.why.events.title')) ?></h3>
           <p class="mt-1 text-slate-300 text-xs sm:text-sm">
-            Possibilité de participer à des stages, événements et compétitions pour ceux qui le souhaitent.
+            <?= e(kc_t('home.why.events.body')) ?>
           </p>
         </div>
       </div>
