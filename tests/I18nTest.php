@@ -26,6 +26,11 @@ final class I18nTest extends TestCase {
         $this->assertSame('Réservation repas', kc_t('meal.hero.title', [], 'de'));
     }
 
+    public function testMemberDashboardTranslationsAreAvailable(): void {
+        $this->assertSame('Member dashboard', kc_t('member.heading', [], 'en'));
+        $this->assertSame('Ledendashboard', kc_t('member.heading', [], 'nl'));
+    }
+
     public function testLocalizedUrlKeepsExistingQueryAndChangesLanguage(): void {
         $_GET = ['foo' => 'bar', 'lang' => 'fr'];
 
