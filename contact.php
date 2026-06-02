@@ -113,7 +113,7 @@ if ($errors !== []) {
 // -------- Envoi de l'e-mail --------
 
 // Adresse de destination (à adapter si besoin)
-$to = 'info@kc-nalinnes.be';
+$to = 'sakuraduchesne@gmail.com';
 
 // Sujet du mail
 $subject = kc_t('contact.mail.subject');
