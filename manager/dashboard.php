@@ -58,7 +58,7 @@ try {
 
     $auth = new \Delight\Auth\Auth($db);
     ensure_meal_reservations_table($db);
-    ensure_meal_public_contact_columns($db);
+    ensure_meal_reservations_columns($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
 
