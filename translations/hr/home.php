@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Koje je glavno radno vrijeme?',
     'home.faq.schedule.answer' => 'Nastava se odvija uglavnom ponedjeljkom od 17:00 sati. do 20:30 sati. i petkom od 18:00 sati. do 20:30 sati, ovisno o dobnoj skupini i razini.',
     'home.faq.contact.question' => 'Kako kontaktirati KC Nalinnes?',
-    'home.faq.contact.answer' => 'E-poštom na duchesnesakura@gmail.com, telefonom na +32 497 25 12 14 ili +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'E-poštom na info@kc-nalinnes.be, telefonom na +32 497 25 12 14 ili +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgija',
     'home.contact.map_title' => 'Karta — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Upute Google Maps',

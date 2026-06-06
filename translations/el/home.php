@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Ποιες είναι οι κύριες ώρες;',
     'home.faq.schedule.answer' => 'Τα μαθήματα γίνονται κυρίως Δευτέρα από τις 5:00 μ.μ. έως τις 8:30 μ.μ. και Παρασκευή από τις 6:00 μ.μ. έως τις 8:30 μ.μ., ανάλογα με την ηλικιακή ομάδα και το επίπεδο.',
     'home.faq.contact.question' => 'Πώς να επικοινωνήσετε με το KC Nalinnes;',
-    'home.faq.contact.answer' => 'Με email στο duchesnesakura@gmail.com, τηλεφωνικά στο +32 497 25 12 14 ή +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'Με email στο info@kc-nalinnes.be, τηλεφωνικά στο +32 497 25 12 14 ή +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Βέλγιο',
     'home.contact.map_title' => 'Χάρτης — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Οδηγίες Χάρτες Google',

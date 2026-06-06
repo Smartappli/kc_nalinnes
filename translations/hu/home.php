@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Melyek a fő nyitvatartási idők?',
     'home.faq.schedule.answer' => 'A foglalkozások főként hétfőnként 17:00 órától zajlanak. 20:30-ig. és pénteken 18:00 órától. 20:30-ig, korosztálytól és szinttől függően.',
     'home.faq.contact.question' => 'Hogyan lehet kapcsolatba lépni a KC Nalinnes-szel?',
-    'home.faq.contact.answer' => 'E-mailben az duchesnesakura@gmail.com e-mail címen, telefonon a +32 497 25 12 14 vagy a +32 488 09 50 27 számon.',
+    'home.faq.contact.answer' => 'E-mailben az info@kc-nalinnes.be e-mail címen, telefonon a +32 497 25 12 14 vagy a +32 488 09 50 27 számon.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgium',
     'home.contact.map_title' => 'Térkép – 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Útvonal Google Maps',

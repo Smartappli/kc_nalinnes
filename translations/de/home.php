@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Welche Hauptzeiten sind?',
     'home.faq.schedule.answer' => 'Der Unterricht findet überwiegend montags ab 17:00 Uhr statt. bis 20:30 Uhr und freitags ab 18:00 Uhr. bis 20:30 Uhr, je nach Altersgruppe und Niveau.',
     'home.faq.contact.question' => 'Wie kann ich KC Nalinnes erreichen?',
-    'home.faq.contact.answer' => 'Per E-Mail unter duchesnesakura@gmail.com, telefonisch unter +32 497 25 12 14 oder +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'Per E-Mail unter info@kc-nalinnes.be, telefonisch unter +32 497 25 12 14 oder +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgien',
     'home.contact.map_title' => 'Karte – 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Google Maps-Wegbeschreibung',

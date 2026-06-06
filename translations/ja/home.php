@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => '主な時間は何時ですか?',
     'home.faq.schedule.answer' => 'クラスは主に月曜日の午後 5 時から午後 5 時まで行われます。午後8時30分までと金曜日の午後6時から',
     'home.faq.contact.question' => 'KC Nalinnes への連絡方法は?',
-    'home.faq.contact.answer' => 'メールで duchesnesakura@gmail.com、電話で +32 497 25 12 14 または +32 488 09 50 27',
+    'home.faq.contact.answer' => 'メールで info@kc-nalinnes.be、電話で +32 497 25 12 14 または +32 488 09 50 27',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgium',
     'home.contact.map_title' => '地図 — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Google マップのルート',

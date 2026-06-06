@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Какви са основните графици?',
     'home.faq.schedule.answer' => 'Занятията се провеждат основно в понеделник от 17:00 до 20:30 часа и в петък от 18:00 до 20:30 часа, в зависимост от възрастовата група и нивото.',
     'home.faq.contact.question' => 'Как да се свържете с KC Nalinnes?',
-    'home.faq.contact.answer' => 'По имейл на duchesnesakura@gmail.com, на телефон +32 497 25 12 14 или +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'По имейл на info@kc-nalinnes.be, на телефон +32 497 25 12 14 или +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Белгия',
     'home.contact.map_title' => 'Карта — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Упътвания за Google Карти',

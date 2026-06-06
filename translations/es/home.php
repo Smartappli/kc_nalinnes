@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => '¿Cuáles son los horarios principales?',
     'home.faq.schedule.answer' => 'Las clases se llevan a cabo principalmente los lunes de 5:00 p.m. a 8:30 p.m. y viernes de 6:00 p.m. a 20.30 h, según el grupo de edad y el nivel.',
     'home.faq.contact.question' => '¿Cómo contactar con KC Nalinnes?',
-    'home.faq.contact.answer' => 'Por correo electrónico a duchesnesakura@gmail.com, por teléfono al +32 497 25 12 14 o al +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'Por correo electrónico a info@kc-nalinnes.be, por teléfono al +32 497 25 12 14 o al +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Bélgica',
     'home.contact.map_title' => 'Mapa — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Cómo llegar a Google Maps',

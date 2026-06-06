@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Millised on peamised lahtiolekuajad?',
     'home.faq.schedule.answer' => 'Tunnid toimuvad peamiselt esmaspäeviti alates kella 17.00-st. kuni 20.30. ja reedeti alates kella 18.00-st. kuni 20.30, olenevalt vanuserühmast ja tasemest.',
     'home.faq.contact.question' => 'Kuidas KC Nalinnesega ühendust võtta?',
-    'home.faq.contact.answer' => 'E-posti teel aadressil duchesnesakura@gmail.com, telefoni teel +32 497 25 12 14 või +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'E-posti teel aadressil info@kc-nalinnes.be, telefoni teel +32 497 25 12 14 või +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgia',
     'home.contact.map_title' => 'Kaart — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Juhised Google Maps',

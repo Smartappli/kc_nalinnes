@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'What are the main schedules?',
     'home.faq.schedule.answer' => 'Classes mainly take place on Monday from 5 pm to 8:30 pm and Friday from 6 pm to 8:30 pm, depending on age group and level.',
     'home.faq.contact.question' => 'How can I contact KC Nalinnes?',
-    'home.faq.contact.answer' => 'By email at duchesnesakura@gmail.com, by phone on +32 497 25 12 14 or +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'By email at info@kc-nalinnes.be, by phone on +32 497 25 12 14 or +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgium',
     'home.contact.map_title' => 'Map — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Google Maps directions',
