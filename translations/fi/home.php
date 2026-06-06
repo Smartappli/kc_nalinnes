@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Mitkä ovat päätunnit?',
     'home.faq.schedule.answer' => 'Tunnit ovat pääasiassa maanantaisin klo 17.00 alkaen. klo 20.30 asti ja perjantaisin klo 18.00 alkaen. klo 20.30 ikäryhmästä ja tasosta riippuen.',
     'home.faq.contact.question' => 'Kuinka ottaa yhteyttä KC Nalinnes?',
-    'home.faq.contact.answer' => 'Sähköpostitse osoitteeseen info@kc-nalinnes.be, puhelimitse numeroon +32 497 25 12 14 tai +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'Sähköpostitse osoitteeseen duchesnesakura@gmail.com, puhelimitse numeroon +32 497 25 12 14 tai +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgia',
     'home.contact.map_title' => 'Kartta – 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Reittiohjeet Google Maps',

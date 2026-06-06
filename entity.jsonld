@@ -15,7 +15,7 @@
       "image": "https://kc-nalinnes.be/assets/og-karate.jpg",
       "description": "KC Nalinnes est un club de Karaté Shotokan situé à Nalinnes, en Belgique. Le club accueille les enfants dès 5 ans, les adolescents et les adultes.",
       "sport": "Karaté Shotokan",
-      "email": "info@kc-nalinnes.be",
+      "email": "duchesnesakura@gmail.com",
       "telephone": [
         "+32 497 25 12 14",
         "+32 488 09 50 27"
@@ -83,7 +83,7 @@
         {
           "@type": "ContactPoint",
           "contactType": "information",
-          "email": "info@kc-nalinnes.be",
+          "email": "duchesnesakura@gmail.com",
           "telephone": "+32 497 25 12 14",
           "availableLanguage": "fr-BE"
         }

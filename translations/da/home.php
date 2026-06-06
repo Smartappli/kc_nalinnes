@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Hvad er de vigtigste åbningstider?',
     'home.faq.schedule.answer' => 'Undervisningen foregår hovedsageligt om mandagen fra kl. 17.00. til 20.30. og fredage fra 18.00. til 20:30, afhængigt af aldersgruppe og niveau.',
     'home.faq.contact.question' => 'Hvordan kontakter du KC Nalinnes?',
-    'home.faq.contact.answer' => 'På e-mail på info@kc-nalinnes.be, telefonisk på +32 497 25 12 14 eller +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'På e-mail på duchesnesakura@gmail.com, telefonisk på +32 497 25 12 14 eller +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgien',
     'home.contact.map_title' => 'Kort — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Google Maps rutevejledning',

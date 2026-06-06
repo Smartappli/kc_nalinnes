@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Jaké jsou hlavní rozvrhy?',
     'home.faq.schedule.answer' => 'Kurzy se konají hlavně v pondělí od 17:00 do 20:30 a v pátek od 18:00 do 20:30 v závislosti na věkové skupině a úrovni.',
     'home.faq.contact.question' => 'Jak kontaktovat KC Nalinnes?',
-    'home.faq.contact.answer' => 'E-mailem na adresu info@kc-nalinnes.be, telefonicky na +32 497 25 12 14 nebo +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'E-mailem na adresu duchesnesakura@gmail.com, telefonicky na +32 497 25 12 14 nebo +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgie',
     'home.contact.map_title' => 'Mapa — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Trasy Google Maps',

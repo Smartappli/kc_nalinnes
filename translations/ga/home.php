@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Cad iad na príomhuaireanta?',
     'home.faq.schedule.answer' => 'Bíonn na ranganna ar siúl go príomha ar an Luan ó 5:00 i.n. go dtí 8:30 i.n. agus Dé hAoine ó 6:00 i.n. go dtí 8:30 i.n., ag brath ar an aoisghrúpa agus leibhéal.',
     'home.faq.contact.question' => 'Conas teagmháil a dhéanamh le KC Nalinnes?',
-    'home.faq.contact.answer' => 'Trí ríomhphost chuig info@kc-nalinnes.be, ar an teileafón ag +32 497 25 12 14 nó +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'Trí ríomhphost chuig duchesnesakura@gmail.com, ar an teileafón ag +32 497 25 12 14 nó +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, An Bheilg',
     'home.contact.map_title' => 'Léarscáil — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Treoracha Google Maps',

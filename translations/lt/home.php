@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Kokios pagrindinės valandos?',
     'home.faq.schedule.answer' => 'Užsiėmimai vyksta daugiausia pirmadieniais nuo 17:00 val. iki 20.30 val. ir penktadieniais nuo 18.00 val. iki 20.30 val., priklausomai nuo amžiaus grupės ir lygio.',
     'home.faq.contact.question' => 'Kaip susisiekti su KC Nalinnes?',
-    'home.faq.contact.answer' => 'El. paštu info@kc-nalinnes.be, telefonu +32 497 25 12 14 arba +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'El. paštu duchesnesakura@gmail.com, telefonu +32 497 25 12 14 arba +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Belgija',
     'home.contact.map_title' => 'Žemėlapis – 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Nuorodos Google Maps',

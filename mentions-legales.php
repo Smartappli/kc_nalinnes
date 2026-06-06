@@ -287,7 +287,7 @@ function e(string $text): string {
       </p>
       <p class="mb-1">
         Téléphone : <em>Olivier Lowie: +32 497 25 12 14 / Frank Duchesne: +32 488 09 50 27</em><br>
-        E-mail de contact : <a href="mailto:info@kcnalinnes.be" class="text-orange-600 hover:underline">info@kc-nalinnes.be</a>
+        E-mail de contact : <a href="mailto:duchesnesakura@gmail.com" class="text-orange-600 hover:underline">duchesnesakura@gmail.com</a>
       </p>
       <p class="mb-1">
         Responsable de la publication : <em>Matyas SIMON, Président du club</em>

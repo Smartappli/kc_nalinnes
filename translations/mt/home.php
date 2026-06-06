@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'X\'inhuma s-sigħat prinċipali?',
     'home.faq.schedule.answer' => 'Il-klassijiet isiru l-aktar nhar ta’ Tnejn mill-5:00 p.m. sat-8:30 p.m. u l-Ġimgħa mis-6:00 p.m. sat-8:30 p.m., skont il-grupp ta’ età u l-livell.',
     'home.faq.contact.question' => 'Kif tikkuntattja lil KC Nalinnes?',
-    'home.faq.contact.answer' => 'B’email lil info@kc-nalinnes.be, bit-telefon fuq +32 497 25 12 14 jew +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'B’email lil duchesnesakura@gmail.com, bit-telefon fuq +32 497 25 12 14 jew +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, il-Belġju',
     'home.contact.map_title' => 'Mappa — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Direzzjonijiet Google Maps',

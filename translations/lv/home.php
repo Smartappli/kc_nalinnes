@@ -216,7 +216,7 @@ return [
     'home.faq.schedule.question' => 'Kādas ir galvenās stundas?',
     'home.faq.schedule.answer' => 'Nodarbības notiek galvenokārt pirmdienās no 17:00. līdz 20:30. un piektdienās no 18:00. līdz 20:30 atkarībā no vecuma grupas un līmeņa.',
     'home.faq.contact.question' => 'Kā sazināties ar KC Nalinnes?',
-    'home.faq.contact.answer' => 'Pa e-pastu uz info@kc-nalinnes.be, pa tālruni +32 497 25 12 14 vai +32 488 09 50 27.',
+    'home.faq.contact.answer' => 'Pa e-pastu uz duchesnesakura@gmail.com, pa tālruni +32 497 25 12 14 vai +32 488 09 50 27.',
     'home.contact.address' => '18 rue des Monts, 6120 Nalinnes, Beļģija',
     'home.contact.map_title' => 'Karte — 18 rue des Monts, 6120 Nalinnes',
     'home.contact.directions' => 'Norādes Google Maps',

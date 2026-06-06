@@ -187,7 +187,7 @@ try {
 
         flash(kc_t('member.flash.meal_saved'), 'success');
 
-        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
+        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'duchesnesakura@gmail.com');
         $subject = kc_t('member.meal.mail_subject');
         $message = kc_t('member.meal.mail_member_id') . ": " . (int)$auth->getUserId() . "\n"
             . kc_t('member.meal.mail_profile') . ": " . $profileName . " (" . $profileType . ")\n"

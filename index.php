@@ -96,14 +96,14 @@ function e(string $text): string {
       "longitude": 4.4448
     },
     "hasMap": "https://maps.google.com/?q=18%20rue%20des%20Monts%2C%206120%20Nalinnes%2C%20Belgique",
-    "email": "info@kc-nalinnes.be",
+    "email": "duchesnesakura@gmail.com",
     "telephone": ["+32 497 25 12 14", "+32 488 09 50 27"],
     "contactPoint": [
       {
         "@type": "ContactPoint",
         "contactType": "information",
         "telephone": "+32 497 25 12 14",
-        "email": "info@kc-nalinnes.be",
+        "email": "duchesnesakura@gmail.com",
         "availableLanguage": ["fr-BE"]
       }
     ],
@@ -215,7 +215,7 @@ function e(string $text): string {
         "name": "Comment contacter le club ?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Le club peut Ãªtre contactÃ© par email Ã  info@kc-nalinnes.be, par tÃ©lÃ©phone au +32 497 25 12 14 ou au +32 488 09 50 27."
+          "text": "Le club peut Ãªtre contactÃ© par email Ã  duchesnesakura@gmail.com, par tÃ©lÃ©phone au +32 497 25 12 14 ou au +32 488 09 50 27."
         }
       }
     ]
@@ -509,7 +509,7 @@ function e(string $text): string {
         </div>
         <div class="essential-info-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
           <dt class="font-semibold text-slate-100"><?= e(kc_t('home.essential.contact.label')) ?></dt>
-          <dd class="mt-1 text-slate-300">info@kc-nalinnes.be Â· +32 497 25 12 14 Â· +32 488 09 50 27</dd>
+          <dd class="mt-1 text-slate-300">duchesnesakura@gmail.com Â· +32 497 25 12 14 Â· +32 488 09 50 27</dd>
         </div>
       </dl>
     </div>
@@ -1314,7 +1314,7 @@ function e(string $text): string {
         </div>
 
         <ul class="mt-4 space-y-2 text-slate-300">
-          <li>ðŸ“§ <a class="underline decoration-sky-500/50 underline-offset-4" href="mailto:info@kc-nalinnes.be">info@kc-nalinnes.be</a></li>
+          <li>ðŸ“§ <a class="underline decoration-sky-500/50 underline-offset-4" href="mailto:duchesnesakura@gmail.com">duchesnesakura@gmail.com</a></li>
           <li>ðŸ“ž <a class="underline decoration-sky-500/50 underline-offset-4" href="tel:+32497251214">Olivier Lowie: +32 497 25 12 14</a></li>
           <li>ðŸ“ž <a class="underline decoration-sky-500/50 underline-offset-4" href="tel:+32488095027">Frank Duchesne: +32 488 09 50 27</a></li>
           <li>ðŸ“± <a class="underline decoration-sky-500/50 underline-offset-4" href="https://www.facebook.com/KarateClubNalinnes">Facebook</a><!-- Â· <a class="underline decoration-sky-500/50 underline-offset-4" href="#">Instagram</a></li>-->

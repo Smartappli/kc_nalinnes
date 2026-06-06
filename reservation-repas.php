@@ -130,7 +130,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'notes' => $notes,
         ]);
 
-        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
+        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'duchesnesakura@gmail.com');
         $subject = kc_t('meal.mail.admin_subject');
         $message = kc_t('meal.mail.heading') . "\n"
             . kc_t('meal.mail.reservation_id') . ": " . ($reservationId !== null ? (string)$reservationId : 'excel-only') . "\n"

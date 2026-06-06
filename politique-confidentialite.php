@@ -297,8 +297,8 @@ function e(string $text): string {
       </p>
       <p class="mb-1">
         E-mail de contact pour la vie privée : 
-        <a href="mailto:privacy@kc-nalinnes.be" class="text-orange-600 hover:underline">
-          privacy@kc-nalinnes.be
+        <a href="mailto:duchesnesakura@gmail.com" class="text-orange-600 hover:underline">
+          duchesnesakura@gmail.com
         </a>
         <span class="text-xs text-slate-500 block mt-1">
           (ou l’adresse e-mail de contact habituelle du club)
@@ -407,8 +407,8 @@ function e(string $text): string {
       </ul>
       <p class="mt-3 mb-2">
         Pour exercer vos droits, vous pouvez nous contacter à l’adresse suivante :
-        <a href="mailto:privacy@kc-nalinnes.be" class="text-orange-600 hover:underline">
-          privacy@kc-nalinnes.be
+        <a href="mailto:duchesnesakura@gmail.com" class="text-orange-600 hover:underline">
+          duchesnesakura@gmail.com
         </a>.
       </p>
       <p class="text-sm text-slate-500">

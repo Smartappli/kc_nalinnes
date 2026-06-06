@@ -113,7 +113,7 @@ if ($errors !== []) {
 // -------- Envoi de l'e-mail --------
 
 // Adresse de destination (à adapter si besoin)
-$to = 'sakuraduchesne@gmail.com';
+$to = 'duchesnesakura@gmail.com';
 
 // Sujet du mail
 $subject = kc_t('contact.mail.subject');
@@ -170,7 +170,7 @@ $sent = @mail($to, $subject, $body, implode("\r\n", $headers));
             <h1 style="font-size:1.5rem; margin-bottom:1rem;"><?= e(kc_t('contact.failure.heading')) ?></h1>
             <p><?= e(kc_t('contact.failure.body')) ?></p>
             <ul>
-                <li><?= e(kc_t('contact.mail.email')) ?> : <a href="mailto:info@kc-nalinnes.be">info@kc-nalinnes.be</a></li>
+                <li><?= e(kc_t('contact.mail.email')) ?> : <a href="mailto:duchesnesakura@gmail.com">duchesnesakura@gmail.com</a></li>
                 <li><?= e(kc_t('contact.phone')) ?> : <a href="tel:+32497251214">+32 497 25 12 14</a></li>
             </ul>
         <?php endif; ?>
