@@ -4,13 +4,9 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
 require_once __DIR__ . '/includes/i18n.php';
+require_once __DIR__ . '/includes/fpdf_alias.php';
 
-use Fpdf\Fpdf as BaseFpdf;
 use setasign\Fpdi\Fpdi;
-
-if (!class_exists('FPDF', false)) {
-    class_alias(BaseFpdf::class, 'FPDF');
-}
 
 final class LicencePdfFiller extends Fpdi
 {

@@ -6,6 +6,7 @@ ini_set('display_startup_errors', '1');
 error_reporting(E_ALL);
 
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../includes/fpdf_alias.php';
 require __DIR__ . '/../includes/i18n.php';
 require __DIR__ . '/pdf_access.php';
 require __DIR__ . '/meal_reservation.php';
