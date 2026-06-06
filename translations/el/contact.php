@@ -12,7 +12,7 @@ return [
     'contact.mail.subject' => 'Νέο μήνυμα από τον ιστότοπο της KC Nalinnes',
     'contact.mail.intro' => 'Λάβατε ένα νέο μήνυμα από τη φόρμα επικοινωνίας KC Nalinnes.',
     'contact.mail.name' => 'Όνομα',
-    'contact.mail.email' => 'Email',
+    'contact.mail.email' => 'E-mail',
     'contact.mail.message' => 'Μήνυμα',
     'contact.success.title' => 'Σας ευχαριστώ για το μήνυμά σας',
     'contact.success.heading' => 'Ευχαριστώ',

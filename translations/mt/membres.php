@@ -6,7 +6,7 @@ return [
     'membres.meta.description' => 'Żona ta\' login tal-membri għal KC Nalinnes.',
     'membres.heading' => 'Żona tal-Membri',
     'membres.subtitle' => 'Idħol bl-email u l-password tiegħek.',
-    'membres.form.password' => 'Password',
+    'membres.form.password' => 'Password personali',
     'membres.form.remember' => 'Ftakar fija (sena)',
     'membres.form.submit' => 'Idħol',
     'membres.back_label' => 'Lura għas-sit:',

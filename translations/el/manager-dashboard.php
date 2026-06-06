@@ -23,7 +23,7 @@ return [
     'manager.users.title' => 'Διαχείριση χρηστών',
     'manager.users.description' => 'Αλλάξτε τον ρόλο διαχειριστή/μέλους από τον πίνακα ελέγχου διαχειριστή.',
     'manager.users.id' => 'ID',
-    'manager.users.email' => 'Email',
+    'manager.users.email' => 'E-mail',
     'manager.users.username' => 'Όνομα χρήστη',
     'manager.users.grade' => 'Βαθμός',
     'manager.users.role' => 'Ρόλος',

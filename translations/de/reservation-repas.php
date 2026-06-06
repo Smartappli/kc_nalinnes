@@ -14,7 +14,7 @@ return [
     'meal.mail.copy_subject' => 'Kopie Ihrer Essensreservierung',
     'meal.mail.heading' => 'Öffentliche Reservierung',
     'meal.mail.reservation_id' => 'Reservierungs-ID',
-    'meal.mail.name' => 'Name',
+    'meal.mail.name' => 'Vollständiger Name',
     'meal.mail.phone' => 'Telefon',
     'meal.mail.adults' => 'Erwachsene',
     'meal.mail.children' => 'Kinder',

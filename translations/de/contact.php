@@ -11,7 +11,7 @@ return [
     'contact.back' => '← Zurück zur Website',
     'contact.mail.subject' => 'Neue Nachricht von der KC Nalinnes-Website',
     'contact.mail.intro' => 'Sie haben eine neue Nachricht vom KC Nalinnes-Kontaktformular erhalten.',
-    'contact.mail.name' => 'Name',
+    'contact.mail.name' => 'Vollständiger Name',
     'contact.mail.email' => 'E-Mail',
     'contact.mail.message' => 'Nachricht',
     'contact.success.title' => 'Vielen Dank für Ihre Nachricht',

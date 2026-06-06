@@ -13,9 +13,10 @@ function kc_render_static_page(string $slug, string $canonicalPath, array $secti
     $description = kc_t($slug . '.meta.description');
     ?>
 <!doctype html>
-<html lang="<?= kc_e($locale) ?>">
+<html<?= kc_translate_guard_attr($locale) ?> lang="<?= kc_e($locale) ?>">
 <head>
   <meta charset="utf-8">
+  <?= kc_google_notranslate_meta($locale) ?>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= kc_e($title) ?></title>
   <meta name="description" content="<?= kc_e($description) ?>">

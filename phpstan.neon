@@ -1,0 +1,27 @@
+parameters:
+    level: 0
+    bootstrapFiles:
+        - includes/fpdf_alias.php
+    paths:
+        - commandes.php
+        - config
+        - contact.php
+        - dojo-kun.php
+        - fill_licence.php
+        - includes
+        - index.php
+        - karate-shotokan.php
+        - kata-shotokan.php
+        - login_handler.php
+        - manager
+        - member
+        - membres.php
+        - mentions-legales.php
+        - politique-confidentialite.php
+        - reservation-repas.php
+        - reviser_katas.php
+        - stretching.php
+        - techniques_kumite.php
+        - technique_base.php
+        - tests
+        - vocabulaire-karate-shotokan.php

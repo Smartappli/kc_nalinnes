@@ -46,6 +46,7 @@ unset($_SESSION['meal_public_old']);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postedToken = (string)($_POST['csrf_token'] ?? '');
+    $postedSubmissionToken = (string)($_POST['meal_submission_token'] ?? '');
 
     $profileName = trim((string)($_POST['profile_name'] ?? ''));
     $contactEmail = trim((string)($_POST['contact_email'] ?? ''));
@@ -71,6 +72,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if (!consume_meal_reservation_submission_token('public', $postedSubmissionToken)) {
+        flash(kc_t('meal.flash.invalid_request'), 'error');
+        header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
+        exit;
+    }
+
     if ($profileName === '' || strlen($profileName) > 255) {
         flash(kc_t('meal.flash.invalid_name'), 'error');
         header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
@@ -90,19 +97,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        $db = create_database_connection();
         $total = compute_meal_total($adultQty, $childQty, 19, 10);
         $reservationDate = date('Y-m-d H:i:s');
+        $reservationId = null;
 
-        $reservationId = save_public_meal_reservation($db, [
-            'profile_name' => $profileName,
-            'contact_email' => $contactEmail,
-            'contact_phone' => $contactPhone,
-            'adult_qty' => $adultQty,
-            'child_qty' => $childQty,
-            'total_amount' => $total,
-            'notes' => $notes,
-        ]);
+        try {
+            $db = create_database_connection();
+            $reservationId = save_public_meal_reservation($db, [
+                'profile_name' => $profileName,
+                'contact_email' => $contactEmail,
+                'contact_phone' => $contactPhone,
+                'adult_qty' => $adultQty,
+                'child_qty' => $childQty,
+                'total_amount' => $total,
+                'notes' => $notes,
+            ]);
+        }
+        catch (Throwable $dbError) {
+            error_log('Meal reservation database save failed: ' . $dbError->getMessage());
+        }
 
         append_meal_reservation_to_excel([
             'date' => $reservationDate,
@@ -117,10 +130,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'notes' => $notes,
         ]);
 
-        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'contact@kc-nalinnes.be');
+        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'duchesnesakura@gmail.com');
         $subject = kc_t('meal.mail.admin_subject');
         $message = kc_t('meal.mail.heading') . "\n"
-            . kc_t('meal.mail.reservation_id') . ": " . $reservationId . "\n"
+            . kc_t('meal.mail.reservation_id') . ": " . ($reservationId !== null ? (string)$reservationId : 'excel-only') . "\n"
             . kc_t('meal.mail.name') . ": " . $profileName . "\n"
             . "Email: " . $contactEmail . "\n"
             . kc_t('meal.mail.phone') . ": " . ($contactPhone !== '' ? $contactPhone : '-') . "\n"
@@ -144,17 +157,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         flash(kc_t('meal.flash.success'), 'success');
     }
     catch (Throwable $e) {
+        error_log('Meal reservation save failed: ' . $e->getMessage());
         flash(kc_t('meal.flash.error'), 'error');
     }
 
     header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
     exit;
 }
+
+$mealSubmissionToken = meal_reservation_submission_token('public');
 ?>
 <!doctype html>
-<html lang="<?= e($locale) ?>" class="">
+<html<?= kc_translate_guard_attr($locale) ?> lang="<?= e($locale) ?>" class="">
 <head>
   <meta charset="utf-8" />
+  <?= kc_google_notranslate_meta($locale) ?>
   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title><?= e(kc_t('meal.meta.title')) ?></title>
@@ -213,13 +230,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <?= e(kc_t('common.nav.members')) ?>
           </a>
 
+          <?= kc_language_switcher('ml-2 inline-flex') ?>
+
           <button id="themeToggle" class="ml-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
                   aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
             <svg id="iconSun" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 hidden" viewBox="0 0 24 24" fill="currentColor"><path d="M6.76 4.84l-1.8-1.79L3.17 4.83l1.79 1.8 1.8-1.79zm10.48 0l1.8-1.79 1.79 1.78-1.79 1.8-1.8-1.79zM12 4V1h-0v3h0zm0 19v-3h0v3h0zM4 12H1v0h3v0zm19 0h-3v0h3v0zM6.76 19.16l-1.8 1.79-1.79-1.78 1.79-1.8 1.8 1.79zM17.24 19.16l1.8 1.79 1.79-1.78-1.79-1.8-1.8 1.79zM12 8a4 4 0 100 8 4 4 0 000-8z"/></svg>
             <svg id="iconMoon" xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor"><path d="M21 12.79A9 9 0 1111.21 3a7 7 0 109.79 9.79z"/></svg>
             <span id="themeLabel">Dark</span>
           </button>
-          <?= kc_language_switcher('flex items-center gap-1') ?>
         </nav>
 
         <button id="menuBtn"
@@ -241,11 +259,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <a href="/#contact" class="block"><?= e(kc_t('common.nav.contact')) ?></a>
         <a href="/membres.php" class="block font-semibold text-red-400"><?= e(kc_t('common.nav.members')) ?></a>
 
+        <?= kc_language_switcher('mt-2 block') ?>
+
         <button id="themeToggleMobile" class="mt-2 inline-flex items-center gap-2 rounded-md border border-slate-700 px-3 py-1.5 text-sm hover:border-sky-500"
                 aria-pressed="false" aria-label="<?= e(kc_t('common.theme.toggle')) ?>">
           🌗 <span id="themeLabelMobile">Dark</span>
         </button>
-        <?= kc_language_switcher('flex items-center gap-2 pt-2') ?>
       </div>
     </nav>
   </header>
@@ -276,8 +295,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           </div>
         <?php endif; ?>
 
-        <form method="post" action="<?= e(kc_localized_url($locale, '/reservation-repas.php')) ?>" class="mt-6 grid gap-4 md:grid-cols-2">
+        <form method="post" action="<?= e(kc_localized_url($locale, '/reservation-repas.php')) ?>" class="mt-6 grid gap-4 md:grid-cols-2" data-disable-on-submit>
           <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+          <input type="hidden" name="meal_submission_token" value="<?= e($mealSubmissionToken) ?>">
 
           <div class="md:col-span-2">
             <label for="profile_name" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.name')) ?></label>
@@ -314,7 +334,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
               <input type="checkbox" name="send_copy" value="1" <?= ((string)$old['send_copy'] === '1') ? 'checked' : '' ?>>
               <?= e(kc_t('meal.form.copy')) ?>
             </label>
-            <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition">
+            <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70">
               <?= e(kc_t('meal.form.submit')) ?>
             </button>
           </div>
@@ -372,6 +392,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if (menuBtn && mobileNav) {
         menuBtn.addEventListener('click', function () { mobileNav.classList.toggle('hidden'); });
       }
+
+      document.querySelectorAll('form[data-disable-on-submit]').forEach(function (form) {
+        form.addEventListener('submit', function () {
+          if (form.dataset.submitting === '1') {
+            return;
+          }
+
+          form.dataset.submitting = '1';
+          form.querySelectorAll('button[type="submit"], button:not([type])').forEach(function (button) {
+            button.disabled = true;
+            button.setAttribute('aria-busy', 'true');
+          });
+        });
+      });
     })();
   </script>
 </body>

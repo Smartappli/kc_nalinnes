@@ -28,7 +28,7 @@ return [
     'meal.card.child.title' => 'Dziecko - 10 EUR',
     'meal.card.child.description' => '1 kiełbasa lub 1 szaszłyk.',
     'meal.form.name' => 'Imię i nazwisko',
-    'meal.form.email' => 'Email',
+    'meal.form.email' => 'E-mail',
     'meal.form.phone' => 'Telefon',
     'meal.form.adults' => 'Posiłki dla dorosłych',
     'meal.form.children' => 'Posiłki dla dzieci',

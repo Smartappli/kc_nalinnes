@@ -2,8 +2,8 @@
 declare(strict_types=1);
 
 return [
-    'manager.meta.title' => 'Dashboard - KC Nalinnes',
-    'manager.heading' => 'Dashboard',
+    'manager.meta.title' => 'Armaturenbrett – KC Nalinnes',
+    'manager.heading' => 'Armaturenbrett',
     'manager.subtitle' => 'Mitgliederbereich',
     'manager.logout' => 'Abmelden',
     'manager.flash.csrf' => 'Ungultige Anfrage (CSRF).',
@@ -16,7 +16,7 @@ return [
     'manager.flash.invalid_grade_params' => 'Ungultige Gradparameter.',
     'manager.flash.grade_updated' => 'Grad aktualisiert.',
     'manager.error.temp_excel' => 'Die temporare Excel-Datei kann nicht erstellt werden.',
-    'manager.status.title' => 'Status',
+    'manager.status.title' => 'Kontostatus',
     'manager.status.connected' => 'Verbunden',
     'manager.account.title' => 'Konto',
     'manager.account.username_empty' => '-',
@@ -39,7 +39,7 @@ return [
     'manager.meal.total_amount' => 'Gesamtbetrag',
     'manager.meal.by_members' => 'Reservierungen nach Mitgliedern',
     'manager.meal.member_id' => 'Mitglieds-ID',
-    'manager.meal.profile' => 'Profil',
+    'manager.meal.profile' => 'Benutzerprofil',
     'manager.meal.type' => 'Typ',
     'manager.meal.phone' => 'Telefon',
     'manager.meal.adults' => 'Erwachsene',

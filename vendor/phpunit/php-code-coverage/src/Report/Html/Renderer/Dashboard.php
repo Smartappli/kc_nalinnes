@@ -31,10 +31,9 @@ final class Dashboard extends Renderer
 {
     public function render(DirectoryNode $node, string $file): void
     {
-        $classes      = $node->classesAndTraits();
-        $templateName = $this->templatePath . ($this->hasBranchCoverage ? 'dashboard_branch.html' : 'dashboard.html');
-        $template     = new Template(
-            $templateName,
+        $classes  = $node->classesAndTraits();
+        $template = new Template(
+            $this->templateNameForTier('dashboard'),
             '{{',
             '}}',
         );
@@ -69,7 +68,7 @@ final class Dashboard extends Renderer
         return sprintf(
             '         <li class="breadcrumb-item"><a href="index.html">%s</a></li>' . "\n" .
             '         <li class="breadcrumb-item active">(Dashboard)</li>' . "\n",
-            $node->name(),
+            $this->escapeHtml($node->name()),
         );
     }
 

@@ -3,6 +3,8 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/includes/i18n.php';
+require_once __DIR__ . '/includes/fpdf_alias.php';
 
 use setasign\Fpdi\Fpdi;
 
@@ -188,4 +190,4 @@ foreach ($blocks as $block) {
 // Export
 $pdf->Output('F', $outputFile);
 
-echo "PDF généré : {$outputFile}" . PHP_EOL;
+echo kc_t('fill_licence.pdf_generated', ['path' => $outputFile]) . PHP_EOL;

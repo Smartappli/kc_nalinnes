@@ -32,7 +32,7 @@ function kc_supported_locales(): array {
 }
 
 function kc_translation_modules(): array {
-    return ['common', 'reservation-repas', 'member-dashboard', 'manager-dashboard', 'contact', 'membres', 'commandes', 'legal', 'pages'];
+    return ['common', 'reservation-repas', 'member-dashboard', 'manager-dashboard', 'contact', 'membres', 'commandes', 'legal', 'pages', 'home', 'fill-licence'];
 }
 
 function kc_default_locale(): string {
@@ -82,6 +82,36 @@ function kc_locale_labels(): array {
     ];
 }
 
+function kc_locale_flags(): array {
+    return [
+        'bg' => '🇧🇬',
+        'cs' => '🇨🇿',
+        'da' => '🇩🇰',
+        'de' => '🇩🇪',
+        'el' => '🇬🇷',
+        'en' => '🇬🇧',
+        'es' => '🇪🇸',
+        'et' => '🇪🇪',
+        'fi' => '🇫🇮',
+        'fr' => '🇫🇷',
+        'ga' => '🇮🇪',
+        'hr' => '🇭🇷',
+        'hu' => '🇭🇺',
+        'it' => '🇮🇹',
+        'ja' => '🇯🇵',
+        'lt' => '🇱🇹',
+        'lv' => '🇱🇻',
+        'mt' => '🇲🇹',
+        'nl' => '🇳🇱',
+        'pl' => '🇵🇱',
+        'pt' => '🇵🇹',
+        'ro' => '🇷🇴',
+        'sk' => '🇸🇰',
+        'sl' => '🇸🇮',
+        'sv' => '🇸🇪',
+    ];
+}
+
 function kc_normalize_locale(?string $locale): string {
     $locale = strtolower(trim((string)$locale));
     $locale = str_replace('_', '-', $locale);
@@ -99,6 +129,19 @@ function kc_current_locale(): string {
 
     if (isset($_GET['lang'])) {
         $locale = kc_normalize_locale((string)$_GET['lang']);
+        setcookie('kc_locale', $locale, [
+            'expires' => time() + 31536000,
+            'path' => '/',
+            'secure' => !empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off',
+            'httponly' => false,
+            'samesite' => 'Lax',
+        ]);
+
+        return $locale;
+    }
+
+    if (isset($_POST['lang'])) {
+        $locale = kc_normalize_locale((string)$_POST['lang']);
         setcookie('kc_locale', $locale, [
             'expires' => time() + 31536000,
             'path' => '/',
@@ -186,19 +229,107 @@ function kc_redirect_url_with_locale(string $path): string {
     return kc_localized_url(kc_current_locale(), $path);
 }
 
-function kc_language_switcher(string $class = ''): string {
-    $current = kc_current_locale();
-    $labels = kc_locale_labels();
-    $class = trim($class . ' flex-wrap');
-    $html = '<div class="' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" aria-label="' . htmlspecialchars(kc_t('common.language.label'), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
+function kc_translate_guard_attr(string $locale): string {
+    return kc_normalize_locale($locale) === kc_default_locale() ? ' translate="no"' : '';
+}
 
-    foreach (kc_supported_locales() as $locale) {
-        $active = $locale === $current;
-        $classes = $active
-            ? 'rounded-md bg-sky-500 px-2 py-1 text-xs font-semibold text-white'
-            : 'rounded-md border border-slate-700 px-2 py-1 text-xs font-semibold text-slate-300 hover:border-sky-500 hover:text-sky-300';
-        $html .= '<a class="' . $classes . '" href="' . htmlspecialchars(kc_localized_url($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" hreflang="' . $locale . '" lang="' . $locale . '">' . htmlspecialchars($labels[$locale] ?? strtoupper($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a>';
+function kc_google_notranslate_meta(string $locale): string {
+    return kc_normalize_locale($locale) === kc_default_locale()
+        ? '<meta name="google" content="notranslate">' . PHP_EOL
+        : '';
+}
+
+function kc_should_use_page_translation(): bool {
+    $script = basename((string)($_SERVER['SCRIPT_NAME'] ?? $_SERVER['SCRIPT_FILENAME'] ?? ''));
+
+    return in_array($script, [
+        'index.php',
+        'commandes.php',
+        'contact.php',
+        'dojo-kun.php',
+        'karate-shotokan.php',
+        'kata-shotokan.php',
+        'membres.php',
+        'reservation-repas.php',
+        'reviser_katas.php',
+        'stretching.php',
+        'technique_base.php',
+        'techniques_kumite.php',
+        'vocabulaire-karate-shotokan.php',
+        'mentions-legales.php',
+        'politique-confidentialite.php',
+        'dashboard.php',
+    ], true);
+}
+
+function kc_auto_translation_map(string $locale): array {
+    $locale = kc_normalize_locale($locale);
+
+    if ($locale === kc_default_locale()) {
+        return [];
     }
 
-    return $html . '</div>';
+    $path = dirname(__DIR__) . '/translations/' . $locale . '/auto.php';
+
+    if (!is_file($path)) {
+        return [];
+    }
+
+    $translations = require $path;
+    return is_array($translations) ? $translations : [];
+}
+
+function kc_page_translation_script(string $locale): string {
+    if (!kc_should_use_page_translation()) {
+        return '';
+    }
+
+    $locale = kc_normalize_locale($locale);
+    $map = kc_auto_translation_map($locale);
+
+    if ($map !== []) {
+        return '<script>(function(){var map='
+            . json_encode($map, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES)
+            . ';function skip(n){var e=n.nodeType===1?n:n.parentElement;return !e||e.closest("script,style,noscript,.notranslate,[translate=no]")}function tr(v){var t=(v||"").trim();return t&&map[t]?v.replace(t,map[t]):v}function run(){var w=document.createTreeWalker(document.body,NodeFilter.SHOW_TEXT,{acceptNode:function(n){return skip(n)||!n.nodeValue.trim()?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}});var nodes=[];while(w.nextNode())nodes.push(w.currentNode);nodes.forEach(function(n){n.nodeValue=tr(n.nodeValue)});["alt","title","aria-label","placeholder","value"].forEach(function(a){document.querySelectorAll("["+a+"]").forEach(function(e){if(!skip(e))e.setAttribute(a,tr(e.getAttribute(a)||""))})})}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",run)}else{run()}})();</script>';
+    }
+
+    if ($locale === kc_default_locale()) {
+        return '';
+    }
+
+    $supported = implode(',', kc_supported_locales());
+
+    return '<div id="google_translate_element" style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden"></div>'
+        . '<style>.goog-te-banner-frame,.goog-te-gadget,.goog-te-balloon-frame{display:none!important}body{top:0!important}.skiptranslate{display:none!important}</style>'
+        . '<script>(function(){var lang=' . json_encode($locale) . ';var supported=' . json_encode($supported) . ';function cookie(name,value,days){var expires="";if(days){var date=new Date();date.setTime(date.getTime()+days*864e5);expires="; expires="+date.toUTCString()}document.cookie=name+"="+value+expires+"; path=/";var host=location.hostname;if(host.indexOf(".")>-1){document.cookie=name+"="+value+expires+"; path=/; domain=."+host.replace(/^www\\./,"")}}cookie("googtrans","/fr/"+lang,365);window.googleTranslateElementInit=function(){new google.translate.TranslateElement({pageLanguage:"fr",includedLanguages:supported,autoDisplay:false},"google_translate_element")};var s=document.createElement("script");s.src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit";s.async=true;document.head.appendChild(s)})();</script>';
+}
+
+function kc_language_switcher(string $class = ''): string {
+    static $preserveScriptRendered = false;
+
+    $current = kc_current_locale();
+    $labels = kc_locale_labels();
+    $flags = kc_locale_flags();
+    $label = kc_t('common.language.label');
+    $class = trim($class);
+    $currentLabel = trim(($flags[$current] ?? '') . ' ' . ($labels[$current] ?? strtoupper($current)));
+    $html = '<details class="notranslate relative ' . htmlspecialchars($class, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">';
+    $html .= '<summary class="list-none cursor-pointer rounded-md border border-slate-700 bg-slate-950 px-3 py-2 text-sm font-semibold text-slate-100 hover:border-sky-500 focus:border-sky-500 focus:outline-none" aria-label="' . htmlspecialchars($label, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($currentLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</summary>';
+    $html .= '<div class="absolute right-0 z-50 mt-2 max-h-80 min-w-48 overflow-y-auto rounded-lg border border-slate-700 bg-slate-950 p-2 shadow-xl">';
+
+    foreach (kc_supported_locales() as $locale) {
+        $optionLabel = trim(($flags[$locale] ?? '') . ' ' . ($labels[$locale] ?? strtoupper($locale)));
+        $classes = 'block rounded-md px-3 py-2 text-sm font-semibold hover:bg-slate-800 ' . ($locale === $current ? 'bg-slate-800 text-sky-300' : 'text-slate-100');
+        $html .= '<a class="' . htmlspecialchars($classes, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" href="' . htmlspecialchars(kc_localized_url($locale), ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '" lang="' . htmlspecialchars($locale, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '">' . htmlspecialchars($optionLabel, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') . '</a>';
+    }
+
+    $html .= '</div></details>';
+
+    if (!$preserveScriptRendered) {
+        $preserveScriptRendered = true;
+        $html .= '<script>(function(){var lang=' . json_encode($current) . ';if(!lang)return;function keepLang(){document.querySelectorAll("a[href]").forEach(function(a){try{var raw=a.getAttribute("href")||"";if(!raw||raw.charAt(0)==="#"||raw.indexOf("mailto:")===0||raw.indexOf("tel:")===0)return;var u=new URL(raw,window.location.href);if(u.origin!==window.location.origin)return;if(u.searchParams.has("lang"))return;if(!/^\/($|[^?#]*\.php$|#)/.test(u.pathname)&&u.pathname!=="/")return;u.searchParams.set("lang",lang);a.href=u.pathname+u.search+u.hash;}catch(e){}})}if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",keepLang)}else{keepLang()}})();</script>';
+        $html .= kc_page_translation_script($current);
+    }
+
+    return $html;
 }

@@ -41,6 +41,32 @@ final class I18nTest extends TestCase {
         }
     }
 
+    public function testEveryLocaleHasSameTranslationKeysAsFrench(): void {
+        foreach (kc_translation_modules() as $module) {
+            $frenchKeys = array_keys(kc_load_translation_file('fr', $module));
+            sort($frenchKeys);
+
+            foreach (kc_supported_locales() as $locale) {
+                $localeKeys = array_keys(kc_load_translation_file($locale, $module));
+                sort($localeKeys);
+
+                $this->assertSame($frenchKeys, $localeKeys, $locale . '/' . $module);
+            }
+        }
+    }
+
+    public function testTranslateGuardOnlyBlocksExternalTranslationOnFrenchPages(): void {
+        $this->assertSame(' translate="no"', kc_translate_guard_attr('fr'));
+        $this->assertSame('', kc_translate_guard_attr('en'));
+        $this->assertSame('', kc_translate_guard_attr('nl'));
+    }
+
+    public function testGoogleNoTranslateMetaOnlyRendersForFrenchPages(): void {
+        $this->assertSame('<meta name="google" content="notranslate">' . PHP_EOL, kc_google_notranslate_meta('fr'));
+        $this->assertSame('', kc_google_notranslate_meta('en'));
+        $this->assertSame('', kc_google_notranslate_meta('nl'));
+    }
+
     public function testTranslatedMealReservationLocalesUseNativeContent(): void {
         $expected = [
             'bg' => 'Резервация за хранене',
@@ -86,5 +112,18 @@ final class I18nTest extends TestCase {
         $_GET = ['foo' => 'bar', 'lang' => 'fr'];
 
         $this->assertSame('/reservation-repas.php?foo=bar&lang=nl', kc_localized_url('nl', '/reservation-repas.php'));
+    }
+
+    public function testLanguageSwitcherLinksToCurrentPageWithSelectedLocale(): void {
+        $_SERVER['REQUEST_URI'] = '/reservation-repas.php?foo=bar&lang=fr';
+        $_GET = ['foo' => 'bar', 'lang' => 'fr'];
+
+        $html = kc_language_switcher('test-switcher');
+
+        $this->assertStringContainsString('<details class="notranslate relative test-switcher"', $html);
+        $this->assertStringContainsString('href="/reservation-repas.php?foo=bar&amp;lang=fr"', $html);
+        $this->assertStringContainsString('href="/reservation-repas.php?foo=bar&amp;lang=nl"', $html);
+        $this->assertStringContainsString('lang="fr"', $html);
+        $this->assertStringContainsString('text-sky-300', $html);
     }
 }

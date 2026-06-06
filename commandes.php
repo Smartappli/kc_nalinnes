@@ -10,9 +10,10 @@ function e(string $text): string {
 }
 ?>
 <!doctype html>
-<html lang="<?= e($locale) ?>">
+<html<?= kc_translate_guard_attr($locale) ?> lang="<?= e($locale) ?>">
 <head>
     <meta charset="utf-8">
+    <?= kc_google_notranslate_meta($locale) ?>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= e(kc_t('commandes.meta.title')) ?></title>
 </head>

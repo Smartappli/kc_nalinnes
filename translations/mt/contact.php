@@ -12,7 +12,7 @@ return [
     'contact.mail.subject' => 'Messaġġ ġdid mill-websajt tal-KC Nalinnes',
     'contact.mail.intro' => 'Irċevejt messaġġ ġdid mill-formola ta\' kuntatt ta\' KC Nalinnes.',
     'contact.mail.name' => 'Isem',
-    'contact.mail.email' => 'Email',
+    'contact.mail.email' => 'Email elettroniku',
     'contact.mail.message' => 'Messaġġ',
     'contact.success.title' => 'Grazzi tal-messaġġ tiegħek',
     'contact.success.heading' => 'Grazzi',

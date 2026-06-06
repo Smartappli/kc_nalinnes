@@ -10,7 +10,7 @@ return [
     'commandes.table.description' => 'Descriere',
     'commandes.table.price' => 'Preț',
     'commandes.table.quantity' => 'Cantitatea',
-    'commandes.table.total' => 'Total',
+    'commandes.table.total' => 'Total general',
     'commandes.menu.adults' => 'Adulti: o friptura tartar american cu cartofi prajiti',
     'commandes.menu.children' => 'Copii: o chifteluță cu cartofi prăjiți',
     'commandes.reservation.title' => 'Rezervare',

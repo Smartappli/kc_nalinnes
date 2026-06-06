@@ -58,7 +58,7 @@ try {
 
     $auth = new \Delight\Auth\Auth($db);
     ensure_meal_reservations_table($db);
-    ensure_meal_public_contact_columns($db);
+    ensure_meal_reservations_columns($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
 
@@ -99,7 +99,7 @@ try {
         $userId = (string)($auth->getUserId() ?? '');
         $email  = (string)($auth->getEmail() ?? '');
         $user   = (string)($auth->getUsername() ?? '');
-        $adminEmails = get_effective_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
+        $adminEmails = get_configured_admin_emails($db, (string) getenv('ADMIN_EMAILS'));
         $isAdmin = is_admin_email($email, $adminEmails);
     }
 
@@ -231,9 +231,10 @@ try {
 }
 ?>
 <!doctype html>
-<html lang="<?= e($locale) ?>">
+<html<?= kc_translate_guard_attr($locale) ?> lang="<?= e($locale) ?>">
 <head>
     <meta charset="utf-8" />
+    <?= kc_google_notranslate_meta($locale) ?>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title><?= e(kc_t('manager.meta.title')) ?></title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
