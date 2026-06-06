@@ -41,7 +41,7 @@
         "setasign/fpdf": "~1.9.0",
         "tecnickcom/tcpdf": "^6.8",
         "setasign/tfpdf": "~1.33",
-        "squizlabs/php_codesniffer": "^3.5"
+        "squizlabs/php_codesniffer": "^4.0"
     },
     "autoload-dev": {
         "psr-4": {
