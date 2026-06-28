@@ -44,7 +44,7 @@ function consume_meal_reservation_submission_token(string $scope, string $token)
 }
 
 function ensure_meal_reservations_table(PDO $db): void {
-    $db->exec('CREATE TABLE IF NOT EXISTS meal_reservations (id INT AUTO_INCREMENT PRIMARY KEY, member_user_id INT NOT NULL, profile_type VARCHAR(20) NOT NULL, dependent_id INT NULL, profile_name VARCHAR(255) NOT NULL, adult_qty INT NOT NULL DEFAULT 0, child_qty INT NOT NULL DEFAULT 0, total_amount DECIMAL(10,2) NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
+    $db->exec('CREATE TABLE IF NOT EXISTS meal_reservations (id INT AUTO_INCREMENT PRIMARY KEY, member_user_id INT NOT NULL, profile_type VARCHAR(20) NOT NULL, dependent_id INT NULL, profile_name VARCHAR(255) NOT NULL, status VARCHAR(20) NOT NULL DEFAULT \'confirmed\', adult_qty INT NOT NULL DEFAULT 0, child_qty INT NOT NULL DEFAULT 0, total_amount DECIMAL(10,2) NOT NULL DEFAULT 0, created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)');
 
     ensure_meal_reservations_columns($db);
 }
@@ -55,6 +55,7 @@ function meal_reservations_schema_columns(): array {
         'profile_type' => 'VARCHAR(20) NOT NULL DEFAULT \'public\'',
         'dependent_id' => 'INT NULL',
         'profile_name' => 'VARCHAR(255) NOT NULL DEFAULT \'\'',
+        'status' => 'VARCHAR(20) NOT NULL DEFAULT \'confirmed\'',
         'contact_email' => 'VARCHAR(255) NULL',
         'contact_phone' => 'VARCHAR(50) NULL',
         'notes' => 'TEXT NULL',
@@ -63,6 +64,33 @@ function meal_reservations_schema_columns(): array {
         'total_amount' => 'DECIMAL(10,2) NOT NULL DEFAULT 0',
         'created_at' => 'TIMESTAMP DEFAULT CURRENT_TIMESTAMP',
     ];
+}
+
+function meal_reservation_statuses(): array {
+    return [
+        'confirmed' => 'Confirmee',
+        'pending' => 'A verifier',
+        'paid' => 'Payee',
+        'cancelled' => 'Annulee',
+    ];
+}
+
+function normalize_meal_reservation_status(string $status): string {
+    $status = trim($status);
+    if ($status === '') {
+        $status = 'confirmed';
+    }
+
+    if (!array_key_exists($status, meal_reservation_statuses())) {
+        throw new InvalidArgumentException('Statut de reservation repas invalide.');
+    }
+
+    return $status;
+}
+
+function meal_reservation_status_label(string $status): string {
+    $statuses = meal_reservation_statuses();
+    return $statuses[$status] ?? $statuses['confirmed'];
 }
 
 function ensure_meal_reservations_columns(PDO $db): void {
@@ -83,12 +111,13 @@ function add_meal_reservation_column_if_missing(PDO $db, string $name, string $d
 function save_public_meal_reservation(PDO $db, array $reservation): int {
     ensure_meal_reservations_table($db);
 
-    $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, contact_email, contact_phone, notes, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :email, :phone, :notes, :adult, :child, :total)');
+    $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, status, contact_email, contact_phone, notes, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :status, :email, :phone, :notes, :adult, :child, :total)');
     $stmt->execute([
         ':uid' => 0,
         ':ptype' => (string)($reservation['profile_type'] ?? 'public'),
         ':did' => null,
         ':pname' => (string)$reservation['profile_name'],
+        ':status' => normalize_meal_reservation_status((string)($reservation['status'] ?? 'confirmed')),
         ':email' => (string)$reservation['contact_email'],
         ':phone' => (string)($reservation['contact_phone'] ?? ''),
         ':notes' => (string)($reservation['notes'] ?? ''),
@@ -98,6 +127,46 @@ function save_public_meal_reservation(PDO $db, array $reservation): int {
     ]);
 
     return (int)$db->lastInsertId();
+}
+
+function update_meal_reservation_status(PDO $db, int $reservationId, string $status): void {
+    if ($reservationId <= 0) {
+        throw new InvalidArgumentException('Reservation repas invalide.');
+    }
+
+    ensure_meal_reservations_table($db);
+
+    $normalizedStatus = normalize_meal_reservation_status($status);
+    $stmt = $db->prepare('UPDATE meal_reservations SET status = :status WHERE id = :id');
+    $stmt->execute([
+        ':status' => $normalizedStatus,
+        ':id' => $reservationId,
+    ]);
+
+    if ($stmt->rowCount() > 0) {
+        return;
+    }
+
+    $exists = $db->prepare('SELECT COUNT(*) FROM meal_reservations WHERE id = :id');
+    $exists->execute([':id' => $reservationId]);
+    if ((int)$exists->fetchColumn() === 0) {
+        throw new RuntimeException('Reservation repas introuvable.');
+    }
+}
+
+function delete_meal_reservation(PDO $db, int $reservationId): void {
+    if ($reservationId <= 0) {
+        throw new InvalidArgumentException('Reservation repas invalide.');
+    }
+
+    ensure_meal_reservations_table($db);
+
+    $stmt = $db->prepare('DELETE FROM meal_reservations WHERE id = :id');
+    $stmt->execute([':id' => $reservationId]);
+
+    if ($stmt->rowCount() === 0) {
+        throw new RuntimeException('Reservation repas introuvable.');
+    }
 }
 
 function send_meal_reservation_mail(string $to, string $subject, string $message, string $headers): bool {
@@ -124,6 +193,7 @@ function meal_reservations_excel_headers(): array {
         'member_user_id',
         'profile_name',
         'profile_type',
+        'status',
         'contact_email',
         'contact_phone',
         'adult_qty',

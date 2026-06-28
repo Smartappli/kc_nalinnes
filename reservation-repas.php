@@ -122,6 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'member_user_id' => '0',
             'profile_name' => $profileName,
             'profile_type' => 'public',
+            'status' => 'confirmed',
             'contact_email' => $contactEmail,
             'contact_phone' => $contactPhone,
             'adult_qty' => (string)$adultQty,

@@ -161,12 +161,13 @@ try {
         }
 
         $total = compute_meal_total($adultQty, $childQty, 19, 10);
-        $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :adult, :child, :total)');
+        $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, status, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :status, :adult, :child, :total)');
         $stmt->execute([
             ':uid' => (int)$auth->getUserId(),
             ':ptype' => $profileType,
             ':did' => ($profileType === 'child' ? $dependentId : null),
             ':pname' => $profileName,
+            ':status' => 'confirmed',
             ':adult' => $adultQty,
             ':child' => $childQty,
             ':total' => $total,
@@ -178,6 +179,7 @@ try {
             'member_user_id' => (string)(int)$auth->getUserId(),
             'profile_name' => $profileName,
             'profile_type' => $profileType,
+            'status' => 'confirmed',
             'contact_email' => $email,
             'contact_phone' => '',
             'adult_qty' => (string)$adultQty,

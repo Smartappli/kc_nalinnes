@@ -167,6 +167,27 @@ try {
         exit;
     }
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['meal_reservation_status_update', 'meal_reservation_delete'], true)) {
+        require_manager_csrf();
+
+        try {
+            if (($_POST['action'] ?? '') === 'meal_reservation_delete') {
+                delete_meal_reservation($db, (int)($_POST['reservation_id'] ?? 0));
+                flash('Reservation repas supprimee.', 'success');
+            }
+            else {
+                update_meal_reservation_status($db, (int)($_POST['reservation_id'] ?? 0), (string)($_POST['status'] ?? ''));
+                flash('Statut de reservation repas mis a jour.', 'success');
+            }
+        }
+        catch (Throwable $e) {
+            flash($e->getMessage(), 'error');
+        }
+
+        header('Location: ' . manager_dashboard_anchor_url('admin-meal-summary'), true, 303);
+        exit;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'admin_meal_reservation') {
         require_manager_csrf();
 
@@ -211,6 +232,7 @@ try {
             $reservationId = save_public_meal_reservation($db, [
                 'profile_type' => 'admin_public',
                 'profile_name' => $profileName,
+                'status' => 'confirmed',
                 'contact_email' => $contactEmail,
                 'contact_phone' => $contactPhone,
                 'adult_qty' => $adultQty,
@@ -224,6 +246,7 @@ try {
                 'member_user_id' => '0',
                 'profile_name' => $profileName,
                 'profile_type' => 'admin_public',
+                'status' => 'confirmed',
                 'contact_email' => $contactEmail,
                 'contact_phone' => $contactPhone,
                 'adult_qty' => (string)$adultQty,
