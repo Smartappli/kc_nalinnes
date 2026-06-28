@@ -21,13 +21,19 @@ function ensure_member_records_tables(PDO $db): void {
         user_id INT NOT NULL,
         period_type VARCHAR(20) NOT NULL,
         period_year INT NOT NULL,
-        period_month TINYINT NULL,
+        period_month TINYINT NOT NULL DEFAULT 0,
         status VARCHAR(20) NOT NULL DEFAULT \'unpaid\',
         paid_at DATE NULL,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
         UNIQUE KEY uniq_member_payment_period (user_id, period_type, period_year, period_month),
         INDEX idx_member_payments_user_year (user_id, period_year)
     )');
+    try {
+        $db->exec('UPDATE member_payments SET period_month = 0 WHERE period_type = \'annual\' AND period_month IS NULL');
+    }
+    catch (Throwable) {
+        // Best-effort cleanup for older nullable schemas.
+    }
 }
 
 function member_record_normalize_name(mixed $value, string $label): ?string {
@@ -209,7 +215,7 @@ function member_record_normalize_payment_input(array $input): array {
         throw new InvalidArgumentException('Annee de paiement invalide.');
     }
 
-    $month = null;
+    $month = 0;
     if ($periodType === 'monthly') {
         $month = (int)($input['period_month'] ?? 0);
         if ($month < 1 || $month > 12) {
@@ -284,7 +290,7 @@ function member_record_payments_by_user_id(PDO $db, int $year): array {
 
 function member_record_annual_payment_is_paid(PDO $db, int $userId, int $year): bool {
     ensure_member_records_tables($db);
-    $stmt = $db->prepare('SELECT status FROM member_payments WHERE user_id = :user_id AND period_type = \'annual\' AND period_year = :period_year LIMIT 1');
+    $stmt = $db->prepare('SELECT status FROM member_payments WHERE user_id = :user_id AND period_type = \'annual\' AND period_year = :period_year AND (period_month = 0 OR period_month IS NULL) ORDER BY period_month DESC LIMIT 1');
     $stmt->execute([':user_id' => $userId, ':period_year' => $year]);
 
     return (string)($stmt->fetchColumn() ?: '') === 'paid';

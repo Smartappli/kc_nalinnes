@@ -18,4 +18,9 @@ final class MemberPdfAccessTest extends TestCase {
         $this->assertTrue(is_allowed_template('../mutualia-ac-sport-fr.pdf', $templates));
         $this->assertFalse(is_allowed_template('unknown.pdf', $templates));
     }
+
+    public function testPrecompletedMutuelleFilenameIsSafe(): void {
+        $this->assertSame('mutuelle-precomplete-jean-dupont.pdf', precompleted_mutuelle_filename('Jean Dupont'));
+        $this->assertSame('mutuelle-precomplete-membre.pdf', precompleted_mutuelle_filename(''));
+    }
 }

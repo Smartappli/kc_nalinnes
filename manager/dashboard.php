@@ -91,6 +91,7 @@ try {
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
     $db->exec('CREATE TABLE IF NOT EXISTS member_dependents (id INT AUTO_INCREMENT PRIMARY KEY, guardian_user_id INT NOT NULL, full_name VARCHAR(255) NOT NULL, birthdate DATE NULL, is_minor TINYINT(1) NOT NULL DEFAULT 1)');
+    ensure_member_records_tables($db);
     ensure_calendar_events_table($db);
 
     $loginBypassEnabled = is_temp_bypass_login_enabled();
@@ -325,7 +326,7 @@ try {
     }
 
     // Gestion membres (admin)
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['member_create', 'member_profile_update', 'member_password_reset', 'member_dependent_add', 'member_dependent_update', 'member_dependent_delete'], true)) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['member_create', 'member_profile_update', 'member_password_reset', 'member_grade_add', 'member_grade_delete', 'member_payment_update', 'member_dependent_add', 'member_dependent_update', 'member_dependent_delete'], true)) {
         require_manager_csrf();
 
         try {
@@ -362,6 +363,22 @@ try {
 
                 manager_admin_reset_member_password($db, $auth, $targetId, $_POST['new_member_password'] ?? '');
                 flash('Mot de passe membre mis a jour.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'member_grade_add') {
+                manager_admin_assert_user_exists($db, $targetId);
+                member_record_add_grade($db, $targetId, $_POST);
+                manager_admin_save_grade($db, $targetId, manager_admin_normalize_member_grade($_POST['grade'] ?? ''));
+                flash('Grade date ajoute.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'member_grade_delete') {
+                manager_admin_assert_user_exists($db, $targetId);
+                member_record_delete_grade($db, $targetId, (int)($_POST['grade_id'] ?? 0));
+                flash('Grade date supprime.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'member_payment_update') {
+                manager_admin_assert_user_exists($db, $targetId);
+                member_record_save_payment($db, $targetId, $_POST);
+                flash('Paiement membre mis a jour.', 'success');
             }
             elseif (($_POST['action'] ?? '') === 'member_dependent_add') {
                 manager_admin_add_dependent($db, $targetId, $_POST);
@@ -478,8 +495,58 @@ try {
         exit;
     }
 
+    if (isset($_GET['download']) && $_GET['download'] === 'member_mutuelle') {
+        $targetId = (int)($_GET['target_user_id'] ?? 0);
+        $targetUser = manager_admin_fetch_user($db, $targetId);
+        if ($targetUser === null) {
+            flash('Membre introuvable.', 'error');
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            exit;
+        }
+
+        $paymentYear = (int)($_GET['year'] ?? date('Y'));
+        if (!member_record_annual_payment_is_paid($db, $targetId, $paymentYear)) {
+            flash('La cotisation annuelle doit etre payee pour generer la mutuelle.', 'error');
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            exit;
+        }
+
+        $templatesDir = __DIR__ . '/../docs';
+        $templateFiles = list_pdf_templates($templatesDir);
+        $allowedTemplatesRaw = (string)env_value('ALLOWED_PRECOMPLETED_PDFS', 'mutualia-ac-sport-fr.pdf');
+        $allowedTemplates = array_values(array_filter(array_map('trim', explode(',', $allowedTemplatesRaw))));
+        if ($allowedTemplates !== []) {
+            $templateFiles = array_values(array_filter($templateFiles, static fn(string $name): bool => in_array($name, $allowedTemplates, true)));
+        }
+
+        $requestedTemplate = basename((string)($_GET['template'] ?? 'mutualia-ac-sport-fr.pdf'));
+        if (!is_allowed_template($requestedTemplate, $templateFiles)) {
+            flash('Modele mutuelle non autorise.', 'error');
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            exit;
+        }
+
+        $templatePath = $templatesDir . '/' . $requestedTemplate;
+        if (!is_file($templatePath)) {
+            flash('Modele mutuelle introuvable.', 'error');
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            exit;
+        }
+
+        $beneficiaryName = member_record_display_name($targetUser, member_record_profile($db, $targetId));
+        header('Content-Type: application/pdf');
+        header('Content-Disposition: attachment; filename="' . precompleted_mutuelle_filename($beneficiaryName) . '"');
+        echo generate_precompleted_mutuelle_pdf($templatePath, $beneficiaryName, (string)($targetUser['email'] ?? $beneficiaryName));
+        exit;
+    }
+
     $usersStmt = $db->query('SELECT id, email, username FROM users ORDER BY id ASC');
     $users = $usersStmt->fetchAll();
+    $memberPaymentYear = (int)($_GET['payment_year'] ?? date('Y'));
+    if ($memberPaymentYear < 2000 || $memberPaymentYear > 2100) {
+        $memberPaymentYear = (int)date('Y');
+    }
+    $memberProfilesByUserId = member_record_profiles_by_user_id($db);
 
     $dependentsStmt = $db->query('SELECT id, guardian_user_id, full_name, birthdate, is_minor FROM member_dependents ORDER BY guardian_user_id ASC, is_minor DESC, full_name ASC, id ASC');
     $dependentsRows = $dependentsStmt->fetchAll();
@@ -507,6 +574,8 @@ try {
     $gradesRows = $gradesStmt->fetchAll();
     $gradesByUserId = [];
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
+    $gradeHistoryByUserId = member_record_grade_history_by_user_id($db);
+    $paymentsByUserId = member_record_payments_by_user_id($db, $memberPaymentYear);
 
     $mealStatsByUserId = [];
     foreach ($mealReservations as $reservationRow) {
@@ -556,13 +625,21 @@ try {
         'adult_dependents' => 0,
         'missing_grades' => 0,
         'meal_profiles' => 0,
+        'annual_paid' => 0,
     ];
     foreach ($users as $row) {
         $memberId = (int)($row['id'] ?? 0);
         $rowEmail = strtolower((string)($row['email'] ?? ''));
         $rowIsAdmin = in_array($rowEmail, $adminEmails, true);
+        $rowProfile = $memberProfilesByUserId[$memberId] ?? ['first_name' => null, 'last_name' => null];
+        $rowDisplayName = member_record_display_name($row, $rowProfile);
+        $rowGradeHistory = $gradeHistoryByUserId[$memberId] ?? [];
         $rowGrade = trim((string)($gradesByUserId[$memberId] ?? ''));
+        if ($rowGrade === '' && $rowGradeHistory !== []) {
+            $rowGrade = (string)($rowGradeHistory[0]['grade'] ?? '');
+        }
         $rowDependents = $dependentsByUserId[$memberId] ?? [];
+        $rowPayments = $paymentsByUserId[$memberId] ?? ['annual' => null, 'monthly' => []];
         $minorDependentCount = 0;
         $adultDependentCount = 0;
         foreach ($rowDependents as $dependentRow) {
@@ -588,6 +665,7 @@ try {
         $memberSearchText = strtolower(trim(
             (string)($row['email'] ?? '') . ' '
             . (string)($row['username'] ?? '') . ' '
+            . $rowDisplayName . ' '
             . $rowGrade . ' '
             . implode(' ', array_map(static fn(array $dependentRow): string => (string)($dependentRow['full_name'] ?? ''), $rowDependents)) . ' '
             . implode(' ', array_keys($mealStats['profiles']))
@@ -595,11 +673,15 @@ try {
 
         $memberAdminRows[] = [
             'user' => $row,
+            'profile' => $rowProfile,
+            'display_name' => $rowDisplayName,
             'is_admin' => $rowIsAdmin,
             'grade' => $rowGrade,
+            'grade_history' => $rowGradeHistory,
             'dependents' => $rowDependents,
             'minor_dependents' => $minorDependentCount,
             'adult_dependents' => $adultDependentCount,
+            'payments' => $rowPayments,
             'meal_stats' => $mealStats,
             'meal_profiles' => $mealProfileCount,
             'search' => $memberSearchText,
@@ -610,6 +692,9 @@ try {
         $memberAdminSummary['minor_dependents'] += $minorDependentCount;
         $memberAdminSummary['adult_dependents'] += $adultDependentCount;
         $memberAdminSummary['meal_profiles'] += $mealProfileCount;
+        if ((string)($rowPayments['annual']['status'] ?? '') === 'paid') {
+            $memberAdminSummary['annual_paid']++;
+        }
         if ($rowGrade === '') {
             $memberAdminSummary['missing_grades']++;
         }
@@ -895,20 +980,21 @@ try {
         <div class="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
             <div>
                 <h2 class="text-xl font-bold"><?= e(kc_t('manager.users.title')) ?></h2>
-                <p class="mt-2 text-sm text-slate-400">Suivi centralise des comptes, grades, enfants rattaches et reservations repas membres.</p>
+                <p class="mt-2 text-sm text-slate-400">Suivi centralise des comptes, noms, grades dates, paiements, enfants rattaches et reservations repas membres.</p>
             </div>
             <div class="text-sm text-slate-400"><span id="memberVisibleCount"><?= e((string)$memberAdminSummary['total']) ?></span> / <?= e((string)$memberAdminSummary['total']) ?> comptes visibles</div>
         </div>
 
-        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 xl:grid-cols-6">
             <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-500">Comptes</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['total']) ?></p></div>
             <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-emerald-300">Membres</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['members']) ?></p></div>
             <div class="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-sky-300">Admins</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['admins']) ?></p></div>
             <div class="rounded-xl border border-orange-500/30 bg-orange-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-orange-300">Enfants mineurs</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['minor_dependents']) ?></p></div>
             <div class="rounded-xl border <?= $memberAdminSummary['missing_grades'] > 0 ? 'border-red-500/40 bg-red-500/10' : 'border-slate-800 bg-slate-950/40' ?> p-4"><p class="text-xs uppercase tracking-[0.18em] <?= $memberAdminSummary['missing_grades'] > 0 ? 'text-red-300' : 'text-slate-500' ?>">Grades manquants</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['missing_grades']) ?></p></div>
+            <div class="rounded-xl border border-violet-500/30 bg-violet-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-violet-300">Annees payees</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['annual_paid']) ?></p></div>
         </div>
 
-        <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-5 grid gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4 lg:grid-cols-[1.2fr_1fr_1fr_0.8fr_0.8fr_auto]" data-disable-on-submit>
+        <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-5 grid gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4 lg:grid-cols-[1.2fr_0.9fr_0.9fr_1fr_0.8fr_0.8fr_auto]" data-disable-on-submit>
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
             <input type="hidden" name="action" value="member_create">
             <div>
@@ -916,7 +1002,15 @@ try {
                 <input id="new_member_email" name="new_member_email" type="email" required class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
             </div>
             <div>
-                <label for="new_member_username" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Nom</label>
+                <label for="new_member_first_name" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Prenom</label>
+                <input id="new_member_first_name" name="new_member_first_name" maxlength="100" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+            </div>
+            <div>
+                <label for="new_member_last_name" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Nom</label>
+                <input id="new_member_last_name" name="new_member_last_name" maxlength="100" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+            </div>
+            <div>
+                <label for="new_member_username" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Nom affiche</label>
                 <input id="new_member_username" name="new_member_username" maxlength="100" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
             </div>
             <div>
@@ -942,7 +1036,7 @@ try {
         <div class="mt-5 grid gap-3 lg:grid-cols-[1fr_auto]">
             <div>
                 <label for="memberSearch" class="sr-only">Rechercher un membre</label>
-                <input id="memberSearch" type="search" placeholder="Rechercher par email, nom, grade, enfant ou profil repas" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500">
+                <input id="memberSearch" type="search" placeholder="Rechercher par email, nom, prenom, grade, enfant ou profil repas" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500">
             </div>
             <div class="flex flex-wrap gap-2">
                 <label for="memberRoleFilter" class="sr-only">Filtrer par role</label>
@@ -967,6 +1061,7 @@ try {
                     <th class="px-3 py-2"><?= e(kc_t('manager.users.id')) ?></th>
                     <th class="px-3 py-2">Membre</th>
                     <th class="px-3 py-2">Grade</th>
+                    <th class="px-3 py-2">Paiements</th>
                     <th class="px-3 py-2">Profils lies</th>
                     <th class="px-3 py-2">Repas membre</th>
                     <th class="px-3 py-2">Role</th>
@@ -980,7 +1075,12 @@ try {
                     $rowId = (int)($row['id'] ?? 0);
                     $rowIsAdmin = (bool)$memberRow['is_admin'];
                     $rowIsCurrentUser = $rowId === (int)$userId;
+                    $rowProfile = $memberRow['profile'];
                     $rowGrade = (string)$memberRow['grade'];
+                    $rowGradeHistory = $memberRow['grade_history'];
+                    $rowPayments = $memberRow['payments'];
+                    $annualPayment = is_array($rowPayments['annual'] ?? null) ? $rowPayments['annual'] : null;
+                    $monthlyPayments = is_array($rowPayments['monthly'] ?? null) ? $rowPayments['monthly'] : [];
                     $rowDependents = $memberRow['dependents'];
                     $mealStats = $memberRow['meal_stats'];
                     ?>
@@ -995,17 +1095,85 @@ try {
                                 <input id="member_email_<?= e((string)$rowId) ?>" name="target_email" type="email" value="<?= e((string)($row['email'] ?? '')) ?>" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-sm font-semibold text-slate-100">
                                 <label class="sr-only" for="member_username_<?= e((string)$rowId) ?>">Nom membre</label>
                                 <input id="member_username_<?= e((string)$rowId) ?>" name="target_username" maxlength="100" value="<?= e((string)($row['username'] ?? '')) ?>" placeholder="Nom affiche" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500">
+                                <div class="grid gap-2 sm:grid-cols-2">
+                                    <label class="sr-only" for="member_first_name_<?= e((string)$rowId) ?>">Prenom</label>
+                                    <input id="member_first_name_<?= e((string)$rowId) ?>" name="target_first_name" maxlength="100" value="<?= e((string)($rowProfile['first_name'] ?? '')) ?>" placeholder="Prenom" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500">
+                                    <label class="sr-only" for="member_last_name_<?= e((string)$rowId) ?>">Nom</label>
+                                    <input id="member_last_name_<?= e((string)$rowId) ?>" name="target_last_name" maxlength="100" value="<?= e((string)($rowProfile['last_name'] ?? '')) ?>" placeholder="Nom" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500">
+                                </div>
+                                <?php if ((string)$memberRow['display_name'] !== ''): ?><p class="text-xs text-slate-400"><?= e((string)$memberRow['display_name']) ?></p><?php endif; ?>
                                 <button class="justify-self-start rounded-lg bg-sky-600 px-2 py-1 text-xs font-semibold text-white hover:bg-sky-500">Sauver</button>
                             </form>
                         </td>
                         <td class="px-3 py-3">
-                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="flex min-w-[11rem] items-center gap-2">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="grid min-w-[13rem] gap-2 rounded-lg border border-slate-800 bg-slate-950/40 p-2">
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                <input type="hidden" name="action" value="grade_update">
+                                <input type="hidden" name="action" value="member_grade_add">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
-                                <input name="target_grade" value="<?= e($rowGrade) ?>" placeholder="A definir" class="w-28 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-slate-100">
-                                <button class="rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('manager.users.update')) ?></button>
+                                <p class="text-xs font-semibold text-slate-300">Actuel: <?= e($rowGrade !== '' ? $rowGrade : 'A definir') ?></p>
+                                <input name="grade" value="<?= e($rowGrade) ?>" placeholder="Grade" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                <input name="obtained_at" type="date" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                <button class="justify-self-start rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500">Ajouter</button>
                             </form>
+                            <?php if ($rowGradeHistory !== []): ?>
+                                <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                                    <?php foreach ($rowGradeHistory as $gradeRow): ?>
+                                        <li class="flex items-center justify-between gap-2">
+                                            <span><?= e((string)$gradeRow['grade']) ?> - <?= e((string)$gradeRow['obtained_at']) ?></span>
+                                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" onsubmit="return confirm('Supprimer ce grade date ?');">
+                                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                                <input type="hidden" name="action" value="member_grade_delete">
+                                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                                <input type="hidden" name="grade_id" value="<?= e((string)$gradeRow['id']) ?>">
+                                                <button class="rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-semibold text-white hover:bg-red-500">X</button>
+                                            </form>
+                                        </li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-3 py-3">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="grid min-w-[15rem] gap-2 rounded-lg border border-slate-800 bg-slate-950/40 p-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="member_payment_update">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input type="hidden" name="period_type" value="annual">
+                                <input type="hidden" name="period_year" value="<?= e((string)$memberPaymentYear) ?>">
+                                <p class="text-xs font-semibold text-slate-300">Annee <?= e((string)$memberPaymentYear) ?>: <?= e(member_record_payment_status_label(is_array($annualPayment) ? (string)$annualPayment['status'] : null)) ?></p>
+                                <select name="payment_status" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                    <?php foreach (['unpaid' => 'Non paye', 'pending' => 'A verifier', 'paid' => 'Paye'] as $paymentStatus => $paymentLabel): ?>
+                                        <option value="<?= e($paymentStatus) ?>" <?= (string)($annualPayment['status'] ?? 'unpaid') === $paymentStatus ? 'selected' : '' ?>><?= e($paymentLabel) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <input name="paid_at" type="date" value="<?= e((string)($annualPayment['paid_at'] ?? '')) ?>" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                <button class="justify-self-start rounded-lg bg-violet-600 px-2 py-1 text-xs font-semibold text-white hover:bg-violet-500">Sauver annee</button>
+                            </form>
+                            <details class="mt-2">
+                                <summary class="cursor-pointer text-xs font-semibold text-sky-200">Paiements mensuels</summary>
+                                <div class="mt-2 grid grid-cols-2 gap-2">
+                                    <?php for ($month = 1; $month <= 12; $month++): ?>
+                                        <?php $monthPayment = is_array($monthlyPayments[$month] ?? null) ? $monthlyPayments[$month] : null; ?>
+                                        <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="grid gap-1 rounded-lg border border-slate-800 bg-slate-950/40 p-2">
+                                            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                            <input type="hidden" name="action" value="member_payment_update">
+                                            <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                            <input type="hidden" name="period_type" value="monthly">
+                                            <input type="hidden" name="period_year" value="<?= e((string)$memberPaymentYear) ?>">
+                                            <input type="hidden" name="period_month" value="<?= e((string)$month) ?>">
+                                            <span class="text-[11px] font-semibold text-slate-400"><?= e(str_pad((string)$month, 2, '0', STR_PAD_LEFT)) ?></span>
+                                            <select name="payment_status" class="rounded border border-slate-700 bg-slate-800 px-1 py-0.5 text-[11px] text-slate-100">
+                                                <?php foreach (['unpaid' => 'Non', 'pending' => 'Verif', 'paid' => 'Paye'] as $paymentStatus => $paymentLabel): ?>
+                                                    <option value="<?= e($paymentStatus) ?>" <?= (string)($monthPayment['status'] ?? 'unpaid') === $paymentStatus ? 'selected' : '' ?>><?= e($paymentLabel) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                            <button class="rounded bg-slate-700 px-1 py-0.5 text-[11px] font-semibold text-white hover:bg-slate-600">OK</button>
+                                        </form>
+                                    <?php endfor; ?>
+                                </div>
+                            </details>
+                            <?php if ((string)($annualPayment['status'] ?? '') === 'paid'): ?>
+                                <a class="mt-2 inline-flex rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500" href="<?= e(manager_dashboard_url()) ?>&download=member_mutuelle&target_user_id=<?= e((string)$rowId) ?>&year=<?= e((string)$memberPaymentYear) ?>">Mutuelle</a>
+                            <?php endif; ?>
                         </td>
                         <td class="px-3 py-3">
                             <p class="font-semibold"><?= e((string)((int)$memberRow['minor_dependents'] + (int)$memberRow['adult_dependents'])) ?> profil(s)</p>
@@ -1101,7 +1269,7 @@ try {
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($memberAdminRows === []): ?>
-                    <tr><td colspan="7" class="px-3 py-4 text-slate-400">Aucun membre.</td></tr>
+                    <tr><td colspan="8" class="px-3 py-4 text-slate-400">Aucun membre.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

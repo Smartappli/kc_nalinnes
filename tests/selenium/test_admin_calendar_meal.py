@@ -218,8 +218,16 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
     reset_password = "ResetPass123!"
     member_name = f"Membre Selenium {unique}"
     updated_name = f"Membre Selenium maj {unique}"
+    first_name = f"Prenom {unique}"
+    last_name = f"Nom {unique}"
+    updated_first_name = f"PrenomMaj {unique}"
+    updated_last_name = f"NomMaj {unique}"
     child_name = f"Enfant Selenium {unique}"
     updated_child_name = f"Profil Adulte Selenium {unique}"
+    dated_grade = f"9e kyu {unique}"
+    grade_date = "2026-05-01"
+    payment_year = date.today().year
+    paid_at = f"{payment_year}-01-15"
 
     create_form = WebDriverWait(driver, WAIT_SECONDS).until(
         EC.visibility_of_element_located(
@@ -227,6 +235,8 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
         )
     )
     set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_email']"), initial_email)
+    set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_first_name']"), first_name)
+    set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_last_name']"), last_name)
     set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_username']"), member_name)
     set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_password']"), initial_password)
     set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_grade']"), "10e kyu")
@@ -235,6 +245,8 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
 
     wait_for_path(driver, "/manager/dashboard.php")
     member_row = wait_for_member_row(driver, initial_email)
+    assert first_name in member_row.text
+    assert last_name in member_row.text
     assert member_name in member_row.text
     assert "10e kyu" in member_row.text
 
@@ -244,11 +256,38 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
     )
     set_element_value(driver, profile_form.find_element(By.CSS_SELECTOR, "input[name='target_email']"), updated_email)
     set_element_value(driver, profile_form.find_element(By.CSS_SELECTOR, "input[name='target_username']"), updated_name)
+    set_element_value(driver, profile_form.find_element(By.CSS_SELECTOR, "input[name='target_first_name']"), updated_first_name)
+    set_element_value(driver, profile_form.find_element(By.CSS_SELECTOR, "input[name='target_last_name']"), updated_last_name)
     submit_form(driver, profile_form)
 
     wait_for_path(driver, "/manager/dashboard.php")
     member_row = wait_for_member_row(driver, updated_email)
+    assert updated_first_name in member_row.text
+    assert updated_last_name in member_row.text
     assert updated_name in member_row.text
+
+    grade_form = member_row.find_element(
+        By.XPATH,
+        ".//form[.//input[@name='action' and @value='member_grade_add']]",
+    )
+    set_element_value(driver, grade_form.find_element(By.CSS_SELECTOR, "input[name='grade']"), dated_grade)
+    set_element_value(driver, grade_form.find_element(By.CSS_SELECTOR, "input[name='obtained_at']"), grade_date)
+    submit_form(driver, grade_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    member_row = wait_for_member_row_text(driver, updated_email, f"{dated_grade} - {grade_date}")
+
+    annual_payment_form = member_row.find_element(
+        By.XPATH,
+        ".//form[.//input[@name='action' and @value='member_payment_update'] and .//input[@name='period_type' and @value='annual']]",
+    )
+    Select(annual_payment_form.find_element(By.CSS_SELECTOR, "select[name='payment_status']")).select_by_value("paid")
+    set_element_value(driver, annual_payment_form.find_element(By.CSS_SELECTOR, "input[name='paid_at']"), paid_at)
+    submit_form(driver, annual_payment_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    member_row = wait_for_member_row_text(driver, updated_email, f"Annee {payment_year}: Paye")
+    assert "Mutuelle" in member_row.text
 
     add_dependent_form = member_row.find_element(
         By.XPATH,
@@ -294,7 +333,11 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
     wait_for_path(driver, "/member/dashboard.php")
     body = driver.find_element(By.TAG_NAME, "body").text
     assert updated_email in body
+    assert updated_first_name in body
+    assert updated_last_name in body
     assert updated_child_name in body
+    assert "La cotisation annuelle" not in body
+    assert "mutualia-ac-sport-fr.pdf" in body
 
 
 def test_admin_can_update_meal_settings_and_public_page_reflects_them(driver, base_url):

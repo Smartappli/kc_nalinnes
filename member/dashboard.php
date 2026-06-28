@@ -9,6 +9,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/fpdf_alias.php';
 require __DIR__ . '/../includes/i18n.php';
 require __DIR__ . '/pdf_access.php';
+require __DIR__ . '/member_records.php';
 require __DIR__ . '/meal_reservation.php';
 require __DIR__ . '/../manager/admin_access.php';
 require __DIR__ . '/../config/database.php';
@@ -55,6 +56,7 @@ try {
     $auth = new \Delight\Auth\Auth($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_dependents (id INT AUTO_INCREMENT PRIMARY KEY, guardian_user_id INT NOT NULL, full_name VARCHAR(255) NOT NULL, birthdate DATE NULL, is_minor TINYINT(1) NOT NULL DEFAULT 1)');
+    ensure_member_records_tables($db);
     ensure_meal_reservations_table($db);
     ensure_meal_settings_table($db);
     $mealSettings = meal_settings($db);
@@ -95,6 +97,10 @@ try {
         $email = (string)($auth->getEmail() ?? '');
         $user = (string)($auth->getUsername() ?? '');
     }
+    $memberProfile = member_record_profile($db, (int)$userId);
+    $memberDisplayName = member_record_display_name(['email' => $email, 'username' => $user], $memberProfile);
+    $mutuellePaymentYear = (int)date('Y');
+    $mutuelleAnnualPaid = member_record_annual_payment_is_paid($db, (int)$userId, $mutuellePaymentYear);
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'set_active_profile') {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
@@ -271,7 +277,7 @@ try {
     $resStmt = $db->prepare('SELECT profile_name, adult_qty, child_qty, total_amount, created_at FROM meal_reservations WHERE member_user_id = :uid ORDER BY id DESC LIMIT 20');
     $resStmt->execute([':uid' => (int)$userId]);
     $reservations = $resStmt->fetchAll();
-    $activeProfileName = $email;
+    $activeProfileName = $memberDisplayName;
     if (($activeProfile['type'] ?? 'self') === 'child') {
         foreach ($minorDependents as $child) {
             if ((int)$child['id'] === (int)($activeProfile['dependent_id'] ?? 0)) {
@@ -301,7 +307,13 @@ try {
             exit;
         }
 
-        $beneficiaryName = $user !== '' ? $user : $email;
+        if (!$mutuelleAnnualPaid) {
+            flash('La cotisation annuelle ' . $mutuellePaymentYear . ' doit etre payee pour telecharger la mutuelle.', 'error');
+            header('Location: ' . member_dashboard_url(), true, 303);
+            exit;
+        }
+
+        $beneficiaryName = $memberDisplayName;
         if ($profileType === 'child') {
             $childStmt = $db->prepare('SELECT full_name, is_minor FROM member_dependents WHERE id = :id AND guardian_user_id = :uid LIMIT 1');
             $childStmt->execute([':id' => $dependentId, ':uid' => (int)$userId]);
@@ -336,29 +348,9 @@ try {
             exit;
         }
 
-        $pdf = new \setasign\Fpdi\Fpdi();
-        $pageCount = $pdf->setSourceFile($templatePath);
-        for ($pageNo = 1; $pageNo <= $pageCount; $pageNo++) {
-            $tpl = $pdf->importPage($pageNo);
-            $size = $pdf->getTemplateSize($tpl);
-            $pdf->AddPage($size['orientation'], [$size['width'], $size['height']]);
-            $pdf->useTemplate($tpl);
-
-            if ($pageNo === 1) {
-                $pdf->SetFont('Helvetica', '', 10);
-                $pdf->SetTextColor(0, 0, 0);
-                $pdf->SetXY(20, 35);
-                $pdf->Cell(120, 6, utf8_decode('Bénéficiaire: ' . $beneficiaryName));
-                $pdf->SetXY(20, 42);
-                $pdf->Cell(120, 6, utf8_decode('Membre responsable: ' . ($user !== '' ? $user : $email)));
-                $pdf->SetXY(20, 49);
-                $pdf->Cell(120, 6, utf8_decode('Date: ' . date('d/m/Y')));
-            }
-        }
-
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="mutuelle-precomplete-' . preg_replace('/[^a-z0-9]+/i', '-', strtolower($beneficiaryName)) . '.pdf"');
-        echo $pdf->Output('S');
+        header('Content-Disposition: attachment; filename="' . precompleted_mutuelle_filename($beneficiaryName) . '"');
+        echo generate_precompleted_mutuelle_pdf($templatePath, $beneficiaryName, $memberDisplayName);
         exit;
     }
 
@@ -487,9 +479,13 @@ try {
   <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('member.pdf.description')) ?></p>
   <div class="mt-3 rounded-lg border border-slate-800 p-3 text-sm"><?= e(kc_t('member.pdf.active_profile')) ?>: <strong><?= e($activeProfileName) ?></strong></div>
   <div class="mt-4 space-y-2">
+    <?php if (!$mutuelleAnnualPaid): ?>
+      <div class="rounded-lg border border-amber-500/40 bg-amber-500/10 p-3 text-sm text-amber-100">La cotisation annuelle <?= e((string)$mutuellePaymentYear) ?> doit etre payee pour generer le formulaire mutuelle precomplete.</div>
+    <?php endif; ?>
     <?php foreach ($templateFiles as $tpl): ?>
       <div class="rounded-lg border border-slate-800 p-3">
         <p class="text-sm font-semibold mb-2"><?= e(kc_t('member.pdf.template')) ?>: <?= e($tpl) ?></p>
+        <?php if ($mutuelleAnnualPaid): ?>
         <?php if (($activeProfile['type'] ?? 'self') === 'self'): ?>
           <a class="inline-block rounded-lg bg-violet-600 px-3 py-2 text-sm font-semibold text-white hover:bg-violet-500 mr-2" href="<?= e(member_dashboard_url()) ?>&download_mutuelle=1&profile=self&template=<?= urlencode($tpl) ?>&token=<?= urlencode($downloadToken) ?>"><?= e(kc_t('member.pdf.download_active')) ?></a>
         <?php else: ?>
@@ -503,6 +499,7 @@ try {
           </div>
           <?php endif; ?>
         <?php endforeach; ?>
+        <?php endif; ?>
       </div>
     <?php endforeach; ?>
     <?php if ($templateFiles === []): ?>
