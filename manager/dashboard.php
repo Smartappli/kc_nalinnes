@@ -425,13 +425,15 @@ try {
     // Gestion roles utilisateurs (admin)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'user_update') {
         require_manager_csrf();
+        $memberPaymentYearForRedirect = manager_member_payment_year($_POST['payment_year'] ?? date('Y'));
+        $memberAdminRedirect = manager_dashboard_anchor_url_with_params('admin-users', ['payment_year' => $memberPaymentYearForRedirect]);
 
         $targetId = (int)($_POST['target_user_id'] ?? 0);
         $targetRole = (string)($_POST['target_role'] ?? 'member');
 
         if ($targetId <= 0 || !in_array($targetRole, ['admin', 'member'], true)) {
             flash(kc_t('manager.flash.invalid_user_params'), 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            header('Location: ' . $memberAdminRedirect, true, 303);
             exit;
         }
 
@@ -441,14 +443,14 @@ try {
 
         if ($targetEmail === '') {
             flash(kc_t('manager.flash.user_not_found'), 'error');
-            header('Location: ' . manager_dashboard_url(), true, 303);
+            header('Location: ' . $memberAdminRedirect, true, 303);
             exit;
         }
 
         set_admin_role($db, $targetEmail, $targetRole === 'admin');
 
         flash(kc_t('manager.flash.user_role_updated'), 'success');
-        header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+        header('Location: ' . $memberAdminRedirect, true, 303);
         exit;
     }
 
@@ -491,17 +493,18 @@ try {
 
     if (isset($_GET['download']) && $_GET['download'] === 'member_mutuelle') {
         $targetId = (int)($_GET['target_user_id'] ?? 0);
+        $paymentYear = manager_member_payment_year($_GET['year'] ?? date('Y'));
+        $memberAdminRedirect = manager_dashboard_anchor_url_with_params('admin-users', ['payment_year' => $paymentYear]);
         $targetUser = manager_admin_fetch_user($db, $targetId);
         if ($targetUser === null) {
             flash('Membre introuvable.', 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            header('Location: ' . $memberAdminRedirect, true, 303);
             exit;
         }
 
-        $paymentYear = (int)($_GET['year'] ?? date('Y'));
         if (!member_record_annual_payment_is_paid($db, $targetId, $paymentYear)) {
             flash('La cotisation annuelle doit etre payee pour generer la mutuelle.', 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            header('Location: ' . $memberAdminRedirect, true, 303);
             exit;
         }
 
@@ -516,21 +519,36 @@ try {
         $requestedTemplate = basename((string)($_GET['template'] ?? 'mutualia-ac-sport-fr.pdf'));
         if (!is_allowed_template($requestedTemplate, $templateFiles)) {
             flash('Modele mutuelle non autorise.', 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            header('Location: ' . $memberAdminRedirect, true, 303);
             exit;
         }
 
         $templatePath = $templatesDir . '/' . $requestedTemplate;
         if (!is_file($templatePath)) {
             flash('Modele mutuelle introuvable.', 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            header('Location: ' . $memberAdminRedirect, true, 303);
             exit;
         }
 
-        $beneficiaryName = member_record_display_name($targetUser, member_record_profile($db, $targetId));
+        $responsibleName = member_record_display_name($targetUser, member_record_profile($db, $targetId));
+        $beneficiaryName = $responsibleName;
+        $dependentId = (int)($_GET['dependent_id'] ?? 0);
+        if ($dependentId > 0) {
+            $dependentStmt = $db->prepare('SELECT full_name FROM member_dependents WHERE id = :id AND guardian_user_id = :guardian_user_id LIMIT 1');
+            $dependentStmt->execute([':id' => $dependentId, ':guardian_user_id' => $targetId]);
+            $dependentRow = $dependentStmt->fetch(PDO::FETCH_ASSOC);
+            if (!is_array($dependentRow)) {
+                flash('Profil lie introuvable.', 'error');
+                header('Location: ' . $memberAdminRedirect, true, 303);
+                exit;
+            }
+
+            $beneficiaryName = (string)$dependentRow['full_name'];
+        }
+
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . precompleted_mutuelle_filename($beneficiaryName) . '"');
-        echo generate_precompleted_mutuelle_pdf($templatePath, $beneficiaryName, (string)($targetUser['email'] ?? $beneficiaryName));
+        echo generate_precompleted_mutuelle_pdf($templatePath, $beneficiaryName, $responsibleName);
         exit;
     }
 
@@ -1177,7 +1195,15 @@ try {
                                 </div>
                             </details>
                             <?php if ((string)($annualPayment['status'] ?? '') === 'paid'): ?>
-                                <a class="mt-2 inline-flex rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500" href="<?= e(manager_dashboard_url()) ?>&download=member_mutuelle&target_user_id=<?= e((string)$rowId) ?>&year=<?= e((string)$memberPaymentYear) ?>">Mutuelle</a>
+                                <div class="mt-2 flex flex-wrap gap-1">
+                                    <a class="inline-flex rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500" href="<?= e(manager_dashboard_url_with_params(['download' => 'member_mutuelle', 'target_user_id' => $rowId, 'year' => $memberPaymentYear])) ?>">Mutuelle membre</a>
+                                    <?php foreach ($rowDependents as $dependentRow): ?>
+                                        <?php $dependentIdForMutuelle = (int)($dependentRow['id'] ?? 0); ?>
+                                        <?php if ($dependentIdForMutuelle > 0): ?>
+                                            <a class="inline-flex rounded-lg bg-sky-600 px-2 py-1 text-xs font-semibold text-white hover:bg-sky-500" href="<?= e(manager_dashboard_url_with_params(['download' => 'member_mutuelle', 'target_user_id' => $rowId, 'dependent_id' => $dependentIdForMutuelle, 'year' => $memberPaymentYear])) ?>">Mutuelle <?= e((string)($dependentRow['full_name'] ?? 'profil')) ?></a>
+                                        <?php endif; ?>
+                                    <?php endforeach; ?>
+                                </div>
                             <?php endif; ?>
                         </td>
                         <td class="px-3 py-3">
@@ -1194,6 +1220,7 @@ try {
                                                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                                     <input type="hidden" name="action" value="member_dependent_update">
                                                     <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                                    <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                                     <input type="hidden" name="dependent_id" value="<?= e((string)$dependentId) ?>">
                                                     <label class="sr-only" for="dependent_name_<?= e((string)$dependentId) ?>">Nom du profil lie</label>
                                                     <input id="dependent_name_<?= e((string)$dependentId) ?>" name="dependent_name" value="<?= e((string)($dependentRow['full_name'] ?? '')) ?>" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
@@ -1214,6 +1241,7 @@ try {
                                                     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                                     <input type="hidden" name="action" value="member_dependent_delete">
                                                     <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                                    <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                                     <input type="hidden" name="dependent_id" value="<?= e((string)$dependentId) ?>">
                                                     <button class="rounded-lg bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-500">Supprimer</button>
                                                 </form>
@@ -1226,6 +1254,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="member_dependent_add">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                 <p class="text-xs font-semibold text-slate-300">Ajouter un profil</p>
                                 <label class="sr-only" for="dependent_add_name_<?= e((string)$rowId) ?>">Nom du profil lie</label>
                                 <input id="dependent_add_name_<?= e((string)$rowId) ?>" name="dependent_name" placeholder="Nom enfant/adulte" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500">
@@ -1256,6 +1285,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="user_update">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                 <select name="target_role" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-slate-100">
                                     <option value="member" <?= !$rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.member')) ?></option>
                                     <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.admin')) ?></option>
@@ -1266,6 +1296,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="member_password_reset">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                 <label class="sr-only" for="member_password_<?= e((string)$rowId) ?>">Nouveau mot de passe</label>
                                 <input id="member_password_<?= e((string)$rowId) ?>" name="new_member_password" type="password" minlength="8" required autocomplete="new-password" placeholder="Nouveau mot de passe" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500" <?= $rowIsCurrentUser ? 'disabled' : '' ?>>
                                 <button class="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60" <?= $rowIsCurrentUser ? 'disabled' : '' ?>>Reset acces</button>
@@ -1276,45 +1307,6 @@ try {
                 <?php if ($memberAdminRows === []): ?>
                     <tr><td colspan="8" class="px-3 py-4 text-slate-400">Aucun membre.</td></tr>
                 <?php endif; ?>
-                </tbody>
-            </table>
-            <table class="hidden">
-                <thead>
-                <tr class="text-left text-slate-400 border-b border-slate-800">
-                    <th class="py-2 pr-4"><?= e(kc_t('manager.users.id')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.email')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.username')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.grade')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.role')) ?></th><th class="py-2"><?= e(kc_t('manager.users.actions')) ?></th>
-                </tr>
-                </thead>
-                <tbody>
-                <?php foreach ($users as $row): ?>
-                    <?php $rowEmail = strtolower((string)($row['email'] ?? '')); $rowIsAdmin = in_array($rowEmail, $adminEmails, true); ?>
-                    <tr class="border-b border-slate-800/60">
-                        <td class="py-2 pr-4"><?= e((string)$row['id']) ?></td>
-                        <td class="py-2 pr-4"><?= e((string)$row['email']) ?></td>
-                        <td class="py-2 pr-4"><?= e((string)($row['username'] ?? '—')) ?></td>
-                        <td class="py-2 pr-4">
-                            <form method="post" action="<?= e(manager_dashboard_url()) ?>" class="flex items-center gap-2">
-                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                <input type="hidden" name="action" value="grade_update">
-                                <input type="hidden" name="target_user_id" value="<?= e((string)$row['id']) ?>">
-                                <input name="target_grade" value="<?= e($gradesByUserId[(int)$row['id']] ?? kc_t('manager.account.username_empty')) ?>" class="w-28 rounded-lg bg-slate-800 border border-slate-700 px-2 py-1">
-                                <button class="rounded-lg bg-emerald-600 px-2 py-1 text-white text-xs font-semibold hover:bg-emerald-500"><?= e(kc_t('manager.users.update')) ?></button>
-                            </form>
-                        </td>
-                        <td class="py-2 pr-4"><?= e($rowIsAdmin ? kc_t('manager.users.admin') : kc_t('manager.users.member')) ?></td>
-                        <td class="py-2">
-                            <form method="post" action="<?= e(manager_dashboard_url()) ?>" class="flex items-center gap-2">
-                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
-                                <input type="hidden" name="action" value="user_update">
-                                <input type="hidden" name="target_user_id" value="<?= e((string)$row['id']) ?>">
-                                <select name="target_role" class="rounded-lg bg-slate-800 border border-slate-700 px-2 py-1">
-                                    <option value="member" <?= !$rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.member')) ?></option>
-                                    <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.admin')) ?></option>
-                                </select>
-                                <button class="rounded-lg bg-sky-600 px-3 py-1.5 text-white text-xs font-semibold hover:bg-sky-500"><?= e(kc_t('manager.users.save')) ?></button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
                 </tbody>
             </table>
         </div>

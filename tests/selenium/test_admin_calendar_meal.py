@@ -286,6 +286,7 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
     submit_form(driver, annual_payment_form)
 
     wait_for_path(driver, "/manager/dashboard.php")
+    assert f"payment_year={payment_year}" in driver.current_url
     member_row = wait_for_member_row_text(driver, updated_email, f"Annee {payment_year}: Paye")
     assert "Mutuelle" in member_row.text
 
@@ -314,6 +315,11 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
     wait_for_path(driver, "/manager/dashboard.php")
     member_row = wait_for_member_row_text(driver, updated_email, updated_child_name)
     assert "adulte" in member_row.text
+    dependent_mutuelle_link = member_row.find_element(
+        By.XPATH,
+        f".//a[contains(@href, 'download=member_mutuelle') and contains(@href, 'dependent_id=') and contains(normalize-space(), '{updated_child_name}')]",
+    )
+    assert f"year={payment_year}" in dependent_mutuelle_link.get_attribute("href")
 
     password_form = member_row.find_element(
         By.XPATH,
@@ -405,6 +411,7 @@ def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     assert driver.find_element(By.ID, "new_member_password").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users select[name='new_member_role']").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users input[name='target_username']").is_displayed()
+    assert driver.find_element(By.ID, "memberPaymentYear").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#memberRows input[name='new_member_password'][type='password']").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users input[name='dependent_name']").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users select[name='dependent_is_minor']").is_displayed()
