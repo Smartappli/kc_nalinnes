@@ -322,14 +322,57 @@ try {
         exit;
     }
 
-    // Gestion utilisateurs (admin)
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'user_update') {
-        $postedToken = (string)($_POST['csrf_token'] ?? '');
-        if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
-            flash(kc_t('manager.flash.csrf'), 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
-            exit;
+    // Gestion membres (admin)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['member_profile_update', 'member_dependent_add', 'member_dependent_update', 'member_dependent_delete'], true)) {
+        require_manager_csrf();
+
+        try {
+            $targetId = (int)($_POST['target_user_id'] ?? 0);
+
+            if (($_POST['action'] ?? '') === 'member_profile_update') {
+                $existingMember = manager_admin_fetch_user($db, $targetId);
+                if ($existingMember === null) {
+                    throw new RuntimeException('Membre introuvable.');
+                }
+
+                $newProfile = manager_admin_normalize_member_profile_input($_POST);
+                $oldEmail = normalize_email((string)($existingMember['email'] ?? ''));
+                if ($targetId === (int)$userId && $oldEmail !== (string)$newProfile['email']) {
+                    throw new RuntimeException('Vous ne pouvez pas modifier votre propre email depuis cette page.');
+                }
+
+                $updatedProfile = manager_admin_update_member_profile($db, $targetId, $_POST);
+                if ((string)$updatedProfile['old_email'] !== (string)$updatedProfile['email'] && is_admin_email((string)$updatedProfile['old_email'], $adminEmails)) {
+                    set_admin_role($db, (string)$updatedProfile['old_email'], false);
+                    set_admin_role($db, (string)$updatedProfile['email'], true);
+                }
+
+                flash('Informations membre mises a jour.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'member_dependent_add') {
+                manager_admin_add_dependent($db, $targetId, $_POST);
+                flash('Profil lie ajoute.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'member_dependent_update') {
+                manager_admin_update_dependent($db, $targetId, (int)($_POST['dependent_id'] ?? 0), $_POST);
+                flash('Profil lie mis a jour.', 'success');
+            }
+            else {
+                manager_admin_delete_dependent($db, $targetId, (int)($_POST['dependent_id'] ?? 0));
+                flash('Profil lie supprime.', 'success');
+            }
         }
+        catch (Throwable $e) {
+            flash($e->getMessage(), 'error');
+        }
+
+        header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+        exit;
+    }
+
+    // Gestion roles utilisateurs (admin)
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'user_update') {
+        require_manager_csrf();
 
         $targetId = (int)($_POST['target_user_id'] ?? 0);
         $targetRole = (string)($_POST['target_role'] ?? 'member');
@@ -359,12 +402,7 @@ try {
 
 
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'grade_update') {
-        $postedToken = (string)($_POST['csrf_token'] ?? '');
-        if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
-            flash(kc_t('manager.flash.csrf'), 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
-            exit;
-        }
+        require_manager_csrf();
 
         $targetId = (int)($_POST['target_user_id'] ?? 0);
         $grade = trim((string)($_POST['target_grade'] ?? ''));
@@ -898,8 +936,16 @@ try {
                     <tr data-member-row data-role="<?= $rowIsAdmin ? 'admin' : 'member' ?>" data-grade="<?= $rowGrade === '' ? 'missing' : 'filled' ?>" data-search="<?= e((string)$memberRow['search']) ?>" class="border-t border-slate-800 align-top">
                         <td class="px-3 py-3 text-slate-400"><?= e((string)$rowId) ?></td>
                         <td class="px-3 py-3">
-                            <p class="font-semibold text-slate-100"><?= e((string)($row['email'] ?? '')) ?></p>
-                            <p class="mt-1 text-xs text-slate-400"><?= (string)($row['username'] ?? '') !== '' ? e((string)$row['username']) : 'Username vide' ?></p>
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="grid min-w-[16rem] gap-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="member_profile_update">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <label class="sr-only" for="member_email_<?= e((string)$rowId) ?>">Email membre</label>
+                                <input id="member_email_<?= e((string)$rowId) ?>" name="target_email" type="email" value="<?= e((string)($row['email'] ?? '')) ?>" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-sm font-semibold text-slate-100">
+                                <label class="sr-only" for="member_username_<?= e((string)$rowId) ?>">Nom membre</label>
+                                <input id="member_username_<?= e((string)$rowId) ?>" name="target_username" maxlength="100" value="<?= e((string)($row['username'] ?? '')) ?>" placeholder="Nom affiche" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500">
+                                <button class="justify-self-start rounded-lg bg-sky-600 px-2 py-1 text-xs font-semibold text-white hover:bg-sky-500">Sauver</button>
+                            </form>
                         </td>
                         <td class="px-3 py-3">
                             <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="flex min-w-[11rem] items-center gap-2">
@@ -914,15 +960,62 @@ try {
                             <p class="font-semibold"><?= e((string)((int)$memberRow['minor_dependents'] + (int)$memberRow['adult_dependents'])) ?> profil(s)</p>
                             <p class="mt-1 text-xs text-slate-400"><?= e((string)$memberRow['minor_dependents']) ?> mineur(s), <?= e((string)$memberRow['adult_dependents']) ?> adulte(s)</p>
                             <?php if ($rowDependents !== []): ?>
-                                <details class="mt-2">
-                                    <summary class="cursor-pointer text-xs font-semibold text-sky-200">Voir les profils</summary>
-                                    <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                                <details class="mt-2" open>
+                                    <summary class="cursor-pointer text-xs font-semibold text-sky-200">Gerer les profils</summary>
+                                    <div class="mt-2 space-y-2">
                                         <?php foreach ($rowDependents as $dependentRow): ?>
-                                            <li><?= e((string)($dependentRow['full_name'] ?? '')) ?><?= (string)($dependentRow['birthdate'] ?? '') !== '' ? ' - ' . e((string)$dependentRow['birthdate']) : '' ?><?= (int)($dependentRow['is_minor'] ?? 1) === 1 ? ' - mineur' : ' - adulte' ?></li>
+                                            <?php $dependentId = (int)($dependentRow['id'] ?? 0); ?>
+                                            <div class="rounded-lg border border-slate-800 bg-slate-950/50 p-2">
+                                                <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="grid gap-2">
+                                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                                    <input type="hidden" name="action" value="member_dependent_update">
+                                                    <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                                    <input type="hidden" name="dependent_id" value="<?= e((string)$dependentId) ?>">
+                                                    <label class="sr-only" for="dependent_name_<?= e((string)$dependentId) ?>">Nom du profil lie</label>
+                                                    <input id="dependent_name_<?= e((string)$dependentId) ?>" name="dependent_name" value="<?= e((string)($dependentRow['full_name'] ?? '')) ?>" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                                    <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
+                                                        <label class="sr-only" for="dependent_birthdate_<?= e((string)$dependentId) ?>">Date de naissance</label>
+                                                        <input id="dependent_birthdate_<?= e((string)$dependentId) ?>" name="dependent_birthdate" type="date" value="<?= e((string)($dependentRow['birthdate'] ?? '')) ?>" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                                        <label class="sr-only" for="dependent_is_minor_<?= e((string)$dependentId) ?>">Type de profil</label>
+                                                        <select id="dependent_is_minor_<?= e((string)$dependentId) ?>" name="dependent_is_minor" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                                            <option value="1" <?= (int)($dependentRow['is_minor'] ?? 1) === 1 ? 'selected' : '' ?>>Mineur</option>
+                                                            <option value="0" <?= (int)($dependentRow['is_minor'] ?? 1) === 0 ? 'selected' : '' ?>>Adulte</option>
+                                                        </select>
+                                                    </div>
+                                                    <div class="flex flex-wrap gap-2">
+                                                        <button class="rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500">Sauver</button>
+                                                    </div>
+                                                </form>
+                                                <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-2" onsubmit="return confirm('Supprimer ce profil lie ?');">
+                                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                                    <input type="hidden" name="action" value="member_dependent_delete">
+                                                    <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                                    <input type="hidden" name="dependent_id" value="<?= e((string)$dependentId) ?>">
+                                                    <button class="rounded-lg bg-red-600 px-2 py-1 text-xs font-semibold text-white hover:bg-red-500">Supprimer</button>
+                                                </form>
+                                            </div>
                                         <?php endforeach; ?>
-                                    </ul>
+                                    </div>
                                 </details>
                             <?php endif; ?>
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-3 grid min-w-[15rem] gap-2 rounded-lg border border-slate-800 bg-slate-950/40 p-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="member_dependent_add">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <p class="text-xs font-semibold text-slate-300">Ajouter un profil</p>
+                                <label class="sr-only" for="dependent_add_name_<?= e((string)$rowId) ?>">Nom du profil lie</label>
+                                <input id="dependent_add_name_<?= e((string)$rowId) ?>" name="dependent_name" placeholder="Nom enfant/adulte" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500">
+                                <div class="grid gap-2 sm:grid-cols-[1fr_auto]">
+                                    <label class="sr-only" for="dependent_add_birthdate_<?= e((string)$rowId) ?>">Date de naissance</label>
+                                    <input id="dependent_add_birthdate_<?= e((string)$rowId) ?>" name="dependent_birthdate" type="date" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                    <label class="sr-only" for="dependent_add_is_minor_<?= e((string)$rowId) ?>">Type de profil</label>
+                                    <select id="dependent_add_is_minor_<?= e((string)$rowId) ?>" name="dependent_is_minor" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                        <option value="1">Mineur</option>
+                                        <option value="0">Adulte</option>
+                                    </select>
+                                </div>
+                                <button class="justify-self-start rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500">Ajouter</button>
+                            </form>
                         </td>
                         <td class="px-3 py-3">
                             <p class="font-semibold"><?= e((string)$mealStats['active_count']) ?> active(s) / <?= e((string)$mealStats['count']) ?> total</p>

@@ -108,9 +108,27 @@ function manager_admin_add_dependent(PDO $db, int $guardianUserId, array $input)
     return (int)$db->lastInsertId();
 }
 
+function manager_admin_dependent_exists(PDO $db, int $guardianUserId, int $dependentId): bool {
+    if ($guardianUserId <= 0 || $dependentId <= 0) {
+        return false;
+    }
+
+    $stmt = $db->prepare('SELECT id FROM member_dependents WHERE id = :id AND guardian_user_id = :guardian_user_id LIMIT 1');
+    $stmt->execute([
+        ':id' => $dependentId,
+        ':guardian_user_id' => $guardianUserId,
+    ]);
+
+    return $stmt->fetchColumn() !== false;
+}
+
 function manager_admin_update_dependent(PDO $db, int $guardianUserId, int $dependentId, array $input): void {
     if ($guardianUserId <= 0 || $dependentId <= 0) {
         throw new InvalidArgumentException('Profil lie invalide.');
+    }
+
+    if (!manager_admin_dependent_exists($db, $guardianUserId, $dependentId)) {
+        throw new RuntimeException('Profil lie introuvable.');
     }
 
     $dependent = manager_admin_normalize_dependent_input($input);
@@ -122,10 +140,6 @@ function manager_admin_update_dependent(PDO $db, int $guardianUserId, int $depen
         ':id' => $dependentId,
         ':guardian_user_id' => $guardianUserId,
     ]);
-
-    if ($stmt->rowCount() === 0) {
-        throw new RuntimeException('Profil lie introuvable.');
-    }
 }
 
 function manager_admin_delete_dependent(PDO $db, int $guardianUserId, int $dependentId): void {
