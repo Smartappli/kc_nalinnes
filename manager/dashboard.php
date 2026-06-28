@@ -794,6 +794,8 @@ try {
   const btnNew = document.getElementById('btnNewEvent');
   const btnCancel = document.getElementById('btnCancel');
   const filterButtons = Array.from(document.querySelectorAll('.calendar-filter'));
+  let pendingCalendarChangeRevert = null;
+  let eventFormSubmitting = false;
 
   function filteredEvents() {
     if (activeFilter === 'club') {
@@ -884,19 +886,25 @@ try {
       const data = eventDataFromCalendar(info.event);
       if (data.eventType === 'recurring') {
         info.revert();
+        openDialog(data);
+        return;
       }
-      openDialog(data);
+      openDialog(data, info.revert);
     },
     eventResize(info) {
       const data = eventDataFromCalendar(info.event);
       if (data.eventType === 'recurring') {
         info.revert();
+        openDialog(data);
+        return;
       }
-      openDialog(data);
+      openDialog(data, info.revert);
     }
   });
 
-  function openDialog(data = {}) {
+  function openDialog(data = {}, revertOnCancel = null) {
+    pendingCalendarChangeRevert = typeof revertOnCancel === 'function' ? revertOnCancel : null;
+    eventFormSubmitting = false;
     document.getElementById('dialogTitle').textContent = data.id ? calendarTexts.edit : calendarTexts.new;
     fields.id.value = data.id || '';
     fields.audience.value = data.audience || (activeFilter === 'club' ? 'children' : activeFilter);
@@ -925,6 +933,16 @@ try {
     isActive: true
   }));
   btnCancel.addEventListener('click', () => dialog.close());
+  dialog.addEventListener('close', () => {
+    if (!eventFormSubmitting && pendingCalendarChangeRevert) {
+      pendingCalendarChangeRevert();
+    }
+    pendingCalendarChangeRevert = null;
+    eventFormSubmitting = false;
+  });
+  form.addEventListener('submit', () => {
+    eventFormSubmitting = true;
+  });
   fields.type.addEventListener('change', toggleEventTypeFields);
 
   filterButtons.forEach((button) => {
@@ -941,6 +959,7 @@ try {
     }
 
     actionInput.value = 'calendar_event_delete';
+    eventFormSubmitting = true;
     form.submit();
   });
 
