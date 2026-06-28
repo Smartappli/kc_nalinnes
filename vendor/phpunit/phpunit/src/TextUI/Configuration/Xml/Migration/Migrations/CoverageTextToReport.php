@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\TextUI\XmlConfiguration;
 
-use function assert;
 use DOMElement;
 
 /**
@@ -26,11 +25,7 @@ final readonly class CoverageTextToReport extends LogToReportMigration
 
     protected function toReportFormat(DOMElement $logNode): DOMElement
     {
-        $ownerDocument = $logNode->ownerDocument;
-
-        assert($ownerDocument !== null);
-
-        $text = $ownerDocument->createElement('text');
+        $text = $logNode->ownerDocument->createElement('text');
         $text->setAttribute('outputFile', $logNode->getAttribute('target'));
 
         $this->migrateAttributes($logNode, $text, ['showUncoveredFiles', 'showOnlySummary']);

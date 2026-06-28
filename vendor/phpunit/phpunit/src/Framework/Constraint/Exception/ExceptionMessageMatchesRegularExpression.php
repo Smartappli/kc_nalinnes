@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
-use function is_string;
 use function preg_match;
 use function sprintf;
 use Exception;
@@ -43,11 +42,7 @@ final class ExceptionMessageMatchesRegularExpression extends Constraint
      */
     protected function matches(mixed $other): bool
     {
-        if (!is_string($other)) {
-            return false;
-        }
-
-        $match = @preg_match($this->regularExpression, $other);
+        $match = @preg_match($this->regularExpression, (string) $other);
 
         if ($match === false) {
             throw new \PHPUnit\Framework\Exception(
@@ -69,15 +64,9 @@ final class ExceptionMessageMatchesRegularExpression extends Constraint
      */
     protected function failureDescription(mixed $other): string
     {
-        if (is_string($other)) {
-            $message = $other;
-        } else {
-            $message = '';
-        }
-
         return sprintf(
             "exception message '%s' matches '%s'",
-            $message,
+            $other,
             $this->regularExpression,
         );
     }

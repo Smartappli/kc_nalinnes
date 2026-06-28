@@ -47,7 +47,7 @@ final readonly class GroupCollection implements IteratorAggregate
     }
 
     /**
-     * @return list<non-empty-string>
+     * @return list<string>
      */
     public function asArrayOfStrings(): array
     {

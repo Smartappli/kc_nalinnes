@@ -12,12 +12,10 @@ namespace PHPUnit\TextUI\CliArguments;
 use const DIRECTORY_SEPARATOR;
 use function assert;
 use function basename;
-use function count;
 use function explode;
 use function getcwd;
 use function is_file;
 use function is_numeric;
-use function max;
 use function sprintf;
 use function strtolower;
 use PHPUnit\Event\Facade as EventFacade;
@@ -62,7 +60,6 @@ final class Builder
         'coverage-xml=',
         'exclude-source-from-xml-coverage',
         'path-coverage',
-        'branch-coverage',
         'disallow-test-output',
         'display-all-issues',
         'display-incomplete',
@@ -74,7 +71,6 @@ final class Builder
         'display-notices',
         'display-warnings',
         'default-time-limit=',
-        'diff-context=',
         'enforce-time-limit',
         'exclude-group=',
         'filter=',
@@ -95,7 +91,6 @@ final class Builder
         'list-groups',
         'list-suites',
         'list-test-files',
-        'list-test-ids',
         'list-tests',
         'list-tests-xml=',
         'log-junit=',
@@ -103,7 +98,6 @@ final class Builder
         'include-git-information',
         'log-teamcity=',
         'migrate-configuration',
-        'validate-configuration',
         'no-configuration',
         'no-coverage',
         'no-logging',
@@ -141,21 +135,18 @@ final class Builder
         'do-not-fail-on-risky',
         'do-not-fail-on-skipped',
         'do-not-fail-on-warning',
-        'stop-on-defect==',
+        'stop-on-defect',
         'stop-on-deprecation==',
-        'stop-on-error==',
-        'stop-on-failure==',
-        'stop-on-incomplete==',
-        'stop-on-notice==',
-        'stop-on-risky==',
-        'stop-on-skipped==',
-        'stop-on-warning==',
+        'stop-on-error',
+        'stop-on-failure',
+        'stop-on-incomplete',
+        'stop-on-notice',
+        'stop-on-risky',
+        'stop-on-skipped',
+        'stop-on-warning',
         'strict-coverage',
-        'require-coverage-contribution',
         'disable-coverage-ignore',
-        'disable-coverage-targeting',
         'strict-global-state',
-        'compact',
         'teamcity',
         'testdox',
         'testdox-summary',
@@ -165,8 +156,6 @@ final class Builder
         'testsuite=',
         'exclude-testsuite=',
         'test-files-file=',
-        'test-id-filter-file=',
-        'run-test-id=',
         'log-events-text=',
         'log-events-verbose-text=',
         'version',
@@ -176,57 +165,6 @@ final class Builder
     ];
 
     private const string SHORT_OPTIONS = 'd:c:h';
-
-    /**
-     * @var list<array{non-empty-string, non-empty-string}>
-     */
-    private const array CONFLICTING_OPTIONS = [
-        ['--cache-result', '--do-not-cache-result'],
-        ['--fail-on-deprecation', '--do-not-fail-on-deprecation'],
-        ['--fail-on-phpunit-deprecation', '--do-not-fail-on-phpunit-deprecation'],
-        ['--fail-on-phpunit-notice', '--do-not-fail-on-phpunit-notice'],
-        ['--fail-on-phpunit-warning', '--do-not-fail-on-phpunit-warning'],
-        ['--fail-on-empty-test-suite', '--do-not-fail-on-empty-test-suite'],
-        ['--fail-on-incomplete', '--do-not-fail-on-incomplete'],
-        ['--fail-on-notice', '--do-not-fail-on-notice'],
-        ['--fail-on-risky', '--do-not-fail-on-risky'],
-        ['--fail-on-skipped', '--do-not-fail-on-skipped'],
-        ['--fail-on-warning', '--do-not-fail-on-warning'],
-        ['--resolve-dependencies', '--ignore-dependencies'],
-        ['--random-order', '--reverse-order'],
-        ['--generate-baseline', '--ignore-baseline'],
-        ['--generate-baseline', '--use-baseline'],
-        ['--no-output', '--compact'],
-        ['--no-output', '--teamcity'],
-        ['--no-output', '--testdox'],
-        ['--no-output', '--testdox-summary'],
-        ['--no-output', '--debug'],
-        ['--compact', '--teamcity'],
-        ['--compact', '--testdox'],
-        ['--compact', '--testdox-summary'],
-        ['--compact', '--debug'],
-    ];
-
-    /**
-     * @var list<non-empty-string>
-     */
-    private const array COMMAND_OPTIONS = [
-        '--atleast-version',
-        '--check-php-configuration',
-        '--check-version',
-        '--generate-configuration',
-        '--help',
-        '--list-groups',
-        '--list-suites',
-        '--list-test-files',
-        '--list-test-ids',
-        '--list-tests',
-        '--list-tests-xml',
-        '--migrate-configuration',
-        '--validate-configuration',
-        '--version',
-        '--warm-coverage-cache',
-    ];
 
     /**
      * @var array<string, non-negative-int>
@@ -281,11 +219,8 @@ final class Builder
         $coverageXml                       = null;
         $excludeSourceFromXmlCoverage      = null;
         $pathCoverage                      = null;
-        $branchCoverage                    = null;
         $defaultTimeLimit                  = null;
-        $diffContext                       = null;
         $disableCodeCoverageIgnore         = null;
-        $disableCoverageTargeting          = null;
         $disallowTestOutput                = null;
         $displayAllIssues                  = null;
         $displayIncomplete                 = null;
@@ -338,7 +273,6 @@ final class Builder
         $ignoreBaseline                    = false;
         $generateConfiguration             = false;
         $migrateConfiguration              = false;
-        $validateConfiguration             = false;
         $groups                            = null;
         $testsCovering                     = null;
         $testsUsing                        = null;
@@ -352,7 +286,6 @@ final class Builder
         $listGroups                        = false;
         $listSuites                        = false;
         $listTestFiles                     = false;
-        $listTestIds                       = false;
         $listTests                         = false;
         $listTestsXml                      = null;
         $noCoverage                        = null;
@@ -368,7 +301,6 @@ final class Builder
         $reverseList                       = null;
         $stderr                            = null;
         $strictCoverage                    = null;
-        $requireCoverageContribution       = null;
         $teamcityLogfile                   = null;
         $testdoxHtmlFile                   = null;
         $testdoxTextFile                   = null;
@@ -376,13 +308,10 @@ final class Builder
         $testSuite                         = null;
         $excludeTestSuite                  = null;
         $testFilesFile                     = null;
-        $testIdFile                        = null;
-        $testIdFilter                      = null;
         $useDefaultConfiguration           = true;
         $version                           = false;
         $logEventsText                     = null;
         $logEventsVerboseText              = null;
-        $printerCompact                    = null;
         $printerTeamCity                   = null;
         $printerTestDox                    = null;
         $printerTestDoxSummary             = null;
@@ -512,14 +441,7 @@ final class Builder
 
                     break;
 
-                case '--branch-coverage':
-                    $branchCoverage = true;
-
-                    break;
-
                 case 'd':
-                    assert($option[1] !== null);
-
                     $tmp = explode('=', $option[1]);
 
                     if (isset($tmp[0])) {
@@ -569,19 +491,7 @@ final class Builder
 
                     break;
 
-                case '--test-id-filter-file':
-                    $testIdFile = $option[1];
-
-                    break;
-
-                case '--run-test-id':
-                    $testIdFilter = $option[1];
-
-                    break;
-
                 case '--generate-baseline':
-                    assert($option[1] !== null);
-
                     $generateBaseline = $option[1];
 
                     if (basename($generateBaseline) === $generateBaseline) {
@@ -591,8 +501,6 @@ final class Builder
                     break;
 
                 case '--use-baseline':
-                    assert($option[1] !== null);
-
                     $useBaseline = $option[1];
 
                     if (basename($useBaseline) === $useBaseline && !is_file($useBaseline)) {
@@ -616,17 +524,12 @@ final class Builder
 
                     break;
 
-                case '--validate-configuration':
-                    $validateConfiguration = true;
-
-                    break;
-
                 case '--group':
                     if ($groups === null) {
                         $groups = [];
                     }
 
-                    $groups[] = $this->requireNonEmptyValue($option[1], '--group');
+                    $groups[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
@@ -637,7 +540,7 @@ final class Builder
                         $excludeGroups = [];
                     }
 
-                    $excludeGroups[] = $this->requireNonEmptyValue($option[1], '--exclude-group');
+                    $excludeGroups[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
@@ -648,7 +551,7 @@ final class Builder
                         $testsCovering = [];
                     }
 
-                    $testsCovering[] = strtolower($this->requireNonEmptyValue($option[1], '--covers'));
+                    $testsCovering[] = strtolower($option[1]);
 
                     $optionAllowedMultipleTimes = true;
 
@@ -659,7 +562,7 @@ final class Builder
                         $testsUsing = [];
                     }
 
-                    $testsUsing[] = strtolower($this->requireNonEmptyValue($option[1], '--uses'));
+                    $testsUsing[] = strtolower($option[1]);
 
                     $optionAllowedMultipleTimes = true;
 
@@ -670,7 +573,7 @@ final class Builder
                         $testsRequiringPhpExtension = [];
                     }
 
-                    $testsRequiringPhpExtension[] = strtolower($this->requireNonEmptyValue($option[1], '--requires-php-extension'));
+                    $testsRequiringPhpExtension[] = strtolower($option[1]);
 
                     $optionAllowedMultipleTimes = true;
 
@@ -681,7 +584,7 @@ final class Builder
                         $testSuffixes = [];
                     }
 
-                    $testSuffixes[] = $this->requireNonEmptyValue($option[1], '--test-suffix');
+                    $testSuffixes[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
@@ -704,11 +607,6 @@ final class Builder
 
                 case '--list-test-files':
                     $listTestFiles = true;
-
-                    break;
-
-                case '--list-test-ids':
-                    $listTestIds = true;
 
                     break;
 
@@ -743,8 +641,6 @@ final class Builder
                     break;
 
                 case '--order-by':
-                    assert($option[1] !== null);
-
                     foreach (explode(',', $option[1]) as $order) {
                         switch ($order) {
                             case 'default':
@@ -765,21 +661,7 @@ final class Builder
                                 break;
 
                             case 'duration':
-                                $executionOrder = TestSuiteSorter::ORDER_DURATION_ASCENDING;
-
-                                EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
-                                    'Using "duration" for --order-by is deprecated and will be removed in PHPUnit 14. Use "duration-ascending" instead.',
-                                );
-
-                                break;
-
-                            case 'duration-ascending':
-                                $executionOrder = TestSuiteSorter::ORDER_DURATION_ASCENDING;
-
-                                break;
-
-                            case 'duration-descending':
-                                $executionOrder = TestSuiteSorter::ORDER_DURATION_DESCENDING;
+                                $executionOrder = TestSuiteSorter::ORDER_DURATION;
 
                                 break;
 
@@ -799,21 +681,7 @@ final class Builder
                                 break;
 
                             case 'size':
-                                $executionOrder = TestSuiteSorter::ORDER_SIZE_ASCENDING;
-
-                                EventFacade::emitter()->testRunnerTriggeredPhpunitDeprecation(
-                                    'Using "size" for --order-by is deprecated and will be removed in PHPUnit 14. Use "size-ascending" instead.',
-                                );
-
-                                break;
-
-                            case 'size-ascending':
-                                $executionOrder = TestSuiteSorter::ORDER_SIZE_ASCENDING;
-
-                                break;
-
-                            case 'size-descending':
-                                $executionOrder = TestSuiteSorter::ORDER_SIZE_DESCENDING;
+                                $executionOrder = TestSuiteSorter::ORDER_SIZE;
 
                                 break;
 
@@ -845,156 +713,271 @@ final class Builder
                     break;
 
                 case '--fail-on-deprecation':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnDeprecation,
+                        '--fail-on-deprecation',
+                        '--do-not-fail-on-deprecation',
+                    );
+
                     $failOnDeprecation = true;
 
                     break;
 
                 case '--fail-on-phpunit-deprecation':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnPhpunitDeprecation,
+                        '--fail-on-phpunit-deprecation',
+                        '--do-not-fail-on-phpunit-deprecation',
+                    );
+
                     $failOnPhpunitDeprecation = true;
 
                     break;
 
                 case '--fail-on-phpunit-notice':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnPhpunitNotice,
+                        '--fail-on-phpunit-notice',
+                        '--do-not-fail-on-phpunit-notice',
+                    );
+
                     $failOnPhpunitNotice = true;
 
                     break;
 
                 case '--fail-on-phpunit-warning':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnPhpunitWarning,
+                        '--fail-on-phpunit-warning',
+                        '--do-not-fail-on-phpunit-warning',
+                    );
+
                     $failOnPhpunitWarning = true;
 
                     break;
 
                 case '--fail-on-empty-test-suite':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnEmptyTestSuite,
+                        '--fail-on-empty-test-suite',
+                        '--do-not-fail-on-empty-test-suite',
+                    );
+
                     $failOnEmptyTestSuite = true;
 
                     break;
 
                 case '--fail-on-incomplete':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnIncomplete,
+                        '--fail-on-incomplete',
+                        '--do-not-fail-on-incomplete',
+                    );
+
                     $failOnIncomplete = true;
 
                     break;
 
                 case '--fail-on-notice':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnNotice,
+                        '--fail-on-notice',
+                        '--do-not-fail-on-notice',
+                    );
+
                     $failOnNotice = true;
 
                     break;
 
                 case '--fail-on-risky':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnRisky,
+                        '--fail-on-risky',
+                        '--do-not-fail-on-risky',
+                    );
+
                     $failOnRisky = true;
 
                     break;
 
                 case '--fail-on-skipped':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnSkipped,
+                        '--fail-on-skipped',
+                        '--do-not-fail-on-skipped',
+                    );
+
                     $failOnSkipped = true;
 
                     break;
 
                 case '--fail-on-warning':
+                    $this->warnWhenOptionsConflict(
+                        $doNotFailOnWarning,
+                        '--fail-on-warning',
+                        '--do-not-fail-on-warning',
+                    );
+
                     $failOnWarning = true;
 
                     break;
 
                 case '--do-not-fail-on-deprecation':
+                    $this->warnWhenOptionsConflict(
+                        $failOnDeprecation,
+                        '--do-not-fail-on-deprecation',
+                        '--fail-on-deprecation',
+                    );
+
                     $doNotFailOnDeprecation = true;
 
                     break;
 
                 case '--do-not-fail-on-phpunit-deprecation':
+                    $this->warnWhenOptionsConflict(
+                        $failOnPhpunitDeprecation,
+                        '--do-not-fail-on-phpunit-deprecation',
+                        '--fail-on-phpunit-deprecation',
+                    );
+
                     $doNotFailOnPhpunitDeprecation = true;
 
                     break;
 
                 case '--do-not-fail-on-phpunit-notice':
+                    $this->warnWhenOptionsConflict(
+                        $failOnPhpunitNotice,
+                        '--do-not-fail-on-phpunit-notice',
+                        '--fail-on-phpunit-notice',
+                    );
+
                     $doNotFailOnPhpunitNotice = true;
 
                     break;
 
                 case '--do-not-fail-on-phpunit-warning':
+                    $this->warnWhenOptionsConflict(
+                        $failOnPhpunitWarning,
+                        '--do-not-fail-on-phpunit-warning',
+                        '--fail-on-phpunit-warning',
+                    );
+
                     $doNotFailOnPhpunitWarning = true;
 
                     break;
 
                 case '--do-not-fail-on-empty-test-suite':
+                    $this->warnWhenOptionsConflict(
+                        $failOnEmptyTestSuite,
+                        '--do-not-fail-on-empty-test-suite',
+                        '--fail-on-empty-test-suite',
+                    );
+
                     $doNotFailOnEmptyTestSuite = true;
 
                     break;
 
                 case '--do-not-fail-on-incomplete':
+                    $this->warnWhenOptionsConflict(
+                        $failOnIncomplete,
+                        '--do-not-fail-on-incomplete',
+                        '--fail-on-incomplete',
+                    );
+
                     $doNotFailOnIncomplete = true;
 
                     break;
 
                 case '--do-not-fail-on-notice':
+                    $this->warnWhenOptionsConflict(
+                        $failOnNotice,
+                        '--do-not-fail-on-notice',
+                        '--fail-on-notice',
+                    );
+
                     $doNotFailOnNotice = true;
 
                     break;
 
                 case '--do-not-fail-on-risky':
+                    $this->warnWhenOptionsConflict(
+                        $failOnRisky,
+                        '--do-not-fail-on-risky',
+                        '--fail-on-risky',
+                    );
+
                     $doNotFailOnRisky = true;
 
                     break;
 
                 case '--do-not-fail-on-skipped':
+                    $this->warnWhenOptionsConflict(
+                        $failOnSkipped,
+                        '--do-not-fail-on-skipped',
+                        '--fail-on-skipped',
+                    );
+
                     $doNotFailOnSkipped = true;
 
                     break;
 
                 case '--do-not-fail-on-warning':
+                    $this->warnWhenOptionsConflict(
+                        $failOnWarning,
+                        '--do-not-fail-on-warning',
+                        '--fail-on-warning',
+                    );
+
                     $doNotFailOnWarning = true;
 
                     break;
 
                 case '--stop-on-defect':
-                    $stopOnDefect = $this->parseStopOnValue($option[1]);
+                    $stopOnDefect = true;
 
                     break;
 
                 case '--stop-on-deprecation':
-                    $stopOnDeprecation = $this->parseStopOnValue($option[1]);
+                    $stopOnDeprecation = true;
 
-                    if ($option[1] !== null && !is_numeric($option[1])) {
+                    if ($option[1] !== null) {
                         $specificDeprecationToStopOn = $option[1];
                     }
 
                     break;
 
                 case '--stop-on-error':
-                    $stopOnError = $this->parseStopOnValue($option[1]);
+                    $stopOnError = true;
 
                     break;
 
                 case '--stop-on-failure':
-                    $stopOnFailure = $this->parseStopOnValue($option[1]);
+                    $stopOnFailure = true;
 
                     break;
 
                 case '--stop-on-incomplete':
-                    $stopOnIncomplete = $this->parseStopOnValue($option[1]);
+                    $stopOnIncomplete = true;
 
                     break;
 
                 case '--stop-on-notice':
-                    $stopOnNotice = $this->parseStopOnValue($option[1]);
+                    $stopOnNotice = true;
 
                     break;
 
                 case '--stop-on-risky':
-                    $stopOnRisky = $this->parseStopOnValue($option[1]);
+                    $stopOnRisky = true;
 
                     break;
 
                 case '--stop-on-skipped':
-                    $stopOnSkipped = $this->parseStopOnValue($option[1]);
+                    $stopOnSkipped = true;
 
                     break;
 
                 case '--stop-on-warning':
-                    $stopOnWarning = $this->parseStopOnValue($option[1]);
-
-                    break;
-
-                case '--compact':
-                    $printerCompact = true;
+                    $stopOnWarning = true;
 
                     break;
 
@@ -1088,18 +1071,8 @@ final class Builder
 
                     break;
 
-                case '--require-coverage-contribution':
-                    $requireCoverageContribution = true;
-
-                    break;
-
                 case '--disable-coverage-ignore':
                     $disableCodeCoverageIgnore = true;
-
-                    break;
-
-                case '--disable-coverage-targeting':
-                    $disableCoverageTargeting = true;
 
                     break;
 
@@ -1163,11 +1136,6 @@ final class Builder
 
                     break;
 
-                case '--diff-context':
-                    $diffContext = $this->requirePositiveIntValue($option[1], '--diff-context');
-
-                    break;
-
                 case '--enforce-time-limit':
                     $enforceTimeLimit = true;
 
@@ -1193,7 +1161,7 @@ final class Builder
                         $coverageFilter = [];
                     }
 
-                    $coverageFilter[] = $this->requireNonEmptyValue($option[1], '--coverage-filter');
+                    $coverageFilter[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
@@ -1225,14 +1193,13 @@ final class Builder
                     break;
 
                 case '--log-events-text':
-                    $logEventsTextPath = $this->requireNonEmptyValue($option[1], '--log-events-text');
-                    $logEventsText     = Filesystem::resolveStreamOrFile($logEventsTextPath);
+                    $logEventsText = Filesystem::resolveStreamOrFile($option[1]);
 
                     if ($logEventsText === false) {
                         throw new Exception(
                             sprintf(
                                 'The path "%s" specified for the --log-events-text option could not be resolved',
-                                $logEventsTextPath,
+                                $option[1],
                             ),
                         );
                     }
@@ -1240,14 +1207,13 @@ final class Builder
                     break;
 
                 case '--log-events-verbose-text':
-                    $logEventsVerboseTextPath = $this->requireNonEmptyValue($option[1], '--log-events-verbose-text');
-                    $logEventsVerboseText     = Filesystem::resolveStreamOrFile($logEventsVerboseTextPath);
+                    $logEventsVerboseText = Filesystem::resolveStreamOrFile($option[1]);
 
                     if ($logEventsVerboseText === false) {
                         throw new Exception(
                             sprintf(
                                 'The path "%s" specified for the --log-events-verbose-text option could not be resolved',
-                                $logEventsVerboseTextPath,
+                                $option[1],
                             ),
                         );
                     }
@@ -1265,16 +1231,14 @@ final class Builder
                     break;
 
                 case '--extension':
-                    $extensions[] = $this->requireNonEmptyValue($option[1], '--extension');
+                    $extensions[] = $option[1];
 
                     $optionAllowedMultipleTimes = true;
 
                     break;
             }
 
-            if ($optionAllowedMultipleTimes) {
-                $this->processed[$option[0]] = 1;
-            } else {
+            if (!$optionAllowedMultipleTimes) {
                 $this->markProcessed($option[0]);
             }
         }
@@ -1287,29 +1251,15 @@ final class Builder
             $extensions = null;
         }
 
-        $this->warnAboutConflictingOptions();
-
         if ($randomOrderSeed !== null && $executionOrder !== TestSuiteSorter::ORDER_RANDOMIZED) {
             EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
                 '--random-order-seed is only used when execution order is "random" (use --order-by random or --random-order)',
             );
         }
 
-        $arguments = [];
-
-        foreach ($options[1] as $argument) {
-            if ($argument === '') {
-                continue;
-            }
-
-            $arguments[] = $argument;
-        }
-
         return new Configuration(
-            $arguments,
+            $options[1],
             $testFilesFile,
-            $testIdFile,
-            $testIdFilter,
             $all,
             $atLeastVersion,
             $backupGlobals,
@@ -1335,12 +1285,9 @@ final class Builder
             $coverageXml,
             $excludeSourceFromXmlCoverage,
             $pathCoverage,
-            $branchCoverage,
             $warmCoverageCache,
             $defaultTimeLimit,
-            $diffContext,
             $disableCodeCoverageIgnore,
-            $disableCoverageTargeting,
             $disallowTestOutput,
             $enforceTimeLimit,
             $excludeGroups,
@@ -1384,7 +1331,6 @@ final class Builder
             $ignoreBaseline,
             $generateConfiguration,
             $migrateConfiguration,
-            $validateConfiguration,
             $groups,
             $testsCovering,
             $testsUsing,
@@ -1398,7 +1344,6 @@ final class Builder
             $listGroups,
             $listSuites,
             $listTestFiles,
-            $listTestIds,
             $listTests,
             $listTestsXml,
             $noCoverage,
@@ -1414,7 +1359,6 @@ final class Builder
             $reverseList,
             $stderr,
             $strictCoverage,
-            $requireCoverageContribution,
             $teamcityLogfile,
             $testdoxHtmlFile,
             $testdoxTextFile,
@@ -1435,7 +1379,6 @@ final class Builder
             $coverageFilter,
             $logEventsText,
             $logEventsVerboseText,
-            $printerCompact,
             $printerTeamCity,
             $printerTestDox,
             $printerTestDoxSummary,
@@ -1445,6 +1388,9 @@ final class Builder
         );
     }
 
+    /**
+     * @param non-empty-string $option
+     */
     private function markProcessed(string $option): void
     {
         if (!isset($this->processed[$option])) {
@@ -1465,88 +1411,21 @@ final class Builder
         }
     }
 
-    private function warnAboutConflictingOptions(): void
-    {
-        foreach (self::CONFLICTING_OPTIONS as $conflictingOptions) {
-            if (isset($this->processed[$conflictingOptions[0]], $this->processed[$conflictingOptions[1]])) {
-                EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
-                    sprintf(
-                        'Options %s and %s cannot be used together',
-                        $conflictingOptions[0],
-                        $conflictingOptions[1],
-                    ),
-                );
-            }
-        }
-
-        $usedCommandOptions = [];
-
-        foreach (self::COMMAND_OPTIONS as $commandOption) {
-            if (isset($this->processed[$commandOption])) {
-                $usedCommandOptions[] = $commandOption;
-            }
-        }
-
-        if (count($usedCommandOptions) > 1) {
-            throw new Exception(
-                sprintf(
-                    'Options %s and %s cannot be used together',
-                    $usedCommandOptions[0],
-                    $usedCommandOptions[1],
-                ),
-            );
-        }
-    }
-
     /**
-     * @return positive-int
+     * @param non-empty-string $option
      */
-    private function parseStopOnValue(?string $value): int
+    private function warnWhenOptionsConflict(?bool $current, string $option, string $opposite): void
     {
-        if (is_numeric($value)) {
-            return max(1, (int) $value);
+        if ($current === null) {
+            return;
         }
 
-        return 1;
-    }
-
-    /**
-     * @throws Exception
-     *
-     * @return non-empty-string
-     */
-    private function requireNonEmptyValue(?string $value, string $option): string
-    {
-        if ($value === null || $value === '') {
-            throw new Exception(
-                sprintf('Option %s requires a non-empty value', $option),
-            );
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws Exception
-     *
-     * @return positive-int
-     */
-    private function requirePositiveIntValue(?string $value, string $option): int
-    {
-        if (!is_numeric($value)) {
-            throw new Exception(
-                sprintf('Option %s requires a positive integer value', $option),
-            );
-        }
-
-        $intValue = (int) $value;
-
-        if ($intValue < 1) {
-            throw new Exception(
-                sprintf('Option %s requires a positive integer value', $option),
-            );
-        }
-
-        return $intValue;
+        EventFacade::emitter()->testRunnerTriggeredPhpunitWarning(
+            sprintf(
+                'Options %s and %s cannot be used together',
+                $option,
+                $opposite,
+            ),
+        );
     }
 }

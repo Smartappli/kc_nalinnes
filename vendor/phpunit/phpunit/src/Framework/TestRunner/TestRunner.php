@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace PHPUnit\Framework\TestRunner;
+namespace PHPUnit\Framework;
 
 use const PHP_EOL;
 use function array_diff_assoc;
@@ -19,11 +19,6 @@ use function sprintf;
 use function xdebug_is_debugger_active;
 use AssertionError;
 use PHPUnit\Event\Facade;
-use PHPUnit\Framework\Assert;
-use PHPUnit\Framework\AssertionFailedError;
-use PHPUnit\Framework\IncompleteTestError;
-use PHPUnit\Framework\SkippedTest;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Metadata\Api\CodeCoverage as CodeCoverageMetadataApi;
 use PHPUnit\Metadata\Parser\Registry as MetadataRegistry;
 use PHPUnit\Runner\CodeCoverage;
@@ -64,24 +59,18 @@ final class TestRunner
         Assert::resetCount();
 
         $codeCoverageMetadataApi = new CodeCoverageMetadataApi;
-        $coversTargets           = TargetCollection::fromArray([]);
-        $usesTargets             = TargetCollection::fromArray([]);
 
-        if ($this->configuration->disableCoverageTargeting()) {
-            $shouldCodeCoverageBeCollected = true;
-        } else {
-            $coversTargets = $codeCoverageMetadataApi->coversTargets(
-                $test::class,
-                $test->name(),
-            );
+        $coversTargets = $codeCoverageMetadataApi->coversTargets(
+            $test::class,
+            $test->name(),
+        );
 
-            $usesTargets = $codeCoverageMetadataApi->usesTargets(
-                $test::class,
-                $test->name(),
-            );
+        $usesTargets = $codeCoverageMetadataApi->usesTargets(
+            $test::class,
+            $test->name(),
+        );
 
-            $shouldCodeCoverageBeCollected = $codeCoverageMetadataApi->shouldCodeCoverageBeCollectedFor($test);
-        }
+        $shouldCodeCoverageBeCollected = $codeCoverageMetadataApi->shouldCodeCoverageBeCollectedFor($test);
 
         $this->performSanityChecks($test, $coversTargets, $usesTargets, $shouldCodeCoverageBeCollected);
 
@@ -121,11 +110,7 @@ final class TestRunner
             $test->addToAssertionCount(1);
 
             $failure = true;
-            $trace   = $e->getTrace();
-
-            assert(isset($trace[0]));
-
-            $frame = $trace[0];
+            $frame   = $e->getTrace()[0];
 
             assert(isset($frame['file']));
             assert(isset($frame['line']));
@@ -162,8 +147,7 @@ final class TestRunner
         }
 
         if ($collectCodeCoverage) {
-            $append                 = !$risky && !$incomplete && !$skipped;
-            $coveredUnintentionally = false;
+            $append = !$risky && !$incomplete && !$skipped;
 
             if (!$append) {
                 $coversTargets = false;
@@ -177,8 +161,6 @@ final class TestRunner
                     $usesTargets,
                 );
             } catch (UnintentionallyCoveredCodeException $cce) {
-                $coveredUnintentionally = true;
-
                 Facade::emitter()->testConsideredRisky(
                     $test->valueObjectForEvents(),
                     'This test executed code that is not listed as code to be covered or used:' .
@@ -189,17 +171,6 @@ final class TestRunner
                 $error = true;
 
                 $e = $e ?? $cce;
-            }
-
-            if ($append && !$error && !$failure && !$coveredUnintentionally &&
-                $this->configuration->requireCoverageContribution() &&
-                !CodeCoverage::instance()->lastTestContributedToCoverage()) {
-                Facade::emitter()->testConsideredRisky(
-                    $test->valueObjectForEvents(),
-                    'This test does not contribute to code coverage',
-                );
-
-                $risky = true;
             }
         }
 

@@ -16,7 +16,6 @@ use function explode;
 use function method_exists;
 use PHPUnit\Event\Code\Test;
 use PHPUnit\Event\Code\TestCollection;
-use PHPUnit\Event\Code\TestDoxBuilder;
 use PHPUnit\Event\RuntimeException;
 use PHPUnit\Framework\DataProviderTestSuite;
 use PHPUnit\Framework\TestCase;
@@ -84,7 +83,6 @@ final readonly class TestSuiteBuilder
                 $testClassName,
                 $testSuite->count(),
                 TestCollection::fromArray($tests),
-                TestDoxBuilder::prettifyClassName($testClassName),
                 $file,
                 $line,
             );

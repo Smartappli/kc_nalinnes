@@ -21,15 +21,8 @@ use PHPUnit\TextUI\Configuration\File;
 final readonly class Crap4j
 {
     private File $target;
-
-    /**
-     * @var non-negative-int
-     */
     private int $threshold;
 
-    /**
-     * @param non-negative-int $threshold
-     */
     public function __construct(File $target, int $threshold)
     {
         $this->target    = $target;
@@ -41,9 +34,6 @@ final readonly class Crap4j
         return $this->target;
     }
 
-    /**
-     * @return non-negative-int
-     */
     public function threshold(): int
     {
         return $this->threshold;

@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\Framework\Constraint;
 
-use function is_string;
 use function sprintf;
 use function str_contains;
 use PHPUnit\Util\Exporter;
@@ -43,11 +42,7 @@ final class ExceptionMessageIsOrContains extends Constraint
             return $other === '';
         }
 
-        if (!is_string($other)) {
-            return false;
-        }
-
-        return str_contains($other, $this->expectedMessage);
+        return str_contains((string) $other, $this->expectedMessage);
     }
 
     /**
@@ -58,22 +53,16 @@ final class ExceptionMessageIsOrContains extends Constraint
      */
     protected function failureDescription(mixed $other): string
     {
-        if (is_string($other)) {
-            $message = $other;
-        } else {
-            $message = '';
-        }
-
         if ($this->expectedMessage === '') {
             return sprintf(
                 "exception message is empty but is '%s'",
-                $message,
+                $other,
             );
         }
 
         return sprintf(
             "exception message '%s' contains '%s'",
-            $message,
+            $other,
             $this->expectedMessage,
         );
     }

@@ -26,10 +26,8 @@ use function ini_get_all;
 use function is_array;
 use function is_file;
 use function is_resource;
-use function is_string;
 use function proc_close;
 use function proc_open;
-use function rewind;
 use function sprintf;
 use function str_contains;
 use function str_replace;
@@ -37,14 +35,13 @@ use function str_starts_with;
 use function stream_get_contents;
 use function sys_get_temp_dir;
 use function tempnam;
-use function tmpfile;
 use function trim;
 use function unlink;
 use function xdebug_is_debugger_active;
 use PHPUnit\Event\Facade;
 use PHPUnit\Event\Facade as EventFacade;
+use PHPUnit\Framework\ChildProcessResultProcessor;
 use PHPUnit\Framework\Test;
-use PHPUnit\Framework\TestRunner\ChildProcessResultProcessor;
 use PHPUnit\Runner\CodeCoverage;
 use SebastianBergmann\Environment\Runtime;
 
@@ -136,49 +133,29 @@ final readonly class JobRunner
 
         if ($job->hasEnvironmentVariables()) {
             /** @phpstan-ignore nullCoalesce.variable */
-            $serverVariables = $_SERVER ?? [];
+            $environmentVariables = $_SERVER ?? [];
 
-            unset($serverVariables['argv'], $serverVariables['argc']);
-
-            $environmentVariables = [];
-
-            foreach ($serverVariables as $key => $value) {
-                if (!is_string($key)) {
-                    continue;
-                }
-
-                if (is_array($value)) {
-                    continue;
-                }
-
-                $environmentVariables[$key] = $value;
-            }
+            unset($environmentVariables['argv'], $environmentVariables['argc']);
 
             $environmentVariables = array_merge($environmentVariables, $job->environmentVariables());
-        }
 
-        $mergedOutputStream = null;
-
-        if ($job->redirectErrors()) {
-            $mergedOutputStream = tmpfile();
-
-            if ($mergedOutputStream === false) {
-                // @codeCoverageIgnoreStart
-                throw new PhpProcessException('Unable to create temporary file for redirected output');
-                // @codeCoverageIgnoreEnd
+            foreach ($environmentVariables as $key => $value) {
+                if (is_array($value)) {
+                    unset($environmentVariables[$key]);
+                }
             }
 
-            $pipeSpec = [
-                0 => ['pipe', 'r'],
-                1 => $mergedOutputStream,
-                2 => $mergedOutputStream,
-            ];
-        } else {
-            $pipeSpec = [
-                0 => ['pipe', 'r'],
-                1 => ['pipe', 'w'],
-                2 => ['pipe', 'w'],
-            ];
+            unset($key, $value);
+        }
+
+        $pipeSpec = [
+            0 => ['pipe', 'r'],
+            1 => ['pipe', 'w'],
+            2 => ['pipe', 'w'],
+        ];
+
+        if ($job->redirectErrors()) {
+            $pipeSpec[2] = ['redirect', 1];
         }
 
         $process = proc_open(
@@ -199,10 +176,8 @@ final readonly class JobRunner
 
         Facade::emitter()->childProcessStarted();
 
-        if (isset($pipes[0])) {
-            fwrite($pipes[0], $job->code());
-            fclose($pipes[0]);
-        }
+        fwrite($pipes[0], $job->code());
+        fclose($pipes[0]);
 
         $stdout = '';
         $stderr = '';
@@ -220,19 +195,6 @@ final readonly class JobRunner
         }
 
         proc_close($process);
-
-        if ($mergedOutputStream !== null) {
-            rewind($mergedOutputStream);
-
-            $merged = stream_get_contents($mergedOutputStream);
-
-            fclose($mergedOutputStream);
-
-            assert($merged !== false);
-
-            $stdout = $merged;
-            $stderr = '';
-        }
 
         if ($temporaryFile !== null) {
             unlink($temporaryFile);

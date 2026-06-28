@@ -91,7 +91,6 @@ use PHPUnit\Framework\Attributes\UsesTrait;
 use PHPUnit\Framework\Attributes\WithEnvironmentVariable;
 use PHPUnit\Framework\Attributes\WithoutErrorHandler;
 use PHPUnit\Metadata\InvalidAttributeException;
-use PHPUnit\Metadata\InvalidVersionRequirementException;
 use PHPUnit\Metadata\Metadata;
 use PHPUnit\Metadata\MetadataCollection;
 use PHPUnit\Metadata\Version\Requirement;
@@ -131,20 +130,12 @@ final readonly class AttributeParser implements Parser
             try {
                 $attributeInstance = $attribute->newInstance();
             } catch (Error $e) {
-                $file    = $reflector->getFileName();
-                $line    = $reflector->getStartLine();
-                $message = $e->getMessage();
-
-                assert($file !== false && $file !== '');
-                assert($line !== false);
-                assert($message !== '');
-
                 throw new InvalidAttributeException(
                     $attribute->getName(),
                     'class ' . $className,
-                    $file,
-                    $line,
-                    $message,
+                    $reflector->getFileName(),
+                    $reflector->getStartLine(),
+                    $e->getMessage(),
                 );
             }
 
@@ -550,20 +541,12 @@ final readonly class AttributeParser implements Parser
             try {
                 $attributeInstance = $attribute->newInstance();
             } catch (Error $e) {
-                $file    = $reflector->getFileName();
-                $line    = $reflector->getStartLine();
-                $message = $e->getMessage();
-
-                assert($file !== false && $file !== '');
-                assert($line !== false);
-                assert($message !== '');
-
                 throw new InvalidAttributeException(
                     $attribute->getName(),
                     'method ' . $className . '::' . $methodName . '()',
-                    $file,
-                    $line,
-                    $message,
+                    $reflector->getFileName(),
+                    $reflector->getStartLine(),
+                    $e->getMessage(),
                 );
             }
 
@@ -625,14 +608,14 @@ final readonly class AttributeParser implements Parser
                 case DataProvider::class:
                     assert($attributeInstance instanceof DataProvider);
 
-                    $result[] = Metadata::dataProvider($className, $attributeInstance->methodName(), $attributeInstance->validateArgumentCount(), $attributeInstance->skipWhenEmpty());
+                    $result[] = Metadata::dataProvider($className, $attributeInstance->methodName(), $attributeInstance->validateArgumentCount());
 
                     break;
 
                 case DataProviderExternal::class:
                     assert($attributeInstance instanceof DataProviderExternal);
 
-                    $result[] = Metadata::dataProvider($attributeInstance->className(), $attributeInstance->methodName(), $attributeInstance->validateArgumentCount(), $attributeInstance->skipWhenEmpty());
+                    $result[] = Metadata::dataProvider($attributeInstance->className(), $attributeInstance->methodName(), $attributeInstance->validateArgumentCount());
 
                     break;
 
@@ -1023,17 +1006,7 @@ final readonly class AttributeParser implements Parser
             return null;
         }
 
-        try {
-            return Requirement::from($versionRequirement);
-        } catch (InvalidVersionRequirementException) {
-            throw new InvalidVersionRequirementException(
-                sprintf(
-                    'Test %s has attribute with invalid version constraint argument ("%s")',
-                    $this->testAsString($testClassName, $testMethodName),
-                    $versionRequirement,
-                ),
-            );
-        }
+        return Requirement::from($versionRequirement);
     }
 
     /**

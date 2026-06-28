@@ -96,11 +96,7 @@ final class DoubledMethod
         if (is_string($docComment) &&
             preg_match('#\*[ \t]*+@deprecated[ \t]*+(.*?)\r?+\n[ \t]*+\*(?:[ \t]*+@|/$)#s', $docComment, $deprecation) > 0
         ) {
-            $deprecationText = preg_replace('#[ \t]*\r?\n[ \t]*+\*[ \t]*+#', ' ', $deprecation[1]);
-
-            assert($deprecationText !== null);
-
-            $deprecation = trim($deprecationText);
+            $deprecation = trim(preg_replace('#[ \t]*\r?\n[ \t]*+\*[ \t]*+#', ' ', $deprecation[1]));
         } else {
             $deprecation = null;
         }
@@ -181,7 +177,7 @@ final class DoubledMethod
             $templateFile = 'doubled_method.tpl';
         }
 
-        $deprecation  = '';
+        $deprecation  = $this->deprecation;
         $returnResult = '';
 
         if (!$this->returnType->isNever() && !$this->returnType->isVoid()) {
@@ -361,29 +357,17 @@ EOT;
 
             $parameterAsString = $parameter->__toString();
 
-            $pos = strpos($parameterAsString, '<optional> ');
-
-            if ($pos === false) {
-                return 'null';
-            }
-
-            $parts = explode(
+            return explode(
                 ' = ',
                 substr(
                     substr(
                         $parameterAsString,
-                        $pos + strlen('<optional> '),
+                        strpos($parameterAsString, '<optional> ') + strlen('<optional> '),
                     ),
                     0,
                     -2,
                 ),
-            );
-
-            if (isset($parts[1])) {
-                return $parts[1];
-            }
-
-            return 'null';
+            )[1];
             // @codeCoverageIgnoreStart
         } catch (\ReflectionException $e) {
             throw new ReflectionException(

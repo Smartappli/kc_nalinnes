@@ -17,22 +17,13 @@ namespace PHPUnit\Runner\IssueTriggerResolver;
 final class DefaultResolver implements Resolver
 {
     /**
-     * @param list<array{function: string, line?: int, file?: string, class?: class-string, type?: '->'|'::', args?: list<mixed>, object?: object}> $trace
+     * @param list<array{file?: string, line?: int, class?: class-string, function?: string, type?: string, args?: list<mixed>, object?: object, ...}> $trace
      */
     public function resolve(array $trace, string $message): Resolution
     {
-        $callee = null;
-
-        if (isset($trace[0]['file']) && $trace[0]['file'] !== '') {
-            $callee = $trace[0]['file'];
-        }
-
-        $caller = null;
-
-        if (isset($trace[1]['file']) && $trace[1]['file'] !== '') {
-            $caller = $trace[1]['file'];
-        }
-
-        return new Resolution($callee, $caller);
+        return new Resolution(
+            $trace[0]['file'] ?? null,
+            $trace[1]['file'] ?? null,
+        );
     }
 }

@@ -116,15 +116,10 @@ final class Color
     /**
      * @param non-empty-string  $color
      * @param ?non-negative-int $columns
-     *
-     * @return non-empty-string
      */
     public static function colorizeTextBox(string $color, string $buffer, ?int $columns = null): string
     {
-        $lines = preg_split('/\r\n|\r|\n/', $buffer);
-
-        assert($lines !== false && $lines !== []);
-
+        $lines       = preg_split('/\r\n|\r|\n/', $buffer);
         $maxBoxWidth = max(array_map(strlen(...), $lines));
 
         if ($columns !== null) {
@@ -153,9 +148,6 @@ final class Color
         $previousPath = explode(DIRECTORY_SEPARATOR, $previousPath);
 
         for ($i = 0; $i < min(count($path), count($previousPath)); $i++) {
-            assert(isset($path[$i]));
-            assert(isset($previousPath[$i]));
-
             if ($path[$i] === $previousPath[$i]) {
                 $path[$i] = self::dim($path[$i]);
             }

@@ -28,9 +28,6 @@ final readonly class Small extends Known
         return false;
     }
 
-    /**
-     * @return 'small'
-     */
     public function asString(): string
     {
         return 'small';

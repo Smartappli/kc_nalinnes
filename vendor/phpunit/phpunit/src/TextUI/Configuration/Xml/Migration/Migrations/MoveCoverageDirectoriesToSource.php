@@ -12,8 +12,6 @@ namespace PHPUnit\TextUI\XmlConfiguration;
 use function assert;
 use DOMDocument;
 use DOMElement;
-use DOMNode;
-use DOMNodeList;
 use DOMXPath;
 
 /**
@@ -50,7 +48,6 @@ final readonly class MoveCoverageDirectoriesToSource implements Migration
         $xpath = new DOMXPath($document);
 
         foreach (['include', 'exclude'] as $element) {
-            /** @var DOMNodeList<DOMNode>|false $nodes */
             $nodes = $xpath->query('//coverage/' . $element);
 
             assert($nodes !== false);

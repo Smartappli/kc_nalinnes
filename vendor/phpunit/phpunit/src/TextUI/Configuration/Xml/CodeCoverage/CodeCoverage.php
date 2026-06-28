@@ -29,7 +29,6 @@ use PHPUnit\TextUI\XmlConfiguration\Exception;
 final readonly class CodeCoverage
 {
     private bool $pathCoverage;
-    private bool $branchCoverage;
     private bool $includeUncoveredFiles;
     private bool $ignoreDeprecatedCodeUnits;
     private bool $disableCodeCoverageIgnore;
@@ -42,10 +41,9 @@ final readonly class CodeCoverage
     private ?Text $text;
     private ?Xml $xml;
 
-    public function __construct(bool $pathCoverage, bool $branchCoverage, bool $includeUncoveredFiles, bool $ignoreDeprecatedCodeUnits, bool $disableCodeCoverageIgnore, ?Clover $clover, ?Cobertura $cobertura, ?Crap4j $crap4j, ?Html $html, ?OpenClover $openClover, ?Php $php, ?Text $text, ?Xml $xml)
+    public function __construct(bool $pathCoverage, bool $includeUncoveredFiles, bool $ignoreDeprecatedCodeUnits, bool $disableCodeCoverageIgnore, ?Clover $clover, ?Cobertura $cobertura, ?Crap4j $crap4j, ?Html $html, ?OpenClover $openClover, ?Php $php, ?Text $text, ?Xml $xml)
     {
         $this->pathCoverage              = $pathCoverage;
-        $this->branchCoverage            = $branchCoverage;
         $this->includeUncoveredFiles     = $includeUncoveredFiles;
         $this->ignoreDeprecatedCodeUnits = $ignoreDeprecatedCodeUnits;
         $this->disableCodeCoverageIgnore = $disableCodeCoverageIgnore;
@@ -62,11 +60,6 @@ final readonly class CodeCoverage
     public function pathCoverage(): bool
     {
         return $this->pathCoverage;
-    }
-
-    public function branchCoverage(): bool
-    {
-        return $this->branchCoverage;
     }
 
     public function includeUncoveredFiles(): bool

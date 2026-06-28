@@ -194,22 +194,20 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
      */
     public function addTestSuite(ReflectionClass $testClass, array $groups = []): void
     {
-        $className = $testClass->getName();
-
         if ($testClass->isAbstract()) {
             throw new Exception(
                 sprintf(
                     'Class %s is abstract',
-                    $className,
+                    $testClass->getName(),
                 ),
             );
         }
 
-        if (!is_subclass_of($className, TestCase::class)) {
+        if (!$testClass->isSubclassOf(TestCase::class)) {
             throw new Exception(
                 sprintf(
                     'Class %s is not a subclass of %s',
-                    $className,
+                    $testClass->getName(),
                     TestCase::class,
                 ),
             );
@@ -242,12 +240,8 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
                 );
             }
         } catch (RunnerException $e) {
-            $message = $e->getMessage();
-
-            assert($message !== '');
-
             Event\Facade::emitter()->testRunnerTriggeredPhpunitWarning(
-                $message,
+                $e->getMessage(),
             );
         }
     }
@@ -424,7 +418,6 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
         $iterator = new TestSuiteIterator($this);
 
         if ($this->iteratorFilter !== null) {
-            /** @var Iterator<non-negative-int, Test> $iterator */
             $iterator = $this->iteratorFilter->factory($iterator, $this);
         }
 
@@ -539,18 +532,12 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
                 );
             }
 
-            $file = $method->getFileName();
-            $line = $method->getStartLine();
-
-            assert($file !== false && $file !== '');
-            assert($line !== false);
-
             Event\Facade::emitter()->testTriggeredPhpunitError(
                 new TestMethod(
                     $className,
                     $methodName,
-                    $file,
-                    $line,
+                    $method->getFileName(),
+                    $method->getStartLine(),
                     Event\Code\TestDoxBuilder::fromClassNameAndMethodName(
                         $className,
                         $methodName,
@@ -595,9 +582,7 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
 
     private function methodDoesNotExistOrIsDeclaredInTestCase(string $methodName): bool
     {
-        /** @var class-string $className */
-        $className = $this->name;
-        $reflector = new ReflectionClass($className);
+        $reflector = new ReflectionClass($this->name);
 
         return !$reflector->hasMethod($methodName) ||
                $reflector->getMethod($methodName)->getDeclaringClass()->getName() === TestCase::class;
@@ -655,10 +640,7 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
                     $this->markTestSuiteSkipped(implode(PHP_EOL, $missingRequirements));
                 }
 
-                /** @var callable $callback */
-                $callback = [$this->name, $method];
-
-                call_user_func($callback);
+                call_user_func([$this->name, $method]);
             } catch (Throwable $t) {
             }
 
@@ -672,12 +654,9 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
             }
 
             if (isset($t) && $t instanceof SkippedTest) {
-                /** @var non-empty-string $skippedMessage */
-                $skippedMessage = $t->getMessage();
-
                 $emitter->testSuiteSkipped(
                     $testSuiteValueObjectForEvents,
-                    $skippedMessage,
+                    $t->getMessage(),
                 );
 
                 return false;
@@ -736,10 +715,7 @@ class TestSuite implements IteratorAggregate, Reorderable, Test
             );
 
             try {
-                /** @var callable $callback */
-                $callback = [$this->name, $method];
-
-                call_user_func($callback);
+                call_user_func([$this->name, $method]);
             } catch (Throwable $t) {
             }
 

@@ -17,8 +17,6 @@ use PHPUnit\Event\Telemetry;
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @todo This class will be renamed to PhpunitNoticeTriggered in PHPUnit 14
  */
 final readonly class NoticeTriggered implements Event
 {
@@ -50,7 +48,7 @@ final readonly class NoticeTriggered implements Event
     public function asString(): string
     {
         return sprintf(
-            'Test Runner Triggered PHPUnit Notice (%s)',
+            'Test Runner Triggered Notice (%s)',
             $this->message,
         );
     }

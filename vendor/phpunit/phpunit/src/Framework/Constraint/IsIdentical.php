@@ -86,21 +86,12 @@ final class IsIdentical extends Constraint
      */
     public function toString(): string
     {
-        return 'is identical to ' . $this->valueAsString();
-    }
-
-    /**
-     * Returns the negated description when this constraint is wrapped in a
-     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
-     * LogicalXor keep using the affirmative toString().
-     */
-    protected function toStringInContext(Operator $operator, mixed $role): string
-    {
-        if (!$operator instanceof LogicalNot) {
-            return '';
+        if (is_object($this->value)) {
+            return 'is identical to an object of class "' .
+                $this->value::class . '"';
         }
 
-        return 'is not identical to ' . $this->valueAsString();
+        return 'is identical to ' . Exporter::export($this->value);
     }
 
     /**
@@ -128,41 +119,5 @@ final class IsIdentical extends Constraint
         }
 
         return parent::failureDescription($other);
-    }
-
-    protected function failureDescriptionInContext(Operator $operator, mixed $role, mixed $other): string
-    {
-        // @codeCoverageIgnoreStart
-        if (!$operator instanceof LogicalNot) {
-            return '';
-        }
-        // @codeCoverageIgnoreEnd
-
-        if (is_object($this->value) && is_object($other)) {
-            return 'two variables do not reference the same object';
-        }
-
-        if (explode(' ', gettype($this->value), 2)[0] === 'resource' && explode(' ', gettype($other), 2)[0] === 'resource') {
-            return 'two variables do not reference the same resource';
-        }
-
-        if (is_string($this->value) && is_string($other)) {
-            return 'two strings are not identical';
-        }
-
-        if (is_array($this->value) && is_array($other)) {
-            return 'two arrays are not identical';
-        }
-
-        return Exporter::export($other) . ' ' . $this->toStringInContext($operator, $role);
-    }
-
-    private function valueAsString(): string
-    {
-        if (is_object($this->value)) {
-            return 'an object of class "' . $this->value::class . '"';
-        }
-
-        return Exporter::export($this->value);
     }
 }

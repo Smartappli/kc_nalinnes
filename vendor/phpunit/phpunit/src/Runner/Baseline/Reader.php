@@ -57,11 +57,7 @@ final readonly class Reader
             );
         }
 
-        $documentElement = $document->documentElement;
-
-        assert($documentElement !== null);
-
-        $version = (int) $documentElement->getAttribute('version');
+        $version = (int) $document->documentElement->getAttribute('version');
 
         if ($version !== Baseline::VERSION) {
             throw new CannotLoadBaselineException(
@@ -73,51 +69,31 @@ final readonly class Reader
             );
         }
 
-        $baseline             = new Baseline;
-        $resolvedBaselineFile = realpath($baselineFile);
-
-        assert($resolvedBaselineFile !== false);
-
-        $baselineDirectory = dirname($resolvedBaselineFile);
+        $baseline          = new Baseline;
+        $baselineDirectory = dirname(realpath($baselineFile));
         $xpath             = new DOMXPath($document);
 
-        $fileElements = $xpath->query('file');
+        foreach ($xpath->query('file') as $fileElement) {
+            assert($fileElement instanceof DOMElement);
 
-        if ($fileElements !== false) {
-            foreach ($fileElements as $fileElement) {
-                assert($fileElement instanceof DOMElement);
+            $file = $baselineDirectory . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $fileElement->getAttribute('path'));
 
-                $file = $baselineDirectory . DIRECTORY_SEPARATOR . str_replace('/', DIRECTORY_SEPARATOR, $fileElement->getAttribute('path'));
+            foreach ($xpath->query('line', $fileElement) as $lineElement) {
+                assert($lineElement instanceof DOMElement);
 
-                $lineElements = $xpath->query('line', $fileElement);
+                $line = (int) $lineElement->getAttribute('number');
+                $hash = $lineElement->getAttribute('hash');
 
-                if ($lineElements === false) {
-                    continue;
-                }
+                foreach ($xpath->query('issue', $lineElement) as $issueElement) {
+                    assert($issueElement instanceof DOMElement);
 
-                foreach ($lineElements as $lineElement) {
-                    assert($lineElement instanceof DOMElement);
+                    $description = $issueElement->textContent;
 
-                    $line = (int) $lineElement->getAttribute('number');
-                    $hash = $lineElement->getAttribute('hash');
+                    assert($line > 0);
+                    assert($hash !== '');
+                    assert($description !== '');
 
-                    $issueElements = $xpath->query('issue', $lineElement);
-
-                    if ($issueElements === false) {
-                        continue;
-                    }
-
-                    foreach ($issueElements as $issueElement) {
-                        assert($issueElement instanceof DOMElement);
-
-                        $description = $issueElement->textContent;
-
-                        assert($line > 0);
-                        assert($hash !== '');
-                        assert($description !== '');
-
-                        $baseline->add(Issue::from($file, $line, $hash, $description));
-                    }
+                    $baseline->add(Issue::from($file, $line, $hash, $description));
                 }
             }
         }

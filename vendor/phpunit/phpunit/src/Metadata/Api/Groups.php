@@ -12,7 +12,6 @@ namespace PHPUnit\Metadata\Api;
 use function array_flip;
 use function array_key_exists;
 use function array_unique;
-use function array_values;
 use function assert;
 use function strtolower;
 use function trim;
@@ -60,7 +59,7 @@ final class Groups
         }
 
         if (!$includeVirtual) {
-            return self::$groupCache[$key] = array_values(array_unique($groups));
+            return self::$groupCache[$key] = array_unique($groups);
         }
 
         foreach (Registry::parser()->forClassAndMethod($className, $methodName) as $metadata) {
@@ -103,7 +102,7 @@ final class Groups
             }
         }
 
-        return self::$groupCache[$key] = array_values(array_unique($groups));
+        return self::$groupCache[$key] = array_unique($groups);
     }
 
     /**

@@ -24,16 +24,14 @@ final readonly class DataProvider
      */
     private string $methodName;
     private bool $validateArgumentCount;
-    private bool $skipWhenEmpty;
 
     /**
      * @param non-empty-string $methodName
      */
-    public function __construct(string $methodName, bool $validateArgumentCount = true, bool $skipWhenEmpty = false)
+    public function __construct(string $methodName, bool $validateArgumentCount = true)
     {
         $this->methodName            = $methodName;
         $this->validateArgumentCount = $validateArgumentCount;
-        $this->skipWhenEmpty         = $skipWhenEmpty;
     }
 
     /**
@@ -47,10 +45,5 @@ final readonly class DataProvider
     public function validateArgumentCount(): bool
     {
         return $this->validateArgumentCount;
-    }
-
-    public function skipWhenEmpty(): bool
-    {
-        return $this->skipWhenEmpty;
     }
 }

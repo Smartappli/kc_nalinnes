@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\TextUI\XmlConfiguration;
 
-use function assert;
 use DOMDocument;
 use DOMElement;
 
@@ -27,7 +26,6 @@ final readonly class ConvertLogTypes implements Migration
         if (!$logging instanceof DOMElement) {
             return;
         }
-
         $types = [
             'junit'        => 'junit',
             'teamcity'     => 'teamcity',
@@ -48,14 +46,7 @@ final readonly class ConvertLogTypes implements Migration
         }
 
         foreach ($logNodes as $oldNode) {
-            assert($oldNode instanceof DOMElement);
-
-            $type = $oldNode->getAttribute('type');
-
-            assert(isset($types[$type]));
-
-            $newLogNode = $document->createElement($types[$type]);
-
+            $newLogNode = $document->createElement($types[$oldNode->getAttribute('type')]);
             $newLogNode->setAttribute('outputFile', $oldNode->getAttribute('target'));
 
             $logging->replaceChild($newLogNode, $oldNode);

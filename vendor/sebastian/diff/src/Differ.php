@@ -9,9 +9,11 @@
  */
 namespace SebastianBergmann\Diff;
 
+use const PHP_INT_SIZE;
 use const PREG_SPLIT_DELIM_CAPTURE;
 use const PREG_SPLIT_NO_EMPTY;
 use function array_any;
+use function array_shift;
 use function array_unshift;
 use function array_values;
 use function count;
@@ -19,6 +21,7 @@ use function current;
 use function end;
 use function is_string;
 use function key;
+use function min;
 use function preg_split;
 use function prev;
 use function reset;
@@ -41,23 +44,21 @@ final class Differ
     }
 
     /**
-     * @param array<int|string, int|string>|string $from
-     * @param array<int|string, int|string>|string $to
+     * @param list<string>|string $from
+     * @param list<string>|string $to
      */
-    public function diff(array|string $from, array|string $to): string
+    public function diff(array|string $from, array|string $to, ?LongestCommonSubsequenceCalculator $lcs = null): string
     {
-        $diff = $this->diffToArray($from, $to);
+        $diff = $this->diffToArray($from, $to, $lcs);
 
         return $this->outputBuilder->getDiff($diff);
     }
 
     /**
-     * @param array<int|string, int|string>|string $from
-     * @param array<int|string, int|string>|string $to
-     *
-     * @return list<array{0: mixed, 1: int}>
+     * @param list<string>|string $from
+     * @param list<string>|string $to
      */
-    public function diffToArray(array|string $from, array|string $to): array
+    public function diffToArray(array|string $from, array|string $to, ?LongestCommonSubsequenceCalculator $lcs = null): array
     {
         if (is_string($from)) {
             $from = $this->splitStringByLines($from);
@@ -69,14 +70,41 @@ final class Differ
 
         [$from, $to, $start, $end] = self::getArrayDiffParted($from, $to);
 
-        $diff = [];
+        if ($lcs === null) {
+            $lcs = $this->selectLcsImplementation($from, $to);
+        }
+
+        $common = $lcs->calculate(array_values($from), array_values($to));
+        $diff   = [];
 
         foreach ($start as $token) {
             $diff[] = [$token, self::OLD];
         }
 
-        foreach ((new MyersDiff)->calculate(array_values($from), array_values($to)) as $entry) {
-            $diff[] = $entry;
+        reset($from);
+        reset($to);
+
+        foreach ($common as $token) {
+            while ((/* from-token */ reset($from)) !== $token) {
+                $diff[] = [array_shift($from), self::REMOVED];
+            }
+
+            while ((/* to-token */ reset($to)) !== $token) {
+                $diff[] = [array_shift($to), self::ADDED];
+            }
+
+            $diff[] = [$token, self::OLD];
+
+            array_shift($from);
+            array_shift($to);
+        }
+
+        while (($token = array_shift($from)) !== null) {
+            $diff[] = [$token, self::REMOVED];
+        }
+
+        while (($token = array_shift($to)) !== null) {
+            $diff[] = [$token, self::ADDED];
         }
 
         foreach ($end as $token) {
@@ -90,23 +118,33 @@ final class Differ
         return $diff;
     }
 
-    /**
-     * @return list<string>
-     */
     private function splitStringByLines(string $input): array
     {
-        $result = preg_split('/(.*\R)/', $input, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
-
-        if ($result === false) {
-            return [];
-        }
-
-        return $result;
+        return preg_split('/(.*\R)/', $input, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY);
     }
 
-    /**
-     * @param list<array{0: mixed, 1: int}> $diff
-     */
+    private function selectLcsImplementation(array $from, array $to): LongestCommonSubsequenceCalculator
+    {
+        // We do not want to use the time-efficient implementation if its memory
+        // footprint will probably exceed this value. Note that the footprint
+        // calculation is only an estimation for the matrix and the LCS method
+        // will typically allocate a bit more memory than this.
+        $memoryLimit = 100 * 1024 * 1024;
+
+        if ($this->calculateEstimatedFootprint($from, $to) > $memoryLimit) {
+            return new MemoryEfficientLongestCommonSubsequenceCalculator;
+        }
+
+        return new TimeEfficientLongestCommonSubsequenceCalculator;
+    }
+
+    private function calculateEstimatedFootprint(array $from, array $to): int
+    {
+        $itemSize = PHP_INT_SIZE === 4 ? 76 : 144;
+
+        return $itemSize * min(count($from), count($to)) ** 2;
+    }
+
     private function detectUnmatchedLineEndings(array $diff): bool
     {
         $newLineBreaks = ['' => true];
@@ -114,21 +152,18 @@ final class Differ
 
         foreach ($diff as $entry) {
             if (self::OLD === $entry[1]) {
-                /** @phpstan-ignore argument.type */
                 $ln                 = $this->getLinebreak($entry[0]);
                 $oldLineBreaks[$ln] = true;
                 $newLineBreaks[$ln] = true;
             } elseif (self::ADDED === $entry[1]) {
-                /** @phpstan-ignore argument.type */
                 $newLineBreaks[$this->getLinebreak($entry[0])] = true;
             } elseif (self::REMOVED === $entry[1]) {
-                /** @phpstan-ignore argument.type */
                 $oldLineBreaks[$this->getLinebreak($entry[0])] = true;
             }
         }
 
         // if either input or output is a single line without breaks than no warning should be raised
-        if (count($newLineBreaks) === 1 || count($oldLineBreaks) === 1) {
+        if (['' => true] === $newLineBreaks || ['' => true] === $oldLineBreaks) {
             return false;
         }
 
@@ -163,12 +198,6 @@ final class Differ
         return "\n";
     }
 
-    /**
-     * @param array<int|string, int|string> $from
-     * @param array<int|string, int|string> $to
-     *
-     * @return array{0: array<int|string, int|string>, 1: array<int|string, int|string>, 2: array<int|string, int|string>, 3: array<int|string, int|string>}
-     */
     private static function getArrayDiffParted(array &$from, array &$to): array
     {
         $start = [];
@@ -179,7 +208,6 @@ final class Differ
         foreach ($from as $k => $v) {
             $toK = key($to);
 
-            /** @phpstan-ignore offsetAccess.notFound */
             if ($toK === $k && $v === $to[$k]) {
                 $start[$k] = $v;
 
@@ -203,7 +231,6 @@ final class Differ
             prev($from);
             prev($to);
 
-            /** @phpstan-ignore offsetAccess.notFound */
             $end = [$fromK => $from[$fromK]] + $end;
             unset($from[$fromK], $to[$toK]);
         } while (true);

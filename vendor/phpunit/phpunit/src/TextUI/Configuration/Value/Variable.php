@@ -16,16 +16,10 @@ namespace PHPUnit\TextUI\Configuration;
  */
 final readonly class Variable
 {
-    /**
-     * @var non-empty-string
-     */
     private string $name;
     private mixed $value;
     private bool $force;
 
-    /**
-     * @param non-empty-string $name
-     */
     public function __construct(string $name, mixed $value, bool $force)
     {
         $this->name  = $name;
@@ -33,9 +27,6 @@ final readonly class Variable
         $this->force = $force;
     }
 
-    /**
-     * @return non-empty-string
-     */
     public function name(): string
     {
         return $this->name;

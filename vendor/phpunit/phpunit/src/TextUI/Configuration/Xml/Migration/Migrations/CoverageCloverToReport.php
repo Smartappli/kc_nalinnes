@@ -9,7 +9,6 @@
  */
 namespace PHPUnit\TextUI\XmlConfiguration;
 
-use function assert;
 use DOMElement;
 
 /**
@@ -26,11 +25,7 @@ final readonly class CoverageCloverToReport extends LogToReportMigration
 
     protected function toReportFormat(DOMElement $logNode): DOMElement
     {
-        $ownerDocument = $logNode->ownerDocument;
-
-        assert($ownerDocument !== null);
-
-        $clover = $ownerDocument->createElement('clover');
+        $clover = $logNode->ownerDocument->createElement('clover');
 
         $clover->setAttribute('outputFile', $logNode->getAttribute('target'));
 

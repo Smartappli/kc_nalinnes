@@ -11,15 +11,14 @@ namespace PHPUnit\Runner\ResultCache;
 
 use const DIRECTORY_SEPARATOR;
 use const LOCK_EX;
+use function array_keys;
+use function assert;
 use function dirname;
 use function file_get_contents;
 use function file_put_contents;
 use function is_array;
 use function is_dir;
 use function is_file;
-use function is_float;
-use function is_int;
-use function is_string;
 use function json_decode;
 use function json_encode;
 use PHPUnit\Framework\TestStatus\TestStatus;
@@ -109,40 +108,27 @@ final class DefaultResultCache implements ResultCache
             true,
         );
 
-        if (!is_array($data)) {
+        if ($data === null) {
             return;
         }
 
-        if (!isset($data['version']) || $data['version'] !== self::VERSION) {
+        if (!isset($data['version'])) {
             return;
         }
 
-        if (!isset($data['defects'], $data['times']) || !is_array($data['defects']) || !is_array($data['times'])) {
+        if ($data['version'] !== self::VERSION) {
             return;
         }
 
-        $defects = [];
+        assert(isset($data['defects']) && is_array($data['defects']));
+        assert(isset($data['times']) && is_array($data['times']));
 
-        foreach ($data['defects'] as $test => $status) {
-            if (!is_string($test) || !is_int($status)) {
-                continue;
-            }
-
-            $defects[$test] = TestStatus::from($status);
+        foreach (array_keys($data['defects']) as $test) {
+            $data['defects'][$test] = TestStatus::from($data['defects'][$test]);
         }
 
-        $times = [];
-
-        foreach ($data['times'] as $test => $time) {
-            if (!is_string($test) || (!is_float($time) && !is_int($time))) {
-                continue;
-            }
-
-            $times[$test] = (float) $time;
-        }
-
-        $this->defects = $defects;
-        $this->times   = $times;
+        $this->defects = $data['defects'];
+        $this->times   = $data['times'];
     }
 
     /**

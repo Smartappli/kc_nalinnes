@@ -128,15 +128,8 @@ final class TestResultCollector
             $result,
             static function (TestResultCollection $a, TestResultCollection $b): int
             {
-                $aList = $a->asArray();
-                $bList = $b->asArray();
-
-                if ($aList === [] || $bList === []) {
-                    return 0;
-                }
-
-                return $aList[0]->test()->testDox()->prettifiedClassName()
-                    <=> $bList[0]->test()->testDox()->prettifiedClassName();
+                return $a->asArray()[0]->test()->testDox()->prettifiedClassName()
+                    <=> $b->asArray()[0]->test()->testDox()->prettifiedClassName();
             },
         );
 
@@ -387,8 +380,6 @@ final class TestResultCollector
         if (!isset($this->tests[$test->className()])) {
             $this->tests[$test->className()] = [];
         }
-
-        assert($this->status !== null);
 
         $this->tests[$test->className()][] = new TestDoxTestMethod(
             $test,

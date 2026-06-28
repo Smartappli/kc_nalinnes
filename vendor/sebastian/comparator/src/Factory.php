@@ -32,8 +32,7 @@ final class Factory
     private array $defaultComparators = [];
 
     /** @var positive-int */
-    private int $contextLines               = 3;
-    private bool $closureComparisonOccurred = false;
+    private int $contextLines = 3;
 
     public static function getInstance(): self
     {
@@ -63,24 +62,6 @@ final class Factory
     public function setContextLines(int $contextLines): void
     {
         $this->contextLines = $contextLines;
-    }
-
-    /**
-     * @internal this method is called by ClosureComparator and is not part of the consumer-facing API
-     */
-    public function recordClosureComparison(): void
-    {
-        $this->closureComparisonOccurred = true;
-    }
-
-    public function closureComparisonOccurred(): bool
-    {
-        return $this->closureComparisonOccurred;
-    }
-
-    public function resetClosureComparisonTracking(): void
-    {
-        $this->closureComparisonOccurred = false;
     }
 
     public function getComparatorFor(mixed $expected, mixed $actual): Comparator

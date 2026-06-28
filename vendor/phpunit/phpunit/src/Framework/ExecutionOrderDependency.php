@@ -13,15 +13,12 @@ use function array_filter;
 use function array_map;
 use function array_values;
 use function assert;
-use function class_exists;
 use function count;
 use function explode;
 use function in_array;
 use function str_contains;
 use PHPUnit\Metadata\DependsOnClass;
 use PHPUnit\Metadata\DependsOnMethod;
-use PHPUnit\Util\Test as TestUtil;
-use ReflectionClass;
 use Stringable;
 
 /**
@@ -190,40 +187,13 @@ final class ExecutionOrderDependency implements Stringable
 
     public function getTarget(): string
     {
-        if ($this->isValid()) {
-            return $this->className . '::' . $this->methodName;
-        }
-
-        return '';
+        return $this->isValid()
+            ? $this->className . '::' . $this->methodName
+            : '';
     }
 
     public function getTargetClassName(): string
     {
         return $this->className;
-    }
-
-    public function targetIsCallableTestMethod(): bool
-    {
-        if (!$this->isValid()) {
-            return false;
-        }
-
-        if (!class_exists($this->className)) {
-            return false;
-        }
-
-        $class = new ReflectionClass($this->className);
-
-        if (!$class->isSubclassOf(TestCase::class)) {
-            return false;
-        }
-
-        if (!$class->hasMethod($this->methodName)) {
-            return false;
-        }
-
-        return TestUtil::isTestMethod(
-            $class->getMethod($this->methodName),
-        );
     }
 }

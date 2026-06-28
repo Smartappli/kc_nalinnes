@@ -7,7 +7,7 @@
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
-namespace PHPUnit\Framework\TestRunner;
+namespace PHPUnit\Framework;
 
 use function assert;
 use function bin2hex;
@@ -23,9 +23,6 @@ use function unlink;
 use function var_export;
 use PHPUnit\Event\Facade as EventFacade;
 use PHPUnit\Event\NoPreviousThrowableException;
-use PHPUnit\Framework\Exception;
-use PHPUnit\Framework\ProcessIsolationException;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Runner\CodeCoverage;
 use PHPUnit\TextUI\Configuration\Registry as ConfigurationRegistry;
 use PHPUnit\TextUI\Configuration\SourceMapper;
@@ -113,15 +110,8 @@ final class SeparateProcessTestRunner
         $offset                  = hrtime();
         $serializedConfiguration = $this->saveConfigurationForChildProcess();
         $processResultFile       = $this->pathForCachedSourceMap();
-
-        if ($processResultFile === false || $processResultFile === '') {
-            // @codeCoverageIgnoreStart
-            throw new ProcessIsolationException;
-            // @codeCoverageIgnoreEnd
-        }
-
-        $processResultNonce = bin2hex(random_bytes(16));
-        $sourceMapFile      = $this->sourceMapFileForChildProcess();
+        $processResultNonce      = bin2hex(random_bytes(16));
+        $sourceMapFile           = $this->sourceMapFileForChildProcess();
 
         $file = $class->getFileName();
 

@@ -11,7 +11,6 @@ namespace PHPUnit\TextUI\Output\TestDox;
 
 use const PHP_EOL;
 use function array_map;
-use function assert;
 use function explode;
 use function implode;
 use function preg_match;
@@ -117,13 +116,7 @@ final readonly class ResultPrinter
                 continue;
             }
 
-            $list = $_tests->asArray();
-
-            if ($list === []) {
-                continue;
-            }
-
-            $this->printPrettifiedClassName($list[0]->test()->testDox()->prettifiedClassName());
+            $this->printPrettifiedClassName($_tests->asArray()[0]->test()->testDox()->prettifiedClassName());
 
             foreach ($_tests as $test) {
                 if ($onlySummary && $test->status()->isSuccess()) {
@@ -182,12 +175,8 @@ final readonly class ResultPrinter
             return;
         }
 
-        $throwable = $test->throwable();
-
-        assert($throwable !== null);
-
         $this->printTestResultBodyStart($test);
-        $this->printThrowable($test->status(), $throwable);
+        $this->printThrowable($test->status(), $test->throwable());
         $this->printTestResultBodyEnd($test);
     }
 
@@ -327,15 +316,9 @@ final readonly class ResultPrinter
         $message = implode(PHP_EOL, $message);
         $diff    = implode(PHP_EOL, $diff);
 
-        if ($message !== '' && $style !== '') {
-            $columns = $this->columns - 7;
-
-            if ($columns < 0) {
-                $columns = 0;
-            }
-
+        if ($message !== '') {
             // Testdox output has a left-margin of 5; keep right-margin to prevent terminal scrolling
-            $message = Color::colorizeTextBox($style, $message, $columns);
+            $message = Color::colorizeTextBox($style, $message, $this->columns - 7);
         }
 
         return [
@@ -354,14 +337,8 @@ final readonly class ResultPrinter
         $previousPath = '';
 
         foreach (explode(PHP_EOL, $stackTrace) as $line) {
-            if (preg_match('/^(.+):(\d+)$/', $line, $matches) > 0) {
-                if ($previousPath === '') {
-                    $colorizedPath = Color::colorizePath($matches[1]);
-                } else {
-                    $colorizedPath = Color::colorizePath($matches[1], $previousPath);
-                }
-
-                $lines[]      = $colorizedPath . Color::dim(':') . Color::colorize('fg-blue', $matches[2]) . "\n";
+            if (preg_match('/^(.*):(\d+)$/', $line, $matches) > 0) {
+                $lines[]      = Color::colorizePath($matches[1], $previousPath) . Color::dim(':') . Color::colorize('fg-blue', $matches[2]) . "\n";
                 $previousPath = $matches[1];
 
                 continue;
@@ -413,9 +390,6 @@ final readonly class ResultPrinter
         );
     }
 
-    /**
-     * @return non-empty-string
-     */
     private function colorFor(TestStatus $status): string
     {
         if ($status->isSuccess()) {

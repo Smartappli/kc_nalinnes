@@ -139,16 +139,47 @@ abstract class AbstractInvocationImplementation implements InvocationStubber
 
     final public function willReturnMap(array $valueMap): InvocationStubber
     {
-        return $this->will(
-            new ReturnValueMap($this->normalizeValueMap($valueMap)),
-        );
-    }
+        $method = $this->configuredMethod();
 
-    final public function willReturnStrictMap(array $valueMap): InvocationStubber
-    {
-        return $this->will(
-            new ReturnValueMap($this->normalizeValueMap($valueMap), true),
-        );
+        assert($method instanceof ConfigurableMethod);
+
+        $numberOfParameters = $method->numberOfParameters();
+        $defaultValues      = $method->defaultParameterValues();
+        $hasDefaultValues   = $defaultValues !== [];
+
+        $_valueMap = [];
+
+        foreach ($valueMap as $mapping) {
+            $numberOfConfiguredParameters = count($mapping) - 1;
+
+            if ($numberOfConfiguredParameters === $numberOfParameters || !$hasDefaultValues) {
+                $_valueMap[] = $mapping;
+
+                continue;
+            }
+
+            $_mapping    = [];
+            $returnValue = array_pop($mapping);
+
+            foreach (range(0, $numberOfParameters - 1) as $i) {
+                if (array_key_exists($i, $mapping)) {
+                    $_mapping[] = $mapping[$i];
+
+                    continue;
+                }
+
+                if (array_key_exists($i, $defaultValues)) {
+                    $_mapping[] = $defaultValues[$i];
+                }
+            }
+
+            $_mapping[]  = $returnValue;
+            $_valueMap[] = $_mapping;
+        }
+
+        $stub = new ReturnValueMap($_valueMap);
+
+        return $this->will($stub);
     }
 
     final public function willReturnArgument(int $argumentIndex): InvocationStubber
@@ -231,54 +262,6 @@ abstract class AbstractInvocationImplementation implements InvocationStubber
         }
 
         return $configuredMethod;
-    }
-
-    /**
-     * @param array<int, array<int, mixed>> $valueMap
-     *
-     * @return array<int, array<int, mixed>>
-     */
-    private function normalizeValueMap(array $valueMap): array
-    {
-        $method = $this->configuredMethod();
-
-        assert($method instanceof ConfigurableMethod);
-
-        $numberOfParameters = $method->numberOfParameters();
-        $defaultValues      = $method->defaultParameterValues();
-        $hasDefaultValues   = $defaultValues !== [];
-
-        $_valueMap = [];
-
-        foreach ($valueMap as $mapping) {
-            $numberOfConfiguredParameters = count($mapping) - 1;
-
-            if ($numberOfConfiguredParameters === $numberOfParameters || !$hasDefaultValues) {
-                $_valueMap[] = $mapping;
-
-                continue;
-            }
-
-            $_mapping    = [];
-            $returnValue = array_pop($mapping);
-
-            foreach (range(0, $numberOfParameters - 1) as $i) {
-                if (array_key_exists($i, $mapping)) {
-                    $_mapping[] = $mapping[$i];
-
-                    continue;
-                }
-
-                if (array_key_exists($i, $defaultValues)) {
-                    $_mapping[] = $defaultValues[$i];
-                }
-            }
-
-            $_mapping[]  = $returnValue;
-            $_valueMap[] = $_mapping;
-        }
-
-        return $_valueMap;
     }
 
     /**

@@ -44,13 +44,7 @@ final class TestSuiteLoader
      */
     public function load(string $suiteClassFile): ReflectionClass
     {
-        $resolved = realpath($suiteClassFile);
-
-        if ($resolved === false) {
-            throw new ClassCannotBeFoundException($suiteClassFile, $suiteClassFile);
-        }
-
-        $suiteClassFile = $resolved;
+        $suiteClassFile = realpath($suiteClassFile);
         $suiteClassName = $this->classNameFromFileName($suiteClassFile);
         $loadedClasses  = $this->loadSuiteClassFile($suiteClassFile);
 
@@ -130,17 +124,11 @@ final class TestSuiteLoader
             /** @noinspection PhpUnhandledExceptionInspection */
             $class = new ReflectionClass($loadedClass);
 
-            $fileName = $class->getFileName();
-
-            if ($fileName === false || $fileName === '') {
-                continue;
+            if (!isset(self::$fileToClassesMap[$class->getFileName()])) {
+                self::$fileToClassesMap[$class->getFileName()] = [];
             }
 
-            if (!isset(self::$fileToClassesMap[$fileName])) {
-                self::$fileToClassesMap[$fileName] = [];
-            }
-
-            self::$fileToClassesMap[$fileName][] = $class->getName();
+            self::$fileToClassesMap[$class->getFileName()][] = $class->getName();
         }
 
         self::$declaredClasses = get_declared_classes();

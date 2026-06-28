@@ -47,23 +47,6 @@ final class IsType extends Constraint
     }
 
     /**
-     * Returns the negated description when this constraint is wrapped in a
-     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
-     * LogicalXor keep using the affirmative toString().
-     */
-    protected function toStringInContext(Operator $operator, mixed $role): string
-    {
-        if (!$operator instanceof LogicalNot) {
-            return '';
-        }
-
-        return sprintf(
-            'is not of type %s',
-            $this->type->value,
-        );
-    }
-
-    /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      */
@@ -112,9 +95,7 @@ final class IsType extends Constraint
                 return is_iterable($other);
 
             default:
-                // @codeCoverageIgnoreStart
                 return false;
-                // @codeCoverageIgnoreEnd
         }
     }
 }

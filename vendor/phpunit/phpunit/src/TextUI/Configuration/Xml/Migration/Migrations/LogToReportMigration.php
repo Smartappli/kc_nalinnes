@@ -48,12 +48,7 @@ abstract readonly class LogToReportMigration implements Migration
         }
 
         $report->appendChild($reportChild);
-
-        $parent = $logNode->parentNode;
-
-        assert($parent !== null);
-
-        $parent->removeChild($logNode);
+        $logNode->parentNode->removeChild($logNode);
     }
 
     /**

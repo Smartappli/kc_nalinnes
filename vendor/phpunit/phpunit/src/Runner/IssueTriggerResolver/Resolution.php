@@ -14,20 +14,9 @@ namespace PHPUnit\Runner\IssueTriggerResolver;
  */
 final readonly class Resolution
 {
-    /**
-     * @var ?non-empty-string
-     */
     private ?string $callee;
-
-    /**
-     * @var ?non-empty-string
-     */
     private ?string $caller;
 
-    /**
-     * @param ?non-empty-string $callee
-     * @param ?non-empty-string $caller
-     */
     public function __construct(?string $callee, ?string $caller)
     {
         $this->callee = $callee;
@@ -42,9 +31,6 @@ final readonly class Resolution
         return $this->callee !== null;
     }
 
-    /**
-     * @return ?non-empty-string
-     */
     public function callee(): ?string
     {
         return $this->callee;
@@ -58,9 +44,6 @@ final readonly class Resolution
         return $this->caller !== null;
     }
 
-    /**
-     * @return ?non-empty-string
-     */
     public function caller(): ?string
     {
         return $this->caller;

@@ -20,17 +20,12 @@ final readonly class ProvidedData
      * @var non-empty-string
      */
     private string $label;
-
-    /**
-     * @var array<mixed>
-     */
-    private array $value;
+    private mixed $value;
 
     /**
      * @param non-empty-string $label
-     * @param array<mixed>     $value
      */
-    public function __construct(string $label, array $value)
+    public function __construct(string $label, mixed $value)
     {
         $this->label = $label;
         $this->value = $value;
@@ -44,10 +39,7 @@ final readonly class ProvidedData
         return $this->label;
     }
 
-    /**
-     * @return array<mixed>
-     */
-    public function value(): array
+    public function value(): mixed
     {
         return $this->value;
     }

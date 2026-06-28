@@ -101,7 +101,9 @@ final class JunitXmlLogger
     {
         $xml = $this->document->saveXML();
 
-        assert($xml !== false);
+        if ($xml === false) {
+            $xml = '';
+        }
 
         $this->printer->print($xml);
         $this->printer->flush();
@@ -116,7 +118,7 @@ final class JunitXmlLogger
             $testSuite->setAttribute('file', $event->testSuite()->file());
         }
 
-        if ($this->testSuiteLevel > 0 && isset($this->testSuites[$this->testSuiteLevel])) {
+        if ($this->testSuiteLevel > 0) {
             $this->testSuites[$this->testSuiteLevel]->appendChild($testSuite);
         } else {
             $this->root->appendChild($testSuite);
@@ -145,14 +147,6 @@ final class JunitXmlLogger
 
     public function testSuiteFinished(): void
     {
-        assert(isset($this->testSuites[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteTests[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteAssertions[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteErrors[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteFailures[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteSkipped[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteTimes[$this->testSuiteLevel]));
-
         $this->testSuites[$this->testSuiteLevel]->setAttribute(
             'tests',
             (string) $this->testSuiteTests[$this->testSuiteLevel],
@@ -184,21 +178,12 @@ final class JunitXmlLogger
         );
 
         if ($this->testSuiteLevel > 1) {
-            $previousLevel = $this->testSuiteLevel - 1;
-
-            assert(isset($this->testSuiteTests[$previousLevel]));
-            assert(isset($this->testSuiteAssertions[$previousLevel]));
-            assert(isset($this->testSuiteErrors[$previousLevel]));
-            assert(isset($this->testSuiteFailures[$previousLevel]));
-            assert(isset($this->testSuiteSkipped[$previousLevel]));
-            assert(isset($this->testSuiteTimes[$previousLevel]));
-
-            $this->testSuiteTests[$previousLevel]      += $this->testSuiteTests[$this->testSuiteLevel];
-            $this->testSuiteAssertions[$previousLevel] += $this->testSuiteAssertions[$this->testSuiteLevel];
-            $this->testSuiteErrors[$previousLevel]     += $this->testSuiteErrors[$this->testSuiteLevel];
-            $this->testSuiteFailures[$previousLevel]   += $this->testSuiteFailures[$this->testSuiteLevel];
-            $this->testSuiteSkipped[$previousLevel]    += $this->testSuiteSkipped[$this->testSuiteLevel];
-            $this->testSuiteTimes[$previousLevel]      += $this->testSuiteTimes[$this->testSuiteLevel];
+            $this->testSuiteTests[$this->testSuiteLevel - 1]      += $this->testSuiteTests[$this->testSuiteLevel];
+            $this->testSuiteAssertions[$this->testSuiteLevel - 1] += $this->testSuiteAssertions[$this->testSuiteLevel];
+            $this->testSuiteErrors[$this->testSuiteLevel - 1]     += $this->testSuiteErrors[$this->testSuiteLevel];
+            $this->testSuiteFailures[$this->testSuiteLevel - 1]   += $this->testSuiteFailures[$this->testSuiteLevel];
+            $this->testSuiteSkipped[$this->testSuiteLevel - 1]    += $this->testSuiteSkipped[$this->testSuiteLevel];
+            $this->testSuiteTimes[$this->testSuiteLevel - 1]      += $this->testSuiteTimes[$this->testSuiteLevel];
         }
 
         $this->testSuiteLevel--;
@@ -269,7 +254,6 @@ final class JunitXmlLogger
     {
         $this->handleFault($event, 'error');
 
-        assert(isset($this->testSuiteErrors[$this->testSuiteLevel]));
         $this->testSuiteErrors[$this->testSuiteLevel]++;
     }
 
@@ -280,7 +264,6 @@ final class JunitXmlLogger
     {
         $this->handleFault($event, 'failure');
 
-        assert(isset($this->testSuiteFailures[$this->testSuiteLevel]));
         $this->testSuiteFailures[$this->testSuiteLevel]++;
     }
 
@@ -291,10 +274,6 @@ final class JunitXmlLogger
     {
         assert($this->currentTestCase !== null);
         assert($this->time !== null);
-        assert(isset($this->testSuiteAssertions[$this->testSuiteLevel]));
-        assert(isset($this->testSuites[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteTests[$this->testSuiteLevel]));
-        assert(isset($this->testSuiteTimes[$this->testSuiteLevel]));
 
         $time = $telemetryInfo->time()->duration($this->time)->asFloat();
 
@@ -410,7 +389,6 @@ final class JunitXmlLogger
 
         $this->currentTestCase->appendChild($skipped);
 
-        assert(isset($this->testSuiteSkipped[$this->testSuiteLevel]));
         $this->testSuiteSkipped[$this->testSuiteLevel]++;
 
         if (!$this->prepared) {

@@ -43,23 +43,6 @@ class Count extends Constraint
     }
 
     /**
-     * Returns the negated description when this constraint is wrapped in a
-     * LogicalNot operator. The guard ensures that LogicalAnd, LogicalOr, and
-     * LogicalXor keep using the affirmative toString().
-     */
-    protected function toStringInContext(Operator $operator, mixed $role): string
-    {
-        if (!$operator instanceof LogicalNot) {
-            return '';
-        }
-
-        return sprintf(
-            'count does not match %d',
-            $this->expectedCount,
-        );
-    }
-
-    /**
      * Evaluates the constraint for parameter $other. Returns true if the
      * constraint is met, false otherwise.
      *
@@ -111,9 +94,7 @@ class Count extends Constraint
             }
 
             if (!$iterator instanceof Iterator) {
-                // @codeCoverageIgnoreStart
                 return iterator_count($iterator);
-                // @codeCoverageIgnoreEnd
             }
 
             $key   = $iterator->key();
@@ -147,24 +128,6 @@ class Count extends Constraint
     {
         return sprintf(
             'actual size %d matches expected size %d',
-            (int) $this->getCountOf($other),
-            $this->expectedCount,
-        );
-    }
-
-    /**
-     * @throws Exception
-     */
-    protected function failureDescriptionInContext(Operator $operator, mixed $role, mixed $other): string
-    {
-        // @codeCoverageIgnoreStart
-        if (!$operator instanceof LogicalNot) {
-            return '';
-        }
-        // @codeCoverageIgnoreEnd
-
-        return sprintf(
-            'actual size %d does not match expected size %d',
             (int) $this->getCountOf($other),
             $this->expectedCount,
         );

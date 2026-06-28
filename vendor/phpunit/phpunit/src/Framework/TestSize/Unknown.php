@@ -23,9 +23,6 @@ final readonly class Unknown extends TestSize
         return true;
     }
 
-    /**
-     * @return 'unknown'
-     */
     public function asString(): string
     {
         return 'unknown';

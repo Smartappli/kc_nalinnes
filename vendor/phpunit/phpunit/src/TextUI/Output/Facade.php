@@ -19,8 +19,6 @@ use PHPUnit\TestRunner\TestResult\TestResult;
 use PHPUnit\TextUI\CannotOpenSocketException;
 use PHPUnit\TextUI\Configuration\Configuration;
 use PHPUnit\TextUI\InvalidSocketException;
-use PHPUnit\TextUI\Output\Compact\ProgressPrinter\ProgressPrinter as CompactProgressPrinter;
-use PHPUnit\TextUI\Output\Compact\ResultPrinter as CompactResultPrinter;
 use PHPUnit\TextUI\Output\Default\ProgressPrinter\ProgressPrinter as DefaultProgressPrinter;
 use PHPUnit\TextUI\Output\Default\ResultPrinter as DefaultResultPrinter;
 use PHPUnit\TextUI\Output\Default\UnexpectedOutputPrinter;
@@ -36,7 +34,6 @@ use SebastianBergmann\Timer\ResourceUsageFormatter;
 final class Facade
 {
     private static ?Printer $printer                           = null;
-    private static ?CompactResultPrinter $compactResultPrinter = null;
     private static ?DefaultResultPrinter $defaultResultPrinter = null;
     private static ?TestDoxResultPrinter $testDoxResultPrinter = null;
     private static ?SummaryPrinter $summaryPrinter             = null;
@@ -46,47 +43,28 @@ final class Facade
     {
         self::createPrinter($configuration);
 
-        $printer = self::$printer;
-
-        assert($printer !== null);
+        assert(self::$printer !== null);
 
         if ($configuration->debug()) {
-            return $printer;
+            return self::$printer;
         }
 
         self::createUnexpectedOutputPrinter();
 
-        if ($configuration->outputIsCompact()) {
-            self::$compactResultPrinter = new CompactResultPrinter(
-                $printer,
-                $configuration->displayDetailsOnIncompleteTests() || $configuration->displayDetailsOnAllIssues(),
-                $configuration->displayDetailsOnSkippedTests() || $configuration->displayDetailsOnAllIssues(),
-                $configuration->displayDetailsOnTestsThatTriggerDeprecations() || $configuration->displayDetailsOnAllIssues(),
-                $configuration->displayDetailsOnTestsThatTriggerErrors() || $configuration->displayDetailsOnAllIssues(),
-                $configuration->displayDetailsOnTestsThatTriggerNotices() || $configuration->displayDetailsOnAllIssues(),
-                $configuration->displayDetailsOnTestsThatTriggerWarnings() || $configuration->displayDetailsOnAllIssues(),
-            );
+        if (!$extensionReplacesProgressOutput) {
+            self::createProgressPrinter($configuration);
+        }
 
-            new CompactProgressPrinter(
-                $printer,
+        if (!$extensionReplacesResultOutput) {
+            self::createResultPrinter($configuration);
+            self::createSummaryPrinter($configuration);
+        }
+
+        if ($configuration->outputIsTeamCity()) {
+            new TeamCityLogger(
+                DefaultPrinter::standardOutput(),
                 EventFacade::instance(),
             );
-        } else {
-            if (!$extensionReplacesProgressOutput) {
-                self::createProgressPrinter($configuration);
-            }
-
-            if (!$extensionReplacesResultOutput) {
-                self::createResultPrinter($configuration);
-                self::createSummaryPrinter($configuration);
-            }
-
-            if ($configuration->outputIsTeamCity()) {
-                new TeamCityLogger(
-                    DefaultPrinter::standardOutput(),
-                    EventFacade::instance(),
-                );
-            }
         }
 
         assert(self::$printer !== null);
@@ -95,17 +73,11 @@ final class Facade
     }
 
     /**
-     * @param ?array<class-string, TestResultCollection> $testDoxResult
+     * @param ?array<string, TestResultCollection> $testDoxResult
      */
     public static function printResult(TestResult $result, ?array $testDoxResult, Duration $duration, bool $stackTraceForDeprecations): void
     {
         assert(self::$printer !== null);
-
-        if (self::$compactResultPrinter !== null) {
-            self::$compactResultPrinter->print($result);
-
-            return;
-        }
 
         if ($result->numberOfTestsRun() > 0) {
             if (self::$defaultProgressPrinter) {
@@ -151,10 +123,6 @@ final class Facade
         $printerNeeded = false;
 
         if ($configuration->debug()) {
-            $printerNeeded = true;
-        }
-
-        if ($configuration->outputIsCompact()) {
             $printerNeeded = true;
         }
 

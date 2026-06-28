@@ -31,20 +31,18 @@ use ReflectionMethod;
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
  *
  * @internal This class is not covered by the backward compatibility promise for PHPUnit
- *
- * @phpstan-type HookMethodsByType array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}
  */
 final class HookMethods
 {
     /**
-     * @var array<class-string, HookMethodsByType>
+     * @var array<class-string, array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}>
      */
     private static array $hookMethods = [];
 
     /**
      * @param class-string<TestCase> $className
      *
-     * @return HookMethodsByType
+     * @return array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}
      */
     public function hookMethods(string $className): array
     {
@@ -148,7 +146,7 @@ final class HookMethods
     }
 
     /**
-     * @return HookMethodsByType
+     * @return array{beforeClass: HookMethodCollection, before: HookMethodCollection, preCondition: HookMethodCollection, postCondition: HookMethodCollection, after: HookMethodCollection, afterClass: HookMethodCollection}
      */
     private function emptyHookMethodsArray(): array
     {

@@ -313,8 +313,6 @@ final class Generator
 
         /**
          * @noinspection PhpUnhandledExceptionInspection
-         *
-         * @var class-string $type
          */
         $reflector->getProperty('__phpunit_state')->setValue(
             $object,
@@ -479,7 +477,6 @@ final class Generator
             }
         }
 
-        /** @var ReflectionClass<object> $class */
         $propertiesWithHooks = $this->properties($class);
         $configurableMethods = $this->configurableMethods($mockMethods, $propertiesWithHooks);
 
@@ -573,10 +570,6 @@ final class Generator
                              substr(md5((string) mt_rand()), 0, 8);
             } while (class_exists($className, false));
         }
-
-        /** @var class-string $className */
-        /** @var class-string $type */
-        /** @var class-string $fullClassName */
 
         return [
             'className'         => $className,
@@ -704,7 +697,7 @@ final class Generator
         }
 
         foreach ($methods as $method) {
-            if (preg_match('~\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z~', (string) $method) === 0) {
+            if (!preg_match('~\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z~', (string) $method)) {
                 throw new InvalidMethodNameException((string) $method);
             }
         }
@@ -723,7 +716,7 @@ final class Generator
             return;
         }
 
-        if (preg_match('~\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z~', $className) === 0) {
+        if (!preg_match('~\A[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\z~', $className)) {
             throw new InvalidClassNameException($className);
         }
     }
@@ -889,21 +882,15 @@ final class Generator
             $hasSetHook                 = false;
             $setHookMethodParameterType = null;
 
-            $getHook = $property->getHook(PropertyHookType::Get);
-
-            if ($getHook !== null && !$getHook->isFinal()) {
+            if ($property->hasHook(PropertyHookType::Get) &&
+                !$property->getHook(PropertyHookType::Get)->isFinal()) {
                 $hasGetHook = true;
             }
 
-            $setHook = $property->getHook(PropertyHookType::Set);
-
-            if ($setHook !== null && !$setHook->isFinal()) {
-                $hasSetHook        = true;
-                $setHookParameters = $mapper->fromParameterTypes($setHook);
-
-                if (isset($setHookParameters[0])) {
-                    $setHookMethodParameterType = $setHookParameters[0]->type();
-                }
+            if ($property->hasHook(PropertyHookType::Set) &&
+                !$property->getHook(PropertyHookType::Set)->isFinal()) {
+                $hasSetHook                 = true;
+                $setHookMethodParameterType = $mapper->fromParameterTypes($property->getHook(PropertyHookType::Set))[0]->type();
             }
 
             if (!$hasGetHook && !$hasSetHook) {

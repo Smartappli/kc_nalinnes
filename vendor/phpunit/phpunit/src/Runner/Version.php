@@ -35,13 +35,7 @@ final class Version
         }
 
         if (self::$version === '') {
-            $path = dirname(__DIR__, 2);
-
-            if ($path === '') {
-                $path = '.';
-            }
-
-            self::$version = new VersionId('13.2.1', $path)->asString();
+            self::$version = new VersionId('13.1.14', dirname(__DIR__, 2))->asString();
         }
 
         return self::$version;

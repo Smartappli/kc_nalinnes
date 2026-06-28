@@ -1,5 +1,7 @@
 <?php declare(strict_types=1);
-use PHPUnit\Runner\Phpt\CodeCoverageBootstrapper;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Selector;
+use SebastianBergmann\CodeCoverage\Filter;
 
 $__phpunit_composerAutoload = {composerAutoload};
 $__phpunit_phar             = {phar};
@@ -16,13 +18,24 @@ if ($__phpunit_composerAutoload) {
     require $__phpunit_phar;
 }
 
+$__phpunit_coverage = null;
+
 if ('{bootstrap}' !== '') {
     require_once '{bootstrap}';
 }
 
-$__phpunit_coverage = CodeCoverageBootstrapper::bootstrap({codeCoverageCacheDirectory}, {branchCoverage}, {pathCoverage});
+if (class_exists('SebastianBergmann\CodeCoverage\CodeCoverage')) {
+    $__phpunit_filter = new Filter;
 
-if ($__phpunit_coverage !== null) {
+    $__phpunit_coverage = new CodeCoverage(
+        (new Selector)->{driverMethod}($__phpunit_filter),
+        $__phpunit_filter
+    );
+
+    if ({codeCoverageCacheDirectory}) {
+        $__phpunit_coverage->cacheStaticAnalysis({codeCoverageCacheDirectory});
+    }
+
     $__phpunit_coverage->start(__FILE__);
 }
 
@@ -30,7 +43,7 @@ register_shutdown_function(
     function() use ($__phpunit_coverage) {
         $output = null;
 
-        if ($__phpunit_coverage !== null) {
+        if ($__phpunit_coverage) {
             $output = $__phpunit_coverage->stop();
         }
 

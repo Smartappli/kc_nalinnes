@@ -9,7 +9,7 @@
  */
 namespace PHPUnit\TestRunner\TestResult\Issues;
 
-use function array_values;
+use function array_keys;
 use function count;
 use PHPUnit\Event\Code\Test;
 
@@ -46,10 +46,9 @@ final class Issue
     private ?string $stackTrace;
 
     /**
-     * @param non-empty-string  $file
-     * @param positive-int      $line
-     * @param non-empty-string  $description
-     * @param ?non-empty-string $stackTrace
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     * @param non-empty-string $description
      */
     public static function from(string $file, int $line, string $description, Test $triggeringTest, ?string $stackTrace = null): self
     {
@@ -57,10 +56,9 @@ final class Issue
     }
 
     /**
-     * @param non-empty-string  $file
-     * @param positive-int      $line
-     * @param non-empty-string  $description
-     * @param ?non-empty-string $stackTrace
+     * @param non-empty-string $file
+     * @param positive-int     $line
+     * @param non-empty-string $description
      */
     private function __construct(string $file, int $line, string $description, Test $triggeringTest, ?string $stackTrace)
     {
@@ -142,6 +140,6 @@ final class Issue
     public function triggeredInTest(): bool
     {
         return count($this->triggeringTests) === 1 &&
-               $this->file === array_values($this->triggeringTests)[0]['test']->file();
+               $this->file === $this->triggeringTests[array_keys($this->triggeringTests)[0]]['test']->file();
     }
 }

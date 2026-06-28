@@ -28,9 +28,6 @@ final readonly class Medium extends Known
         return $other->isSmall();
     }
 
-    /**
-     * @return 'medium'
-     */
     public function asString(): string
     {
         return 'medium';

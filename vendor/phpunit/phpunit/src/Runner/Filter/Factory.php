@@ -14,7 +14,6 @@ use FilterIterator;
 use Iterator;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestSuite;
-use RecursiveFilterIterator;
 
 /**
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
@@ -24,7 +23,7 @@ use RecursiveFilterIterator;
 final class Factory
 {
     /**
-     * @var list<array{className: class-string<RecursiveFilterIterator>, argument: list<non-empty-string>|non-empty-string}>
+     * @var list<array{className: class-string<FilterIterator<int, Test, Iterator<int, Test>>>, argument: list<non-empty-string>|non-empty-string}>
      */
     private array $filters = [];
 

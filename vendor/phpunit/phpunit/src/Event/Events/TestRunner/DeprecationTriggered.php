@@ -17,8 +17,6 @@ use PHPUnit\Event\Telemetry;
  * @immutable
  *
  * @no-named-arguments Parameter names are not covered by the backward compatibility promise for PHPUnit
- *
- * @todo This class will be renamed to PhpunitDeprecationTriggered in PHPUnit 14
  */
 final readonly class DeprecationTriggered implements Event
 {
@@ -59,7 +57,7 @@ final readonly class DeprecationTriggered implements Event
     public function asString(): string
     {
         return sprintf(
-            'Test Runner Triggered PHPUnit Deprecation (%s)',
+            'Test Runner Triggered Deprecation (%s)',
             $this->message,
         );
     }

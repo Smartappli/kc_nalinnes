@@ -50,7 +50,7 @@ final readonly class ParameterCollection
      */
     public function get(string $name): string
     {
-        if (!array_key_exists($name, $this->parameters)) {
+        if (!$this->has($name)) {
             throw new ParameterDoesNotExistException($name);
         }
 

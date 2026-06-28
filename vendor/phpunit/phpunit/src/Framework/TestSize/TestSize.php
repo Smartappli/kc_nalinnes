@@ -78,8 +78,5 @@ abstract readonly class TestSize
         return false;
     }
 
-    /**
-     * @return 'large'|'medium'|'small'|'unknown'
-     */
     abstract public function asString(): string;
 }
