@@ -1,0 +1,153 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  php:
+    name: PHP checks
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, dom, mbstring, pdo_mysql, xml, xmlwriter, zip
+          coverage: none
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Lint PHP files
+        run: |
+          find . -path ./vendor -prune -o -path ./.git -prune -o -name '*.php' -print0 \
+            | xargs -0 -n1 php -l
+
+      - name: Static analysis
+        run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M
+
+      - name: Unit tests
+        run: vendor/bin/phpunit tests --testdox
+
+  selenium:
+    name: Selenium E2E
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: kc_nalinnes
+          MYSQL_USER: kc_user
+          MYSQL_PASSWORD: kc_pass
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -proot"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
+    env:
+      APP_DEBUG: '0'
+      DB_HOST: '127.0.0.1'
+      DB_NAME: 'kc_nalinnes'
+      DB_CHARSET: 'utf8mb4'
+      DB_USER: 'kc_user'
+      DB_PASS: 'kc_pass'
+      ADMIN_EMAILS: 'admin.selenium@example.test'
+      SELENIUM_MEMBER_EMAIL: 'member.selenium@example.test'
+      SELENIUM_MEMBER_PASSWORD: 'MemberPass123!'
+      SELENIUM_ADMIN_EMAIL: 'admin.selenium@example.test'
+      SELENIUM_ADMIN_PASSWORD: 'AdminPass123!'
+      BASE_URL: 'http://127.0.0.1:8000'
+      SELENIUM_ARTIFACT_DIR: 'artifacts/selenium'
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: curl, dom, mbstring, pdo_mysql, xml, xmlwriter, zip
+          coverage: none
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Setup Chrome
+        id: chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Install Composer dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+
+      - name: Install Selenium dependencies
+        run: python -m pip install --upgrade pip && python -m pip install -r tests/selenium/requirements.txt
+
+      - name: Write CI environment
+        run: |
+          cat > .env <<EOF
+          APP_DEBUG=${APP_DEBUG}
+          DB_HOST=${DB_HOST}
+          DB_NAME=${DB_NAME}
+          DB_CHARSET=${DB_CHARSET}
+          DB_USER=${DB_USER}
+          DB_PASS=${DB_PASS}
+          ADMIN_EMAILS=${ADMIN_EMAILS}
+          RESERVATION_EMAIL_TO=admin.selenium@example.test
+          ALLOWED_PRECOMPLETED_PDFS=mutualia-ac-sport-fr.pdf
+          MEAL_RESERVATIONS_EXCEL_PATH=storage/reservations-repas-ci.xlsx
+          EOF
+
+      - name: Provision auth users
+        run: |
+          php scripts/create_auth_user.php \
+            --install-schema \
+            --email="${SELENIUM_MEMBER_EMAIL}" \
+            --password="${SELENIUM_MEMBER_PASSWORD}" \
+            --username="Selenium Member"
+
+          php scripts/create_auth_user.php \
+            --email="${SELENIUM_ADMIN_EMAIL}" \
+            --password="${SELENIUM_ADMIN_PASSWORD}" \
+            --username="Selenium Admin" \
+            --admin
+
+      - name: Start PHP server
+        run: |
+          mkdir -p artifacts/selenium
+          php -S 0.0.0.0:8000 -t . > artifacts/php-server.log 2>&1 &
+          echo $! > artifacts/php-server.pid
+
+          for attempt in $(seq 1 30); do
+            if curl -fsS -o /dev/null "${BASE_URL}/membres.php?lang=fr"; then
+              exit 0
+            fi
+            sleep 1
+          done
+
+          cat artifacts/php-server.log
+          exit 1
+
+      - name: Run Selenium tests
+        env:
+          CHROME_BIN: ${{ steps.chrome.outputs.chrome-path }}
+        run: python -m pytest tests/selenium --junitxml=artifacts/selenium/junit.xml
+
+      - name: Upload Selenium artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: selenium-artifacts
+          path: artifacts/

@@ -1,2 +1,5 @@
 /vendor/
 /.env
+/artifacts/
+/.pytest_cache/
+__pycache__/
