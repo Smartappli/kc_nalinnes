@@ -219,6 +219,34 @@ final class CalendarEventsTest extends TestCase {
             $this->assertGreaterThanOrEqual(1000, (int)$row[':sort_order']);
         }
     }
+
+    public function testCalendarBulkHelpersNormalizeIdsAndPrepareStatements(): void {
+        $this->assertSame([4, 7], kc_calendar_normalize_event_ids(['4', '0', '7', '4', 'invalid']));
+
+        $db = new FakeCalendarBulkPdo();
+
+        $updated = kc_calendar_set_events_active($db, ['4', '7'], false);
+
+        $this->assertSame(2, $updated);
+        $this->assertStringContainsString('UPDATE calendar_events SET is_active = :is_active WHERE id IN (:id0, :id1)', $db->lastPreparedSql);
+        $this->assertSame([
+            ':id0' => 4,
+            ':id1' => 7,
+            ':is_active' => 0,
+        ], $db->lastParams);
+
+        $deleted = kc_calendar_delete_events($db, [7]);
+
+        $this->assertSame(1, $deleted);
+        $this->assertStringContainsString('DELETE FROM calendar_events WHERE id IN (:id0)', $db->lastPreparedSql);
+        $this->assertSame([':id0' => 7], $db->lastParams);
+    }
+
+    public function testCalendarBulkRejectsEmptySelection(): void {
+        $this->expectException(InvalidArgumentException::class);
+
+        kc_calendar_set_events_active(new FakeCalendarBulkPdo(), [], true);
+    }
 }
 
 final class FakeCalendarImportPdo extends PDO {
@@ -245,5 +273,43 @@ final class FakeCalendarImportStatement extends PDOStatement {
     public function execute(?array $params = null): bool {
         $this->db->insertedRows[] = $params ?? [];
         return true;
+    }
+}
+
+final class FakeCalendarBulkPdo extends PDO {
+    public string $lastPreparedSql = '';
+
+    /** @var array<string, mixed> */
+    public array $lastParams = [];
+
+    public function __construct() {}
+
+    public function exec(string $statement): int|false {
+        return 0;
+    }
+
+    public function prepare(string $query, array $options = []): PDOStatement|false {
+        $this->lastPreparedSql = $query;
+        return new FakeCalendarBulkStatement($this);
+    }
+}
+
+final class FakeCalendarBulkStatement extends PDOStatement {
+    private int $affectedRows = 0;
+
+    public function __construct(private FakeCalendarBulkPdo $db) {}
+
+    public function execute(?array $params = null): bool {
+        $this->db->lastParams = $params ?? [];
+        $this->affectedRows = count(array_filter(
+            array_keys($this->db->lastParams),
+            static fn(string $key): bool => str_starts_with($key, ':id')
+        ));
+
+        return true;
+    }
+
+    public function rowCount(): int {
+        return $this->affectedRows;
     }
 }
