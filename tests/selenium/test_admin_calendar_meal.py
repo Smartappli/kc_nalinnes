@@ -157,6 +157,18 @@ def test_admin_can_manage_single_and_recurring_calendar_events(driver, base_url)
     )
     assert "Brouillon" in copied_row.text
 
+    click_element(copied_row.find_element(By.CSS_SELECTOR, "input[data-calendar-select]"))
+    Select(driver.find_element(By.ID, "calendarBulkAction")).select_by_value("publish")
+    click_when_ready(driver, (By.CSS_SELECTOR, "#calendarBulkForm button[type='submit']"))
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    copied_row = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.presence_of_element_located(
+            (By.XPATH, f"//tr[@data-calendar-row][.//*[contains(normalize-space(), '{recurring_title} (copie)')]]")
+        )
+    )
+    assert "Publie" in copied_row.text
+
 
 def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     submit_login(driver, base_url)

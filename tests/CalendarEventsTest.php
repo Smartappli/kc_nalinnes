@@ -300,11 +300,19 @@ final class FakeCalendarBulkStatement extends PDOStatement {
     public function __construct(private FakeCalendarBulkPdo $db) {}
 
     public function execute(?array $params = null): bool {
-        $this->db->lastParams = $params ?? [];
-        $this->affectedRows = count(array_filter(
-            array_keys($this->db->lastParams),
-            static fn(string $key): bool => str_starts_with($key, ':id')
-        ));
+        $this->db->lastParams = [];
+        $this->affectedRows = 0;
+
+        foreach (($params ?? []) as $key => $value) {
+            if (!is_string($key)) {
+                continue;
+            }
+
+            $this->db->lastParams[$key] = $value;
+            if (str_starts_with($key, ':id')) {
+                $this->affectedRows++;
+            }
+        }
 
         return true;
     }
