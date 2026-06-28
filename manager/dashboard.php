@@ -797,6 +797,86 @@ try {
 
         <div class="mt-4 overflow-x-auto rounded-xl border border-slate-800">
             <table class="min-w-full text-sm">
+                <thead class="bg-slate-950/70">
+                <tr class="text-left text-slate-400">
+                    <th class="px-3 py-2"><?= e(kc_t('manager.users.id')) ?></th>
+                    <th class="px-3 py-2">Membre</th>
+                    <th class="px-3 py-2">Grade</th>
+                    <th class="px-3 py-2">Profils lies</th>
+                    <th class="px-3 py-2">Repas membre</th>
+                    <th class="px-3 py-2">Role</th>
+                    <th class="px-3 py-2">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="memberRows">
+                <?php foreach ($memberAdminRows as $memberRow): ?>
+                    <?php
+                    $row = $memberRow['user'];
+                    $rowId = (int)($row['id'] ?? 0);
+                    $rowIsAdmin = (bool)$memberRow['is_admin'];
+                    $rowGrade = (string)$memberRow['grade'];
+                    $rowDependents = $memberRow['dependents'];
+                    $mealStats = $memberRow['meal_stats'];
+                    ?>
+                    <tr data-member-row data-role="<?= $rowIsAdmin ? 'admin' : 'member' ?>" data-grade="<?= $rowGrade === '' ? 'missing' : 'filled' ?>" data-search="<?= e((string)$memberRow['search']) ?>" class="border-t border-slate-800 align-top">
+                        <td class="px-3 py-3 text-slate-400"><?= e((string)$rowId) ?></td>
+                        <td class="px-3 py-3">
+                            <p class="font-semibold text-slate-100"><?= e((string)($row['email'] ?? '')) ?></p>
+                            <p class="mt-1 text-xs text-slate-400"><?= (string)($row['username'] ?? '') !== '' ? e((string)$row['username']) : 'Username vide' ?></p>
+                        </td>
+                        <td class="px-3 py-3">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="flex min-w-[11rem] items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="grade_update">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input name="target_grade" value="<?= e($rowGrade) ?>" placeholder="A definir" class="w-28 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-slate-100">
+                                <button class="rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('manager.users.update')) ?></button>
+                            </form>
+                        </td>
+                        <td class="px-3 py-3">
+                            <p class="font-semibold"><?= e((string)((int)$memberRow['minor_dependents'] + (int)$memberRow['adult_dependents'])) ?> profil(s)</p>
+                            <p class="mt-1 text-xs text-slate-400"><?= e((string)$memberRow['minor_dependents']) ?> mineur(s), <?= e((string)$memberRow['adult_dependents']) ?> adulte(s)</p>
+                            <?php if ($rowDependents !== []): ?>
+                                <details class="mt-2">
+                                    <summary class="cursor-pointer text-xs font-semibold text-sky-200">Voir les profils</summary>
+                                    <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                                        <?php foreach ($rowDependents as $dependentRow): ?>
+                                            <li><?= e((string)($dependentRow['full_name'] ?? '')) ?><?= (string)($dependentRow['birthdate'] ?? '') !== '' ? ' - ' . e((string)$dependentRow['birthdate']) : '' ?><?= (int)($dependentRow['is_minor'] ?? 1) === 1 ? ' - mineur' : ' - adulte' ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </details>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-3 py-3">
+                            <p class="font-semibold"><?= e((string)$mealStats['active_count']) ?> active(s) / <?= e((string)$mealStats['count']) ?> total</p>
+                            <p class="mt-1 text-xs text-slate-400"><?= e((string)$mealStats['adult_qty']) ?> adulte(s), <?= e((string)$mealStats['child_qty']) ?> enfant(s), <?= e(number_format((float)$mealStats['total_amount'], 2, ',', ' ')) ?> EUR</p>
+                            <?php if ((string)$mealStats['last_at'] !== ''): ?>
+                                <p class="mt-1 text-xs text-slate-500">Derniere: <?= e((string)$mealStats['last_at']) ?><?= (string)$mealStats['last_profile'] !== '' ? ' - ' . e((string)$mealStats['last_profile']) : '' ?></p>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-3 py-3">
+                            <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold <?= $rowIsAdmin ? 'bg-sky-500/15 text-sky-200' : 'bg-emerald-500/15 text-emerald-200' ?>"><?= e($rowIsAdmin ? kc_t('manager.users.admin') : kc_t('manager.users.member')) ?></span>
+                        </td>
+                        <td class="px-3 py-3">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="flex min-w-[12rem] items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="user_update">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <select name="target_role" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-slate-100">
+                                    <option value="member" <?= !$rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.member')) ?></option>
+                                    <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.admin')) ?></option>
+                                </select>
+                                <button class="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.users.save')) ?></button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if ($memberAdminRows === []): ?>
+                    <tr><td colspan="7" class="px-3 py-4 text-slate-400">Aucun membre.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
+            <table class="hidden">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
                     <th class="py-2 pr-4"><?= e(kc_t('manager.users.id')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.email')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.username')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.grade')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.users.role')) ?></th><th class="py-2"><?= e(kc_t('manager.users.actions')) ?></th>
