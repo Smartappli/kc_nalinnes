@@ -69,7 +69,7 @@ try {
     unset($_SESSION['old_email'], $_SESSION['old_remember']);
     flash(kc_t('membres.flash.success'), 'success');
     try {
-        $redirectSuccess = resolve_dashboard_path($email, $db, (string) getenv('ADMIN_EMAILS'));
+        $redirectSuccess = resolve_dashboard_path($email, $db, (string) env_value('ADMIN_EMAILS', ''));
     }
     catch (\Throwable $e) {
         error_log('Dashboard resolution failed after login: ' . $e->getMessage());
@@ -91,6 +91,7 @@ catch (\Delight\Auth\TooManyRequestsException $e) {
     flash(kc_t('membres.flash.too_many_requests'), 'error');
 }
 catch (\Throwable $e) {
+    error_log('Login internal error: ' . get_class($e) . ': ' . $e->getMessage());
     flash(kc_t('membres.flash.internal'), 'error');
 }
 

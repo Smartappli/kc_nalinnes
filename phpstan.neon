@@ -20,6 +20,7 @@ parameters:
         - politique-confidentialite.php
         - reservation-repas.php
         - reviser_katas.php
+        - scripts
         - stretching.php
         - techniques_kumite.php
         - technique_base.php

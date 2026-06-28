@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../config/env.php';
+
 function normalize_email(string $email): string {
     return strtolower(trim($email));
 }
@@ -60,13 +62,7 @@ function resolve_dashboard_path(string $email, \PDO $db, string $adminEmailsRaw)
 }
 
 function is_temp_bypass_login_enabled(): bool {
-    $raw = getenv('TEMP_BYPASS_LOGIN');
-
-    if ($raw === false || $raw === '') {
-        $raw = $_ENV['TEMP_BYPASS_LOGIN'] ?? $_SERVER['TEMP_BYPASS_LOGIN'] ?? '';
-    }
-
-    $value = strtolower(trim((string)$raw));
+    $value = strtolower(trim((string)env_value('TEMP_BYPASS_LOGIN', '')));
     return in_array($value, ['1', 'true', 'yes', 'on'], true);
 }
 

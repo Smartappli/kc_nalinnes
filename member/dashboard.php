@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-ini_set('display_errors', '1');
-ini_set('display_startup_errors', '1');
-error_reporting(E_ALL);
+require_once __DIR__ . '/../config/env.php';
+
+configure_error_reporting_from_env();
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/fpdf_alias.php';
@@ -188,7 +188,7 @@ try {
 
         flash(kc_t('member.flash.meal_saved'), 'success');
 
-        $to = (string)(getenv('RESERVATION_EMAIL_TO') ?: 'duchesnesakura@gmail.com');
+        $to = (string)env_value('RESERVATION_EMAIL_TO', 'duchesnesakura@gmail.com');
         $subject = kc_t('member.meal.mail_subject');
         $message = kc_t('member.meal.mail_member_id') . ": " . (int)$auth->getUserId() . "\n"
             . kc_t('member.meal.mail_profile') . ": " . $profileName . " (" . $profileType . ")\n"
@@ -272,7 +272,7 @@ try {
 
     $templatesDir = __DIR__ . '/../docs';
     $templateFiles = list_pdf_templates($templatesDir);
-    $allowedTemplatesRaw = (string)(getenv('ALLOWED_PRECOMPLETED_PDFS') ?: 'mutualia-ac-sport-fr.pdf');
+    $allowedTemplatesRaw = (string)env_value('ALLOWED_PRECOMPLETED_PDFS', 'mutualia-ac-sport-fr.pdf');
     $allowedTemplates = array_values(array_filter(array_map('trim', explode(',', $allowedTemplatesRaw))));
     if ($allowedTemplates !== []) {
         $templateFiles = array_values(array_filter($templateFiles, static fn(string $name): bool => in_array($name, $allowedTemplates, true)));
@@ -354,8 +354,14 @@ try {
     $mealSubmissionToken = meal_reservation_submission_token('member');
 
 } catch (\Throwable $e) {
+    error_log('Member dashboard error: ' . get_class($e) . ': ' . $e->getMessage());
     http_response_code(500);
-    echo "<pre style='white-space:pre-wrap'>500 ERROR\n" . e($e->getMessage()) . "</pre>";
+    if (env_flag('APP_DEBUG', false)) {
+        echo "<pre style='white-space:pre-wrap'>500 ERROR\n" . e($e->getMessage()) . "</pre>";
+    }
+    else {
+        echo "<pre style='white-space:pre-wrap'>500 ERROR\nErreur interne.</pre>";
+    }
     exit;
 }
 ?>

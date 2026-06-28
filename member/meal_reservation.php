@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/../config/env.php';
+
 if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
     require_once __DIR__ . '/../includes/i18n.php';
 
@@ -108,7 +110,7 @@ function send_meal_reservation_mail(string $to, string $subject, string $message
 }
 
 function meal_reservations_excel_path(): string {
-    $configuredPath = getenv('MEAL_RESERVATIONS_EXCEL_PATH') ?: getenv('MEAL_RESERVATIONS_XLSX_PATH');
+    $configuredPath = env_value('MEAL_RESERVATIONS_EXCEL_PATH') ?? env_value('MEAL_RESERVATIONS_XLSX_PATH');
     if (is_string($configuredPath) && trim($configuredPath) !== '') {
         return $configuredPath;
     }
