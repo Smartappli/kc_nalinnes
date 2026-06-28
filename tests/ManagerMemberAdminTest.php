@@ -80,6 +80,22 @@ final class ManagerMemberAdminTest extends TestCase {
         ]);
     }
 
+    public function testMemberCreationInputRejectsInvalidRole(): void {
+        $this->expectException(InvalidArgumentException::class);
+
+        manager_admin_normalize_member_creation_input([
+            'new_member_email' => 'new@example.com',
+            'new_member_password' => 'Secret123!',
+            'new_member_role' => 'owner',
+        ]);
+    }
+
+    public function testMemberGradeRejectsOverlongValue(): void {
+        $this->expectException(InvalidArgumentException::class);
+
+        manager_admin_normalize_member_grade(str_repeat('a', 101));
+    }
+
     public function testUpdateMemberProfilePersistsNormalizedData(): void {
         $db = new FakeMemberAdminPdo();
 
@@ -126,6 +142,38 @@ final class ManagerMemberAdminTest extends TestCase {
         $this->assertContains('created@example.com', $db->adminEmails);
     }
 
+    public function testCreateMemberWithMemberRoleDoesNotGrantAdminAccess(): void {
+        $db = new FakeMemberAdminPdo();
+        $auth = new FakeMemberAdminAuth($db);
+
+        $created = manager_admin_create_member($db, $auth, [
+            'new_member_email' => 'member-created@example.com',
+            'new_member_username' => '',
+            'new_member_password' => 'Secret123!',
+            'new_member_role' => 'member',
+            'new_member_grade' => '',
+        ]);
+
+        $this->assertSame(3, $created['id']);
+        $this->assertNull($created['username']);
+        $this->assertNull($created['grade']);
+        $this->assertSame([], $db->adminEmails);
+        $this->assertArrayNotHasKey(3, $db->grades);
+    }
+
+    public function testCreateMemberRejectsDuplicateEmail(): void {
+        $db = new FakeMemberAdminPdo();
+        $auth = new FakeMemberAdminAuth($db);
+
+        $this->expectException(\Delight\Auth\UserAlreadyExistsException::class);
+
+        manager_admin_create_member($db, $auth, [
+            'new_member_email' => 'member@example.com',
+            'new_member_password' => 'Secret123!',
+            'new_member_role' => 'member',
+        ]);
+    }
+
     public function testResetMemberPasswordUsesAuthAdministration(): void {
         $db = new FakeMemberAdminPdo();
         $auth = new FakeMemberAdminAuth($db);
@@ -135,6 +183,15 @@ final class ManagerMemberAdminTest extends TestCase {
         $this->assertSame('Reset123!', $db->passwords[1]);
     }
 
+    public function testResetMemberPasswordRejectsUnknownMember(): void {
+        $db = new FakeMemberAdminPdo();
+        $auth = new FakeMemberAdminAuth($db);
+
+        $this->expectException(RuntimeException::class);
+
+        manager_admin_reset_member_password($db, $auth, 999, 'Reset123!');
+    }
+
     public function testSaveGradeCanClearExistingGrade(): void {
         $db = new FakeMemberAdminPdo();
         $db->grades[1] = '9e kyu';
@@ -142,6 +199,21 @@ final class ManagerMemberAdminTest extends TestCase {
         manager_admin_save_grade($db, 1, null);
 
         $this->assertArrayNotHasKey(1, $db->grades);
+    }
+
+    public function testAuthExceptionMessagesAreReadable(): void {
+        $this->assertSame(
+            'Cet email est deja utilise par un autre membre.',
+            manager_admin_auth_exception_message(new \Delight\Auth\UserAlreadyExistsException())
+        );
+        $this->assertSame(
+            'Membre introuvable.',
+            manager_admin_auth_exception_message(new \Delight\Auth\UnknownIdException())
+        );
+        $this->assertSame(
+            'Operation membre impossible.',
+            manager_admin_auth_exception_message(new RuntimeException())
+        );
     }
 
     public function testDependentLifecycleUsesGuardianScope(): void {

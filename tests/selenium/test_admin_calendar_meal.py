@@ -31,6 +31,10 @@ def wait_for_path(driver, expected_path):
 
 def set_field_value(driver, selector, value):
     field = driver.find_element(By.CSS_SELECTOR, selector)
+    set_element_value(driver, field, value)
+
+
+def set_element_value(driver, field, value):
     driver.execute_script(
         """
         arguments[0].value = arguments[1];
@@ -54,7 +58,37 @@ def click_element(driver, element):
     element.click()
 
 
-def submit_login(driver, base_url):
+def submit_form(driver, form):
+    click_element(driver, form.find_element(By.CSS_SELECTOR, "button"))
+
+
+def logout(driver):
+    click_when_ready(
+        driver,
+        (By.XPATH, "//form[.//input[@name='action' and @value='logout']]//button"),
+    )
+
+
+def wait_for_member_row(driver, email):
+    return WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.presence_of_element_located(
+            (By.XPATH, f"//tr[@data-member-row][.//*[contains(normalize-space(), '{email}')]]")
+        )
+    )
+
+
+def wait_for_member_row_text(driver, email, text):
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        lambda current: text
+        in current.find_element(
+            By.XPATH,
+            f"//tr[@data-member-row][.//*[contains(normalize-space(), '{email}')]]",
+        ).text
+    )
+    return wait_for_member_row(driver, email)
+
+
+def submit_login_as(driver, base_url, email, password):
     driver.get(absolute_url(base_url, "/membres.php?lang=fr"))
 
     email_input = WebDriverWait(driver, WAIT_SECONDS).until(
@@ -63,10 +97,14 @@ def submit_login(driver, base_url):
     password_input = driver.find_element(By.ID, "password")
 
     email_input.clear()
-    email_input.send_keys(ADMIN_EMAIL)
+    email_input.send_keys(email)
     password_input.clear()
-    password_input.send_keys(ADMIN_PASSWORD)
+    password_input.send_keys(password)
     driver.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
+
+
+def submit_login(driver, base_url):
+    submit_login_as(driver, base_url, ADMIN_EMAIL, ADMIN_PASSWORD)
 
     wait_for_path(driver, "/manager/dashboard.php")
 
@@ -168,6 +206,95 @@ def test_admin_can_manage_single_and_recurring_calendar_events(driver, base_url)
         )
     )
     assert "Publie" in copied_row.text
+
+
+def test_admin_can_create_update_member_dependents_and_reset_password(driver, base_url):
+    submit_login(driver, base_url)
+
+    unique = uuid4().hex[:8]
+    initial_email = f"member-{unique}@selenium.example.test"
+    updated_email = f"member-{unique}-updated@selenium.example.test"
+    initial_password = "MemberPass123!"
+    reset_password = "ResetPass123!"
+    member_name = f"Membre Selenium {unique}"
+    updated_name = f"Membre Selenium maj {unique}"
+    child_name = f"Enfant Selenium {unique}"
+    updated_child_name = f"Profil Adulte Selenium {unique}"
+
+    create_form = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//section[@id='admin-users']//form[.//input[@name='action' and @value='member_create']]")
+        )
+    )
+    set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_email']"), initial_email)
+    set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_username']"), member_name)
+    set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_password']"), initial_password)
+    set_element_value(driver, create_form.find_element(By.CSS_SELECTOR, "input[name='new_member_grade']"), "10e kyu")
+    Select(create_form.find_element(By.CSS_SELECTOR, "select[name='new_member_role']")).select_by_value("member")
+    submit_form(driver, create_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    member_row = wait_for_member_row(driver, initial_email)
+    assert member_name in member_row.text
+    assert "10e kyu" in member_row.text
+
+    profile_form = member_row.find_element(
+        By.XPATH,
+        ".//form[.//input[@name='action' and @value='member_profile_update']]",
+    )
+    set_element_value(driver, profile_form.find_element(By.CSS_SELECTOR, "input[name='target_email']"), updated_email)
+    set_element_value(driver, profile_form.find_element(By.CSS_SELECTOR, "input[name='target_username']"), updated_name)
+    submit_form(driver, profile_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    member_row = wait_for_member_row(driver, updated_email)
+    assert updated_name in member_row.text
+
+    add_dependent_form = member_row.find_element(
+        By.XPATH,
+        ".//form[.//input[@name='action' and @value='member_dependent_add']]",
+    )
+    set_element_value(driver, add_dependent_form.find_element(By.CSS_SELECTOR, "input[name='dependent_name']"), child_name)
+    set_element_value(driver, add_dependent_form.find_element(By.CSS_SELECTOR, "input[name='dependent_birthdate']"), "2016-04-12")
+    Select(add_dependent_form.find_element(By.CSS_SELECTOR, "select[name='dependent_is_minor']")).select_by_value("1")
+    submit_form(driver, add_dependent_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    member_row = wait_for_member_row_text(driver, updated_email, child_name)
+    assert "mineur" in member_row.text
+
+    dependent_form = member_row.find_element(
+        By.XPATH,
+        f".//form[.//input[@name='action' and @value='member_dependent_update'] and .//input[@name='dependent_name' and @value='{child_name}']]",
+    )
+    set_element_value(driver, dependent_form.find_element(By.CSS_SELECTOR, "input[name='dependent_name']"), updated_child_name)
+    set_element_value(driver, dependent_form.find_element(By.CSS_SELECTOR, "input[name='dependent_birthdate']"), "")
+    Select(dependent_form.find_element(By.CSS_SELECTOR, "select[name='dependent_is_minor']")).select_by_value("0")
+    submit_form(driver, dependent_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    member_row = wait_for_member_row_text(driver, updated_email, updated_child_name)
+    assert "adulte" in member_row.text
+
+    password_form = member_row.find_element(
+        By.XPATH,
+        ".//form[.//input[@name='action' and @value='member_password_reset']]",
+    )
+    set_element_value(driver, password_form.find_element(By.CSS_SELECTOR, "input[name='new_member_password']"), reset_password)
+    submit_form(driver, password_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        lambda current: "Mot de passe membre mis a jour" in current.find_element(By.TAG_NAME, "body").text
+    )
+
+    logout(driver)
+    wait_for_path(driver, "/membres.php")
+    submit_login_as(driver, base_url, updated_email, reset_password)
+    wait_for_path(driver, "/member/dashboard.php")
+    body = driver.find_element(By.TAG_NAME, "body").text
+    assert updated_email in body
+    assert updated_child_name in body
 
 
 def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
