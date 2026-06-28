@@ -357,12 +357,12 @@ try {
             exit;
         }
 
-        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, notes, created_at FROM meal_reservations ORDER BY created_at DESC');
+        $rowsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, status, contact_email, contact_phone, adult_qty, child_qty, total_amount, notes, created_at FROM meal_reservations ORDER BY created_at DESC');
         $rows = $rowsStmt->fetchAll();
 
         $dataRows = [];
         foreach ($rows as $r) {
-            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)($r['contact_email'] ?? ''), (string)($r['contact_phone'] ?? ''), (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount'], (string)($r['notes'] ?? '')];
+            $dataRows[] = [(string)$r['created_at'], (string)$r['member_user_id'], (string)$r['profile_name'], (string)$r['profile_type'], (string)($r['status'] ?? 'confirmed'), (string)($r['contact_email'] ?? ''), (string)($r['contact_phone'] ?? ''), (string)$r['adult_qty'], (string)$r['child_qty'], (string)$r['total_amount'], (string)($r['notes'] ?? '')];
         }
 
         $useXlsx = class_exists('ZipArchive');
@@ -385,11 +385,12 @@ try {
     $usersStmt = $db->query('SELECT id, email, username FROM users ORDER BY id ASC');
     $users = $usersStmt->fetchAll();
 
-    $mealSummaryStmt = $db->query('SELECT COALESCE(SUM(adult_qty),0) AS total_adult, COALESCE(SUM(child_qty),0) AS total_child, COALESCE(SUM(total_amount),0) AS total_amount FROM meal_reservations');
+    $mealSummaryStmt = $db->query('SELECT COALESCE(SUM(CASE WHEN status <> \'cancelled\' THEN adult_qty ELSE 0 END),0) AS total_adult, COALESCE(SUM(CASE WHEN status <> \'cancelled\' THEN child_qty ELSE 0 END),0) AS total_child, COALESCE(SUM(CASE WHEN status <> \'cancelled\' THEN total_amount ELSE 0 END),0) AS total_amount FROM meal_reservations');
     $mealSummary = $mealSummaryStmt->fetch() ?: ['total_adult' => 0, 'total_child' => 0, 'total_amount' => 0];
 
-    $mealReservationsStmt = $db->query('SELECT member_user_id, profile_name, profile_type, contact_email, contact_phone, adult_qty, child_qty, total_amount, notes, created_at FROM meal_reservations ORDER BY created_at DESC');
+    $mealReservationsStmt = $db->query('SELECT id, member_user_id, profile_name, profile_type, status, contact_email, contact_phone, adult_qty, child_qty, total_amount, notes, created_at FROM meal_reservations ORDER BY created_at DESC');
     $mealReservations = $mealReservationsStmt->fetchAll();
+    $mealStatuses = meal_reservation_statuses();
     $gradesStmt = $db->query('SELECT user_id, grade FROM member_grades');
     $gradesRows = $gradesStmt->fetchAll();
     $gradesByUserId = [];
