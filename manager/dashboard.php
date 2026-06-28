@@ -58,6 +58,16 @@ function require_manager_csrf(): void {
     }
 }
 
+function manager_admin_nav_items(): array {
+    return [
+        'admin-overview' => 'Tableau de bord',
+        'admin-meal' => 'Reservation repas',
+        'admin-users' => 'Membres',
+        'admin-meal-summary' => 'Suivi repas',
+        'admin-calendar' => 'Calendrier',
+    ];
+}
+
 // CSRF
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -440,11 +450,12 @@ try {
     </script>
     <style>
       body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+      section[id]{scroll-margin-top:5.5rem;}
       .kc-calendar-inactive{opacity:.45;filter:grayscale(.35);}
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100">
-<main class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
+<main class="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-10">
 
     <div class="flex items-center justify-between gap-4">
         <div>
@@ -470,7 +481,40 @@ try {
         </div>
     <?php endif; ?>
 
-    <section class="mt-8 grid gap-6 md:grid-cols-2">
+    <nav aria-label="Navigation admin" class="sticky top-0 z-20 -mx-4 mt-6 border-y border-slate-800 bg-slate-950/95 px-4 py-3 backdrop-blur sm:-mx-6 sm:px-6 lg:-mx-8 lg:px-8">
+        <div class="flex gap-2 overflow-x-auto text-sm">
+            <?php foreach (manager_admin_nav_items() as $anchor => $label): ?>
+                <a href="#<?= e((string)$anchor) ?>" class="whitespace-nowrap rounded-lg border border-slate-700 px-3 py-2 font-semibold text-slate-200 hover:border-sky-500 hover:text-sky-200">
+                    <?= e((string)$label) ?>
+                </a>
+            <?php endforeach; ?>
+        </div>
+    </nav>
+
+    <section id="admin-overview" class="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Membres</p>
+            <p class="mt-2 text-3xl font-extrabold"><?= e((string)count($users)) ?></p>
+        </div>
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Repas</p>
+            <p class="mt-2 text-3xl font-extrabold"><?= e((string)((int)$mealSummary['total_adult'] + (int)$mealSummary['total_child'])) ?></p>
+        </div>
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Recette repas</p>
+            <p class="mt-2 text-3xl font-extrabold"><?= e((string)$mealSummary['total_amount']) ?> EUR</p>
+        </div>
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-5">
+            <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Evenements publies</p>
+            <p class="mt-2 text-3xl font-extrabold"><?= e((string)$calendarCounts['active']) ?></p>
+        </div>
+        <div class="rounded-2xl border <?= $calendarCounts['conflicts'] > 0 ? 'border-red-500/40 bg-red-500/10' : 'border-slate-800 bg-slate-900/60' ?> p-5">
+            <p class="text-xs uppercase tracking-[0.18em] <?= $calendarCounts['conflicts'] > 0 ? 'text-red-300' : 'text-slate-500' ?>">Conflits</p>
+            <p class="mt-2 text-3xl font-extrabold"><?= e((string)$calendarCounts['conflicts']) ?></p>
+        </div>
+    </section>
+
+    <section class="mt-4 grid gap-6 lg:grid-cols-[1fr_2fr]">
         <div class="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
             <h2 class="text-xl font-bold"><?= e(kc_t('manager.status.title')) ?></h2>
             <p class="mt-2 text-slate-300"><?= e(kc_t('manager.status.connected')) ?></p>
@@ -545,7 +589,7 @@ try {
         </form>
     </section>
 
-    <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+    <section id="admin-users" class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
         <h2 class="text-xl font-bold"><?= e(kc_t('manager.users.title')) ?></h2>
         <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('manager.users.description')) ?></p>
         <div class="mt-4 overflow-x-auto">
@@ -592,7 +636,7 @@ try {
     </section>
 
 
-    <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+    <section id="admin-meal-summary" class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
         <div class="flex items-center justify-between gap-3"><h2 class="text-xl font-bold"><?= e(kc_t('manager.meal.title')) ?></h2><a href="<?= e(manager_dashboard_url()) ?>&download=meal_reservations_xlsx" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.meal.export')) ?></a></div>
         <div class="mt-4 grid gap-3 md:grid-cols-3">
             <div class="rounded-xl border border-slate-800 p-4"><p class="text-slate-400 text-sm"><?= e(kc_t('manager.meal.adult_count')) ?></p><p class="text-2xl font-bold"><?= e((string)$mealSummary['total_adult']) ?></p></div>
