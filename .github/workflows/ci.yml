@@ -95,6 +95,12 @@ jobs:
       - name: Install Selenium dependencies
         run: python -m pip install --upgrade pip && python -m pip install -r tests/selenium/requirements.txt
 
+      - name: Validate Selenium test imports
+        run: python -m py_compile tests/selenium/conftest.py tests/selenium/test_auth_flows.py tests/selenium/test_admin_calendar_meal.py
+
+      - name: Collect Selenium tests
+        run: python -m pytest tests/selenium --collect-only
+
       - name: Write CI environment
         run: |
           cat > .env <<EOF

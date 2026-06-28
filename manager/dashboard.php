@@ -124,13 +124,21 @@ try {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete'], true)) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete', 'calendar_event_toggle', 'calendar_event_duplicate'], true)) {
         require_manager_csrf();
 
         try {
             if (($_POST['action'] ?? '') === 'calendar_event_delete') {
                 kc_calendar_delete_event($db, (int)($_POST['event_id'] ?? 0));
                 flash('Evenement calendrier supprime.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'calendar_event_toggle') {
+                kc_calendar_set_event_active($db, (int)($_POST['event_id'] ?? 0), (string)($_POST['is_active'] ?? '0') === '1');
+                flash('Statut calendrier mis a jour.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'calendar_event_duplicate') {
+                kc_calendar_duplicate_event($db, (int)($_POST['event_id'] ?? 0));
+                flash('Evenement calendrier duplique en brouillon inactif.', 'success');
             }
             else {
                 kc_calendar_save_event($db, $_POST);
@@ -351,9 +359,17 @@ try {
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
 
     $calendarRows = kc_calendar_admin_event_rows($db);
-    $calendarPayload = kc_calendar_events_payload($calendarRows);
+    $calendarPayload = kc_calendar_events_payload($calendarRows, true);
     $calendarAudiences = kc_calendar_audiences();
     $calendarEventTypes = kc_calendar_event_types();
+    $calendarCounts = kc_calendar_admin_counts($calendarRows);
+    $calendarConflicts = kc_calendar_admin_conflicts($calendarRows);
+    $calendarCounts['conflicts'] = count($calendarConflicts);
+    $calendarConflictIds = [];
+    foreach ($calendarConflicts as $calendarConflict) {
+        $calendarConflictIds[(string)$calendarConflict['first_id']] = true;
+        $calendarConflictIds[(string)$calendarConflict['second_id']] = true;
+    }
     $mealAdminOld = $_SESSION['meal_admin_old'] ?? [
         'profile_name' => '',
         'contact_email' => '',
@@ -418,7 +434,10 @@ try {
         return window.FullCalendar;
       });
     </script>
-    <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;}</style>
+    <style>
+      body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;}
+      .kc-calendar-inactive{opacity:.45;filter:grayscale(.35);}
+    </style>
 </head>
 <body class="bg-slate-950 text-slate-100">
 <main class="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 py-10">
@@ -612,10 +631,51 @@ try {
         <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div>
                 <h2 class="text-xl font-bold"><?= e(kc_t('manager.calendar.title')) ?></h2>
-                <p class="mt-2 text-sm text-slate-400">Gerez les calendriers enfants, ados et adultes avec des evenements ponctuels ou repetes.</p>
+                <p class="mt-2 text-sm text-slate-400">Gerez les calendriers enfants, ados et adultes avec des evenements ponctuels ou repetes. Les evenements inactifs restent visibles ici mais ne sont pas publies.</p>
             </div>
             <button id="btnNewEvent" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.calendar.new')) ?></button>
         </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Total</p>
+                <p class="mt-1 text-2xl font-bold"><?= e((string)$calendarCounts['total']) ?></p>
+            </div>
+            <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-emerald-300">Publies</p>
+                <p class="mt-1 text-2xl font-bold"><?= e((string)$calendarCounts['active']) ?></p>
+            </div>
+            <div class="rounded-xl border border-slate-700 bg-slate-950/40 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Brouillons</p>
+                <p class="mt-1 text-2xl font-bold"><?= e((string)$calendarCounts['inactive']) ?></p>
+            </div>
+            <div class="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-sky-300">Repetes</p>
+                <p class="mt-1 text-2xl font-bold"><?= e((string)$calendarCounts['recurring']) ?></p>
+            </div>
+            <div class="rounded-xl border <?= $calendarCounts['conflicts'] > 0 ? 'border-red-500/40 bg-red-500/10' : 'border-slate-800 bg-slate-950/40' ?> p-4">
+                <p class="text-xs uppercase tracking-[0.18em] <?= $calendarCounts['conflicts'] > 0 ? 'text-red-300' : 'text-slate-500' ?>">Conflits</p>
+                <p class="mt-1 text-2xl font-bold"><?= e((string)$calendarCounts['conflicts']) ?></p>
+            </div>
+        </div>
+
+        <?php if ($calendarConflicts !== []): ?>
+            <div class="mt-5 rounded-xl border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-100">
+                <p class="font-semibold">Conflits horaires detectes</p>
+                <div class="mt-3 space-y-2">
+                    <?php foreach (array_slice($calendarConflicts, 0, 8) as $conflict): ?>
+                        <div class="rounded-lg border border-red-500/20 bg-red-950/30 px-3 py-2">
+                            <span class="font-semibold"><?= e($calendarAudiences[(string)$conflict['audience']] ?? (string)$conflict['audience']) ?></span>
+                            <span class="text-red-200"> - <?= e((string)$conflict['start']) ?></span>
+                            <span class="text-red-100"> : <?= e((string)$conflict['first_title']) ?> / <?= e((string)$conflict['second_title']) ?></span>
+                        </div>
+                    <?php endforeach; ?>
+                    <?php if (count($calendarConflicts) > 8): ?>
+                        <p class="text-red-200">Seuls les 8 premiers conflits sont affiches.</p>
+                    <?php endif; ?>
+                </div>
+            </div>
+        <?php endif; ?>
 
         <div id="calendarAudienceFilters" class="mt-5 flex flex-wrap gap-2 text-sm">
             <button type="button" data-filter="club" class="calendar-filter rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 font-semibold text-slate-100">Tout</button>
@@ -624,8 +684,89 @@ try {
             <button type="button" data-filter="adults" class="calendar-filter rounded-lg border border-emerald-400/60 px-3 py-2 font-semibold text-emerald-100">Adultes</button>
         </div>
 
+        <div class="mt-4">
+            <label for="calendarSearch" class="sr-only">Rechercher un evenement</label>
+            <input id="calendarSearch" type="search" placeholder="Rechercher par titre, calendrier, type ou date" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500">
+        </div>
+
         <div class="mt-6 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
             <div id="adminCalendar" class="min-h-[560px]"></div>
+        </div>
+
+        <div class="mt-6 overflow-x-auto rounded-xl border border-slate-800">
+            <table class="min-w-full text-sm">
+                <thead class="bg-slate-950/70 text-left text-slate-400">
+                <tr>
+                    <th class="px-3 py-2">Statut</th>
+                    <th class="px-3 py-2">Calendrier</th>
+                    <th class="px-3 py-2">Type</th>
+                    <th class="px-3 py-2">Titre</th>
+                    <th class="px-3 py-2">Periode</th>
+                    <th class="px-3 py-2">Horaire</th>
+                    <th class="px-3 py-2 text-right">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="calendarEventRows">
+                <?php foreach ($calendarRows as $calendarRow): ?>
+                    <?php
+                    $calendarRowId = (int)($calendarRow['id'] ?? 0);
+                    $calendarAudience = (string)($calendarRow['audience'] ?? 'children');
+                    $calendarType = (string)($calendarRow['event_type'] ?? 'single');
+                    $calendarActive = (int)($calendarRow['is_active'] ?? 1) === 1;
+                    $calendarHasConflict = isset($calendarConflictIds[(string)$calendarRowId]);
+                    $calendarSearchText = strtolower(trim(
+                        (string)($calendarRow['title'] ?? '') . ' '
+                        . ($calendarAudiences[$calendarAudience] ?? $calendarAudience) . ' '
+                        . ($calendarEventTypes[$calendarType] ?? $calendarType) . ' '
+                        . kc_calendar_admin_period_label($calendarRow) . ' '
+                        . kc_calendar_admin_schedule_label($calendarRow)
+                    ));
+                    ?>
+                    <tr data-calendar-row data-audience="<?= e($calendarAudience) ?>" data-search="<?= e($calendarSearchText) ?>" class="border-t <?= $calendarHasConflict ? 'border-red-500/30 bg-red-950/20' : 'border-slate-800' ?> <?= $calendarActive ? '' : 'bg-slate-950/50 text-slate-400' ?>">
+                        <td class="px-3 py-3">
+                            <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold <?= $calendarActive ? 'bg-emerald-500/15 text-emerald-200' : 'bg-slate-700/60 text-slate-300' ?>">
+                                <?= $calendarActive ? 'Publie' : 'Brouillon' ?>
+                            </span>
+                            <?php if ($calendarHasConflict): ?>
+                                <span class="mt-1 inline-flex rounded-full bg-red-500/15 px-2 py-1 text-xs font-semibold text-red-200">Conflit</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-3 py-3"><?= e($calendarAudiences[$calendarAudience] ?? $calendarAudience) ?></td>
+                        <td class="px-3 py-3"><?= e($calendarEventTypes[$calendarType] ?? $calendarType) ?></td>
+                        <td class="px-3 py-3 font-semibold text-slate-100"><?= e((string)($calendarRow['title'] ?? '')) ?></td>
+                        <td class="px-3 py-3 whitespace-nowrap"><?= e(kc_calendar_admin_period_label($calendarRow)) ?></td>
+                        <td class="px-3 py-3 whitespace-nowrap"><?= e(kc_calendar_admin_schedule_label($calendarRow)) ?></td>
+                        <td class="px-3 py-3">
+                            <div class="flex flex-wrap justify-end gap-2">
+                                <button type="button" data-edit-event-id="<?= e((string)$calendarRowId) ?>" class="rounded-lg border border-slate-600 px-2 py-1 text-xs font-semibold text-slate-100 hover:bg-slate-800">Modifier</button>
+                                <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-calendar')) ?>">
+                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="calendar_event_duplicate">
+                                    <input type="hidden" name="event_id" value="<?= e((string)$calendarRowId) ?>">
+                                    <button class="rounded-lg border border-sky-600 px-2 py-1 text-xs font-semibold text-sky-100 hover:bg-sky-950">Dupliquer</button>
+                                </form>
+                                <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-calendar')) ?>">
+                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="calendar_event_toggle">
+                                    <input type="hidden" name="event_id" value="<?= e((string)$calendarRowId) ?>">
+                                    <input type="hidden" name="is_active" value="<?= $calendarActive ? '0' : '1' ?>">
+                                    <button class="rounded-lg border border-emerald-600 px-2 py-1 text-xs font-semibold text-emerald-100 hover:bg-emerald-950"><?= $calendarActive ? 'Desactiver' : 'Activer' ?></button>
+                                </form>
+                                <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-calendar')) ?>" onsubmit="return confirm('Supprimer cet evenement calendrier ?');">
+                                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                    <input type="hidden" name="action" value="calendar_event_delete">
+                                    <input type="hidden" name="event_id" value="<?= e((string)$calendarRowId) ?>">
+                                    <button class="rounded-lg border border-red-600 px-2 py-1 text-xs font-semibold text-red-100 hover:bg-red-950">Supprimer</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if ($calendarRows === []): ?>
+                    <tr><td colspan="7" class="px-3 py-4 text-slate-400">Aucun evenement calendrier.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
         </div>
     </section>
 
@@ -794,6 +935,9 @@ try {
   const btnNew = document.getElementById('btnNewEvent');
   const btnCancel = document.getElementById('btnCancel');
   const filterButtons = Array.from(document.querySelectorAll('.calendar-filter'));
+  const searchInput = document.getElementById('calendarSearch');
+  const tableRows = Array.from(document.querySelectorAll('[data-calendar-row]'));
+  const editButtons = Array.from(document.querySelectorAll('[data-edit-event-id]'));
   let pendingCalendarChangeRevert = null;
   let eventFormSubmitting = false;
 
@@ -823,6 +967,16 @@ try {
     });
   }
 
+  function syncCalendarTable() {
+    const query = (searchInput?.value || '').trim().toLowerCase();
+    tableRows.forEach((row) => {
+      const audience = row.dataset.audience || '';
+      const matchesAudience = activeFilter === 'club' || audience === activeFilter || audience === 'all';
+      const matchesSearch = query === '' || (row.dataset.search || '').includes(query);
+      row.classList.toggle('hidden', !(matchesAudience && matchesSearch));
+    });
+  }
+
   function resetDayCheckboxes(values = []) {
     const selectedDays = values.map((value) => Number(value));
     dayCheckboxes.forEach((checkbox) => {
@@ -849,7 +1003,7 @@ try {
       title: event.title,
       start: event.start,
       end: event.end,
-      color: event.backgroundColor || event.borderColor,
+      color: extended.color || event.backgroundColor || event.borderColor,
       audience: extended.audience || 'children',
       eventType: extended.eventType || 'single',
       description: extended.description || '',
@@ -857,6 +1011,27 @@ try {
       startTime: extended.startTime || '',
       endTime: extended.endTime || '',
       startRecur: extended.startRecur || '',
+      endRecur: extended.endRecur || '',
+      sortOrder: extended.sortOrder ?? 100,
+      isActive: extended.isActive !== false
+    };
+  }
+
+  function eventDataFromPlainEvent(event) {
+    const extended = event.extendedProps || {};
+    return {
+      id: event.id,
+      title: event.title,
+      start: event.start || '',
+      end: event.end || '',
+      color: extended.color || event.color || '#3b82f6',
+      audience: extended.audience || 'children',
+      eventType: extended.eventType || 'single',
+      description: extended.description || '',
+      daysOfWeek: extended.daysOfWeek || event.daysOfWeek || [],
+      startTime: extended.startTime || event.startTime || '',
+      endTime: extended.endTime || event.endTime || '',
+      startRecur: extended.startRecur || event.startRecur || '',
       endRecur: extended.endRecur || '',
       sortOrder: extended.sortOrder ?? 100,
       isActive: extended.isActive !== false
@@ -950,6 +1125,19 @@ try {
       activeFilter = button.dataset.filter || 'club';
       updateFilterButtons();
       refreshCalendarEvents(calendar);
+      syncCalendarTable();
+    });
+  });
+
+  searchInput?.addEventListener('input', syncCalendarTable);
+
+  editButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const eventId = button.dataset.editEventId || '';
+      const event = serverEvents.find((candidate) => String(candidate.id) === String(eventId));
+      if (event) {
+        openDialog(eventDataFromPlainEvent(event));
+      }
     });
   });
 
@@ -964,6 +1152,7 @@ try {
   });
 
   updateFilterButtons();
+  syncCalendarTable();
   toggleEventTypeFields();
   calendar.render();
   }).catch((e) => console.error('Erreur FullCalendar:', e));

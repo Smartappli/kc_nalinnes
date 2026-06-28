@@ -17,6 +17,18 @@ function kc_calendar_event_types(): array {
     ];
 }
 
+function kc_calendar_day_labels(): array {
+    return [
+        1 => 'Lun',
+        2 => 'Mar',
+        3 => 'Mer',
+        4 => 'Jeu',
+        5 => 'Ven',
+        6 => 'Sam',
+        0 => 'Dim',
+    ];
+}
+
 function kc_calendar_default_color(string $audience): string {
     return match ($audience) {
         'children' => '#3b82f6',
@@ -254,6 +266,18 @@ function kc_calendar_days_to_storage(mixed $value): string {
     return json_encode(kc_calendar_days_from_value($value), JSON_THROW_ON_ERROR);
 }
 
+function kc_calendar_days_label(mixed $value): string {
+    $labels = kc_calendar_day_labels();
+    $days = kc_calendar_days_from_value($value);
+    $out = [];
+
+    foreach ($days as $day) {
+        $out[] = $labels[$day] ?? (string)$day;
+    }
+
+    return $out !== [] ? implode(', ', $out) : '-';
+}
+
 function kc_calendar_normalize_audience(string $audience): string {
     $audience = trim($audience);
     if (!array_key_exists($audience, kc_calendar_audiences())) {
@@ -322,6 +346,22 @@ function kc_calendar_normalize_time(?string $value): ?string {
     return strlen($value) === 5 ? $value . ':00' : $value;
 }
 
+function kc_calendar_recurrence_has_occurrence(string $startRecur, string $endRecur, array $daysOfWeek): bool {
+    $cursor = new DateTimeImmutable($startRecur);
+    $endDate = new DateTimeImmutable($endRecur);
+    $daySet = array_flip(kc_calendar_days_from_value($daysOfWeek));
+
+    while ($cursor <= $endDate) {
+        if (isset($daySet[(int)$cursor->format('w')])) {
+            return true;
+        }
+
+        $cursor = $cursor->modify('+1 day');
+    }
+
+    return false;
+}
+
 function kc_calendar_normalize_event_input(array $input): array {
     $audience = kc_calendar_normalize_audience((string)($input['audience'] ?? 'children'));
     $eventType = kc_calendar_normalize_event_type((string)($input['event_type'] ?? 'single'));
@@ -377,8 +417,12 @@ function kc_calendar_normalize_event_input(array $input): array {
         throw new InvalidArgumentException('L heure de fin doit etre posterieure au debut.');
     }
 
-    if (strtotime($row['end_recur']) <= strtotime($row['start_recur'])) {
-        throw new InvalidArgumentException('La fin de recurrence doit etre posterieure au debut.');
+    if (strtotime($row['end_recur']) < strtotime($row['start_recur'])) {
+        throw new InvalidArgumentException('La fin de recurrence doit etre posterieure ou egale au debut.');
+    }
+
+    if (!kc_calendar_recurrence_has_occurrence($row['start_recur'], $row['end_recur'], $row['days_of_week'])) {
+        throw new InvalidArgumentException('La periode de recurrence ne contient aucun jour selectionne.');
     }
 
     return $row;
@@ -447,6 +491,67 @@ function kc_calendar_delete_event(PDO $db, int $id): void {
     $stmt->execute([':id' => $id]);
 }
 
+function kc_calendar_event_by_id(PDO $db, int $id): ?array {
+    ensure_calendar_events_table($db);
+
+    if ($id <= 0) {
+        throw new InvalidArgumentException('Evenement calendrier invalide.');
+    }
+
+    $stmt = $db->prepare('SELECT * FROM calendar_events WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $id]);
+    $row = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    return is_array($row) ? $row : null;
+}
+
+function kc_calendar_set_event_active(PDO $db, int $id, bool $isActive): void {
+    ensure_calendar_events_table($db);
+
+    if ($id <= 0) {
+        throw new InvalidArgumentException('Evenement calendrier invalide.');
+    }
+
+    $stmt = $db->prepare('UPDATE calendar_events SET is_active = :is_active WHERE id = :id');
+    $stmt->execute([
+        ':id' => $id,
+        ':is_active' => $isActive ? 1 : 0,
+    ]);
+}
+
+function kc_calendar_duplicate_event(PDO $db, int $id): int {
+    $source = kc_calendar_event_by_id($db, $id);
+    if ($source === null) {
+        throw new InvalidArgumentException('Evenement calendrier introuvable.');
+    }
+
+    $stmt = $db->prepare('INSERT INTO calendar_events
+        (audience, event_type, title, description, color, start_at, end_at, days_of_week, start_time, end_time, start_recur, end_recur, is_active, sort_order)
+        VALUES
+        (:audience, :event_type, :title, :description, :color, :start_at, :end_at, :days_of_week, :start_time, :end_time, :start_recur, :end_recur, :is_active, :sort_order)');
+
+    $title = trim((string)($source['title'] ?? ''));
+    $copyTitle = mb_substr($title . ' (copie)', 0, 255);
+    $stmt->execute([
+        ':audience' => (string)$source['audience'],
+        ':event_type' => (string)$source['event_type'],
+        ':title' => $copyTitle,
+        ':description' => (string)($source['description'] ?? ''),
+        ':color' => (string)($source['color'] ?? kc_calendar_default_color((string)$source['audience'])),
+        ':start_at' => $source['start_at'] ?? null,
+        ':end_at' => $source['end_at'] ?? null,
+        ':days_of_week' => $source['days_of_week'] ?? kc_calendar_days_to_storage([]),
+        ':start_time' => $source['start_time'] ?? null,
+        ':end_time' => $source['end_time'] ?? null,
+        ':start_recur' => $source['start_recur'] ?? null,
+        ':end_recur' => $source['end_recur'] ?? null,
+        ':is_active' => 0,
+        ':sort_order' => (int)($source['sort_order'] ?? 0) + 1,
+    ]);
+
+    return (int)$db->lastInsertId();
+}
+
 function kc_calendar_datetime_for_json(?string $value): ?string {
     if ($value === null || trim($value) === '') {
         return null;
@@ -463,26 +568,39 @@ function kc_calendar_time_for_json(?string $value): ?string {
     return substr($value, 0, 5);
 }
 
+function kc_calendar_fullcalendar_end_recur(?string $value): ?string {
+    $date = kc_calendar_normalize_date($value);
+    if ($date === null) {
+        return null;
+    }
+
+    return (new DateTimeImmutable($date))->modify('+1 day')->format('Y-m-d');
+}
+
 function kc_calendar_row_to_fullcalendar(array $row): array {
     $audience = kc_calendar_normalize_audience((string)($row['audience'] ?? 'children'));
     $eventType = kc_calendar_normalize_event_type((string)($row['event_type'] ?? 'single'));
     $daysOfWeek = kc_calendar_days_from_value($row['days_of_week'] ?? []);
+    $isActive = (int)($row['is_active'] ?? 1) === 1;
+    $color = kc_calendar_normalize_color((string)($row['color'] ?? ''), $audience);
 
     $event = [
         'id' => (string)($row['id'] ?? ('event-' . ($row['sort_order'] ?? '0'))),
         'title' => (string)($row['title'] ?? ''),
-        'color' => kc_calendar_normalize_color((string)($row['color'] ?? ''), $audience),
+        'color' => $isActive ? $color : '#64748b',
+        'classNames' => $isActive ? [] : ['kc-calendar-inactive'],
         'extendedProps' => [
             'audience' => $audience,
             'eventType' => $eventType,
             'description' => (string)($row['description'] ?? ''),
+            'color' => $color,
             'daysOfWeek' => $daysOfWeek,
             'startTime' => kc_calendar_time_for_json($row['start_time'] ?? null),
             'endTime' => kc_calendar_time_for_json($row['end_time'] ?? null),
             'startRecur' => $row['start_recur'] ?? null,
             'endRecur' => $row['end_recur'] ?? null,
             'sortOrder' => (int)($row['sort_order'] ?? 0),
-            'isActive' => (int)($row['is_active'] ?? 1) === 1,
+            'isActive' => $isActive,
         ],
     ];
 
@@ -491,7 +609,7 @@ function kc_calendar_row_to_fullcalendar(array $row): array {
         $event['startTime'] = kc_calendar_time_for_json($row['start_time'] ?? null);
         $event['endTime'] = kc_calendar_time_for_json($row['end_time'] ?? null);
         $event['startRecur'] = (string)($row['start_recur'] ?? '');
-        $event['endRecur'] = (string)($row['end_recur'] ?? '');
+        $event['endRecur'] = kc_calendar_fullcalendar_end_recur($row['end_recur'] ?? null);
         return $event;
     }
 
@@ -532,7 +650,7 @@ function kc_calendar_expand_row_for_ics(array $row): array {
     $endDate = new DateTimeImmutable($endRecur);
     $daySet = array_flip($days);
 
-    while ($cursor < $endDate) {
+    while ($cursor <= $endDate) {
         if (isset($daySet[(int)$cursor->format('w')])) {
             $date = $cursor->format('Y-m-d');
             $events[] = [
@@ -549,7 +667,7 @@ function kc_calendar_expand_row_for_ics(array $row): array {
     return $events;
 }
 
-function kc_calendar_events_payload(array $rows): array {
+function kc_calendar_events_payload(array $rows, bool $includeInactiveFullCalendar = false): array {
     $fullcalendar = [];
     $ics = [
         'children' => [],
@@ -559,12 +677,16 @@ function kc_calendar_events_payload(array $rows): array {
     ];
 
     foreach ($rows as $row) {
-        if ((int)($row['is_active'] ?? 1) !== 1) {
+        $isActive = (int)($row['is_active'] ?? 1) === 1;
+        if ($isActive || $includeInactiveFullCalendar) {
+            $fullcalendar[] = kc_calendar_row_to_fullcalendar($row);
+        }
+
+        if (!$isActive) {
             continue;
         }
 
         $audience = (string)($row['audience'] ?? 'children');
-        $fullcalendar[] = kc_calendar_row_to_fullcalendar($row);
         $expanded = kc_calendar_expand_row_for_ics($row);
         $targets = $audience === 'all' ? ['children', 'teens', 'adults'] : [$audience];
 
@@ -603,4 +725,157 @@ function kc_calendar_dedupe_ics_events(array $events): array {
     }
 
     return $out;
+}
+
+function kc_calendar_audience_targets(string $audience): array {
+    return $audience === 'all' ? ['children', 'teens', 'adults'] : [$audience];
+}
+
+function kc_calendar_admin_counts(array $rows): array {
+    $counts = [
+        'total' => 0,
+        'active' => 0,
+        'inactive' => 0,
+        'single' => 0,
+        'recurring' => 0,
+        'conflicts' => 0,
+        'children' => 0,
+        'teens' => 0,
+        'adults' => 0,
+        'all' => 0,
+    ];
+
+    foreach ($rows as $row) {
+        $counts['total']++;
+        $isActive = (int)($row['is_active'] ?? 1) === 1;
+        $counts[$isActive ? 'active' : 'inactive']++;
+
+        $eventType = (string)($row['event_type'] ?? '');
+        if (isset($counts[$eventType])) {
+            $counts[$eventType]++;
+        }
+
+        $audience = (string)($row['audience'] ?? '');
+        if (isset($counts[$audience])) {
+            $counts[$audience]++;
+        }
+    }
+
+    return $counts;
+}
+
+function kc_calendar_admin_conflicts(array $rows, int $limit = 50): array {
+    $occurrences = [];
+
+    foreach ($rows as $row) {
+        if ((int)($row['is_active'] ?? 1) !== 1) {
+            continue;
+        }
+
+        $audience = kc_calendar_normalize_audience((string)($row['audience'] ?? 'children'));
+        $targets = kc_calendar_audience_targets($audience);
+
+        foreach (kc_calendar_expand_row_for_ics($row) as $event) {
+            $startTs = strtotime((string)($event['start'] ?? ''));
+            $endTs = strtotime((string)($event['end'] ?? ''));
+            if ($startTs === false || $endTs === false || $endTs <= $startTs) {
+                continue;
+            }
+
+            foreach ($targets as $target) {
+                $occurrences[] = [
+                    'id' => (string)($row['id'] ?? ('event-' . ($row['sort_order'] ?? '0'))),
+                    'audience' => $target,
+                    'title' => (string)($row['title'] ?? ''),
+                    'start' => (string)$event['start'],
+                    'end' => (string)$event['end'],
+                    'start_ts' => $startTs,
+                    'end_ts' => $endTs,
+                ];
+            }
+        }
+    }
+
+    usort($occurrences, static function (array $a, array $b): int {
+        return strcmp((string)$a['audience'], (string)$b['audience'])
+            ?: ((int)$a['start_ts'] <=> (int)$b['start_ts'])
+            ?: strcmp((string)$a['title'], (string)$b['title']);
+    });
+
+    $conflicts = [];
+    $seen = [];
+    $count = count($occurrences);
+    for ($i = 0; $i < $count; $i++) {
+        $left = $occurrences[$i];
+        for ($j = $i + 1; $j < $count; $j++) {
+            $right = $occurrences[$j];
+
+            if ($right['audience'] !== $left['audience']) {
+                break;
+            }
+
+            if ((int)$right['start_ts'] >= (int)$left['end_ts']) {
+                break;
+            }
+
+            if ((string)$right['id'] === (string)$left['id']) {
+                continue;
+            }
+
+            $pair = [(string)$left['id'], (string)$right['id']];
+            sort($pair);
+            $key = (string)$left['audience'] . '|' . (string)$left['start'] . '|' . implode(':', $pair);
+            if (isset($seen[$key])) {
+                continue;
+            }
+
+            $seen[$key] = true;
+            $conflicts[] = [
+                'audience' => (string)$left['audience'],
+                'start' => (string)$left['start'],
+                'end' => (string)$left['end'],
+                'first_id' => (string)$left['id'],
+                'first_title' => (string)$left['title'],
+                'second_id' => (string)$right['id'],
+                'second_title' => (string)$right['title'],
+            ];
+
+            if (count($conflicts) >= $limit) {
+                return $conflicts;
+            }
+        }
+    }
+
+    return $conflicts;
+}
+
+function kc_calendar_admin_period_label(array $row): string {
+    $eventType = (string)($row['event_type'] ?? 'single');
+    if ($eventType === 'recurring') {
+        return (string)($row['start_recur'] ?? '-') . ' -> ' . (string)($row['end_recur'] ?? '-');
+    }
+
+    $start = kc_calendar_datetime_for_json($row['start_at'] ?? null);
+    $end = kc_calendar_datetime_for_json($row['end_at'] ?? null);
+
+    return ($start ?? '-') . ' -> ' . ($end ?? '-');
+}
+
+function kc_calendar_admin_schedule_label(array $row): string {
+    $eventType = (string)($row['event_type'] ?? 'single');
+    if ($eventType === 'recurring') {
+        return kc_calendar_days_label($row['days_of_week'] ?? []) . ' | '
+            . (kc_calendar_time_for_json($row['start_time'] ?? null) ?? '--:--')
+            . '-'
+            . (kc_calendar_time_for_json($row['end_time'] ?? null) ?? '--:--');
+    }
+
+    $start = kc_calendar_datetime_for_json($row['start_at'] ?? null);
+    if ($start === null) {
+        return '-';
+    }
+
+    return substr($start, 0, 10) . ' | ' . substr($start, 11, 5)
+        . '-'
+        . substr((string)(kc_calendar_datetime_for_json($row['end_at'] ?? null) ?? ''), 11, 5);
 }

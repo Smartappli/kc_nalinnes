@@ -83,6 +83,7 @@ final class CalendarEventsTest extends TestCase {
         $this->assertSame([1, 5], $event['daysOfWeek']);
         $this->assertSame('18:00', $event['startTime']);
         $this->assertSame('2026-09-01', $event['startRecur']);
+        $this->assertSame('2026-09-09', $event['endRecur']);
 
         $expanded = kc_calendar_expand_row_for_ics($row);
 
@@ -90,6 +91,26 @@ final class CalendarEventsTest extends TestCase {
             ['2026-09-04T18:00', '2026-09-07T18:00'],
             array_column($expanded, 'start')
         );
+    }
+
+    public function testRecurringIcsIncludesTheConfiguredEndDate(): void {
+        $row = kc_calendar_normalize_event_input([
+            'audience' => 'children',
+            'event_type' => 'recurring',
+            'title' => 'Cours unique inclusif',
+            'days_of_week' => ['2'],
+            'start_time' => '17:00',
+            'end_time' => '18:00',
+            'start_recur' => '2026-09-01',
+            'end_recur' => '2026-09-01',
+            'is_active' => '1',
+        ]);
+
+        $expanded = kc_calendar_expand_row_for_ics($row);
+        $event = kc_calendar_row_to_fullcalendar(array_merge($row, ['id' => 41]));
+
+        $this->assertSame(['2026-09-01T17:00'], array_column($expanded, 'start'));
+        $this->assertSame('2026-09-02', $event['endRecur']);
     }
 
     public function testPayloadRoutesAllAudienceEventsToEveryCalendar(): void {
@@ -119,6 +140,43 @@ final class CalendarEventsTest extends TestCase {
         $this->assertNotContains('Enfants seulement', $adultsTitles);
     }
 
+    public function testAdminPayloadCanIncludeInactiveEventsWithoutPublishingThem(): void {
+        $active = kc_calendar_single_row(1, 'children', 'Actif', '2026-09-10T17:00:00', '2026-09-10T18:00:00');
+        $inactive = array_merge(
+            kc_calendar_single_row(2, 'children', 'Brouillon', '2026-09-11T17:00:00', '2026-09-11T18:00:00'),
+            ['is_active' => 0]
+        );
+
+        $publicPayload = kc_calendar_events_payload([$active, $inactive]);
+        $adminPayload = kc_calendar_events_payload([$active, $inactive], true);
+        $counts = kc_calendar_admin_counts([$active, $inactive]);
+
+        $this->assertSame(['Actif'], array_column($publicPayload['fullcalendar'], 'title'));
+        $this->assertSame(['Actif', 'Brouillon'], array_column($adminPayload['fullcalendar'], 'title'));
+        $this->assertSame(['kc-calendar-inactive'], $adminPayload['fullcalendar'][1]['classNames']);
+        $this->assertSame(['Actif'], array_column($adminPayload['ics']['children'], 'title'));
+        $this->assertSame(2, $counts['total']);
+        $this->assertSame(1, $counts['active']);
+        $this->assertSame(1, $counts['inactive']);
+    }
+
+    public function testAdminConflictsDetectSameAudienceAndAllAudienceOverlap(): void {
+        $rows = [
+            array_merge(kc_calendar_single_row(1, 'children', 'Cours enfants', '2026-09-10T17:00:00', '2026-09-10T18:00:00'), ['id' => 1]),
+            array_merge(kc_calendar_single_row(2, 'all', 'Evenement club', '2026-09-10T17:30:00', '2026-09-10T19:00:00'), ['id' => 2]),
+            array_merge(kc_calendar_single_row(3, 'teens', 'Cours ados', '2026-09-10T20:00:00', '2026-09-10T21:00:00'), ['id' => 3]),
+            array_merge(kc_calendar_single_row(4, 'adults', 'Cours adultes', '2026-09-10T20:00:00', '2026-09-10T21:00:00'), ['id' => 4]),
+            array_merge(kc_calendar_single_row(5, 'children', 'Brouillon chevauchant', '2026-09-10T17:15:00', '2026-09-10T17:45:00'), ['id' => 5, 'is_active' => 0]),
+        ];
+
+        $conflicts = kc_calendar_admin_conflicts($rows);
+
+        $this->assertCount(1, $conflicts);
+        $this->assertSame('children', $conflicts[0]['audience']);
+        $this->assertSame('Cours enfants', $conflicts[0]['first_title']);
+        $this->assertSame('Evenement club', $conflicts[0]['second_title']);
+    }
+
     public function testCalendarInputRejectsInvalidValues(): void {
         $this->expectException(InvalidArgumentException::class);
 
@@ -128,6 +186,21 @@ final class CalendarEventsTest extends TestCase {
             'title' => 'Invalide',
             'start_at' => '2026-09-12T10:00',
             'end_at' => '2026-09-12T12:00',
+        ]);
+    }
+
+    public function testRecurringEventRejectsPeriodWithoutSelectedDay(): void {
+        $this->expectException(InvalidArgumentException::class);
+
+        kc_calendar_normalize_event_input([
+            'audience' => 'children',
+            'event_type' => 'recurring',
+            'title' => 'Recurrence vide',
+            'days_of_week' => ['3'],
+            'start_time' => '17:00',
+            'end_time' => '18:00',
+            'start_recur' => '2026-09-01',
+            'end_recur' => '2026-09-01',
         ]);
     }
 }

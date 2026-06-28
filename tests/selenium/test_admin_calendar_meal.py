@@ -49,6 +49,11 @@ def click_when_ready(driver, locator):
     return element
 
 
+def click_element(driver, element):
+    driver.execute_script("arguments[0].scrollIntoView({ block: 'center' });", element)
+    element.click()
+
+
 def submit_login(driver, base_url):
     driver.get(absolute_url(base_url, "/membres.php?lang=fr"))
 
@@ -133,6 +138,24 @@ def test_admin_can_manage_single_and_recurring_calendar_events(driver, base_url)
     WebDriverWait(driver, WAIT_SECONDS).until(
         lambda current: recurring_title not in current.find_element(By.ID, "adminCalendar").text
     )
+
+    click_when_ready(driver, (By.CSS_SELECTOR, ".calendar-filter[data-filter='club']"))
+    recurring_row = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.presence_of_element_located(
+            (By.XPATH, f"//tr[@data-calendar-row][.//*[contains(normalize-space(), '{recurring_title}')]]")
+        )
+    )
+    click_element(driver, recurring_row.find_element(By.XPATH, ".//button[normalize-space()='Dupliquer']"))
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        lambda current: f"{recurring_title} (copie)" in current.find_element(By.TAG_NAME, "body").text
+    )
+    copied_row = driver.find_element(
+        By.XPATH,
+        f"//tr[@data-calendar-row][.//*[contains(normalize-space(), '{recurring_title} (copie)')]]",
+    )
+    assert "Brouillon" in copied_row.text
 
 
 def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
