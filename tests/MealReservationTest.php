@@ -61,6 +61,7 @@ final class MealReservationTest extends TestCase {
                 'member_user_id',
                 'profile_name',
                 'profile_type',
+                'status',
                 'contact_email',
                 'contact_phone',
                 'adult_qty',
@@ -96,9 +97,41 @@ final class MealReservationTest extends TestCase {
         $this->assertFileExists($path);
         $this->assertCount(2, $rows);
         $this->assertSame('Premier', $rows[0][2]);
-        $this->assertSame('premier@example.com', $rows[0][4]);
+        $this->assertSame('confirmed', $rows[0][4]);
+        $this->assertSame('premier@example.com', $rows[0][5]);
         $this->assertSame('Second', $rows[1][2]);
-        $this->assertSame('38', $rows[1][8]);
+        $this->assertSame('38', $rows[1][9]);
+    }
+
+    public function testReadLegacyMealReservationExcelRowsMapsMissingStatusColumn(): void {
+        $dir = $this->makeTempDir();
+        $path = $dir . DIRECTORY_SEPARATOR . 'reservations-repas.xls';
+        $legacyHeaders = meal_reservations_legacy_excel_headers();
+        $legacyRow = [
+            '2026-06-01 12:00:00',
+            '0',
+            'Legacy Public',
+            'public',
+            'legacy@example.com',
+            '+320000000',
+            '1',
+            '2',
+            '39',
+            'ancienne note',
+        ];
+        $htmlRows = [
+            '<tr>' . implode('', array_map(static fn(string $value): string => '<th>' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</th>', $legacyHeaders)) . '</tr>',
+            '<tr>' . implode('', array_map(static fn(string $value): string => '<td>' . htmlspecialchars($value, ENT_QUOTES, 'UTF-8') . '</td>', $legacyRow)) . '</tr>',
+        ];
+        file_put_contents($path, '<!doctype html><html><body><table>' . implode('', $htmlRows) . '</table></body></html>');
+
+        $rows = read_meal_reservations_excel_rows($path);
+
+        $this->assertCount(1, $rows);
+        $this->assertSame('Legacy Public', $rows[0][2]);
+        $this->assertSame('confirmed', $rows[0][4]);
+        $this->assertSame('legacy@example.com', $rows[0][5]);
+        $this->assertSame('ancienne note', $rows[0][10]);
     }
 
     public function testWriteMealReservationsExcelUsesXlsxWhenZipArchiveIsAvailable(): void {
@@ -121,7 +154,28 @@ final class MealReservationTest extends TestCase {
         $this->assertFileExists($path);
         $this->assertCount(1, $rows);
         $this->assertSame('Prod XLSX', $rows[0][2]);
-        $this->assertSame('prod@example.com', $rows[0][4]);
+        $this->assertSame('prod@example.com', $rows[0][5]);
+    }
+
+    public function testMealReservationStatusesAreValidated(): void {
+        $this->assertSame(
+            [
+                'confirmed' => 'Confirmee',
+                'pending' => 'A verifier',
+                'paid' => 'Payee',
+                'cancelled' => 'Annulee',
+            ],
+            meal_reservation_statuses()
+        );
+        $this->assertSame('confirmed', normalize_meal_reservation_status(''));
+        $this->assertSame('paid', normalize_meal_reservation_status('paid'));
+        $this->assertSame('Annulee', meal_reservation_status_label('cancelled'));
+    }
+
+    public function testInvalidMealReservationStatusIsRejected(): void {
+        $this->expectException(\InvalidArgumentException::class);
+
+        normalize_meal_reservation_status('unknown');
     }
 
     public function testSavePublicMealReservationPersistsContactFieldsInDatabase(): void {
@@ -141,6 +195,7 @@ final class MealReservationTest extends TestCase {
             'child_qty' => 2,
             'total_amount' => 39,
             'notes' => 'Sans sauce',
+            'status' => 'pending',
         ]);
 
         $row = $db->query('SELECT * FROM meal_reservations WHERE id = ' . $id)->fetch(\PDO::FETCH_ASSOC);
@@ -148,6 +203,7 @@ final class MealReservationTest extends TestCase {
         $this->assertIsArray($row);
         $this->assertSame('0', (string)$row['member_user_id']);
         $this->assertSame('public', $row['profile_type']);
+        $this->assertSame('pending', $row['status']);
         $this->assertSame('Client Public', $row['profile_name']);
         $this->assertSame('client@example.com', $row['contact_email']);
         $this->assertSame('+32 499 00 00 00', $row['contact_phone']);
@@ -186,6 +242,7 @@ final class MealReservationTest extends TestCase {
         $this->assertContains('contact_email', $columns);
         $this->assertContains('contact_phone', $columns);
         $this->assertContains('notes', $columns);
+        $this->assertContains('status', $columns);
     }
 
     private function reservationRow(array $overrides = []): array {
@@ -194,6 +251,7 @@ final class MealReservationTest extends TestCase {
             'member_user_id' => '0',
             'profile_name' => 'Test Public',
             'profile_type' => 'public',
+            'status' => 'confirmed',
             'contact_email' => 'test@example.com',
             'contact_phone' => '+320000000',
             'adult_qty' => '1',
@@ -222,6 +280,7 @@ final class MealReservationTest extends TestCase {
             profile_type TEXT NOT NULL,
             dependent_id INTEGER NULL,
             profile_name TEXT NOT NULL,
+            status TEXT NOT NULL DEFAULT \'confirmed\',
             contact_email TEXT NULL,
             contact_phone TEXT NULL,
             notes TEXT NULL,

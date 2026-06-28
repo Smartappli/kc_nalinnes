@@ -183,3 +183,24 @@ def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     body = driver.find_element(By.TAG_NAME, "body").text
     assert email in body
     assert "admin_public" in body
+
+    row = driver.find_element(
+        By.XPATH,
+        f"//section[@id='admin-meal-summary']//tr[.//*[contains(normalize-space(), '{name}')]]",
+    )
+    status = Select(row.find_element(By.CSS_SELECTOR, "select[name='status']"))
+    assert status.first_selected_option.get_attribute("value") == "confirmed"
+
+    status.select_by_value("paid")
+    click_element(driver, row.find_element(By.XPATH, ".//button[normalize-space()='OK']"))
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    row = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.presence_of_element_located(
+            (
+                By.XPATH,
+                f"//section[@id='admin-meal-summary']//tr[.//*[contains(normalize-space(), '{name}')]]",
+            )
+        )
+    )
+    assert Select(row.find_element(By.CSS_SELECTOR, "select[name='status']")).first_selected_option.get_attribute("value") == "paid"

@@ -673,26 +673,48 @@ try {
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
-                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.member_id')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.profile')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.type')) ?></th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.phone')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.adults')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.children')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.total')) ?></th><th class="py-2"><?= e(kc_t('manager.meal.note')) ?></th>
+                    <th class="py-2 pr-4">Date</th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.member_id')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.profile')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.type')) ?></th><th class="py-2 pr-4">Statut</th><th class="py-2 pr-4">Email</th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.phone')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.adults')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.children')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.total')) ?></th><th class="py-2 pr-4"><?= e(kc_t('manager.meal.note')) ?></th><th class="py-2">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <?php foreach ($mealReservations as $r): ?>
+                    <?php $reservationStatus = array_key_exists((string)($r['status'] ?? ''), $mealStatuses) ? (string)$r['status'] : 'confirmed'; ?>
                     <tr class="border-b border-slate-800/60">
                         <td class="py-2 pr-4"><?= e((string)$r['created_at']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['member_user_id']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['profile_name']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['profile_type']) ?></td>
+                        <td class="py-2 pr-4">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-meal-summary')) ?>" class="flex min-w-[12rem] items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="meal_reservation_status_update">
+                                <input type="hidden" name="reservation_id" value="<?= e((string)$r['id']) ?>">
+                                <select name="status" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
+                                    <?php foreach ($mealStatuses as $statusKey => $statusLabel): ?>
+                                        <option value="<?= e((string)$statusKey) ?>" <?= $reservationStatus === (string)$statusKey ? 'selected' : '' ?>><?= e((string)$statusLabel) ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button class="rounded-lg bg-sky-600 px-2 py-1 text-xs font-semibold text-white hover:bg-sky-500">OK</button>
+                            </form>
+                        </td>
                         <td class="py-2 pr-4"><?= e((string)($r['contact_email'] ?? '')) ?></td>
                         <td class="py-2 pr-4"><?= e((string)($r['contact_phone'] ?? '')) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['adult_qty']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['child_qty']) ?></td>
                         <td class="py-2 pr-4"><?= e((string)$r['total_amount']) ?> EUR</td>
-                        <td class="py-2"><?= e((string)($r['notes'] ?? '')) ?></td>
+                        <td class="py-2 pr-4"><?= e((string)($r['notes'] ?? '')) ?></td>
+                        <td class="py-2">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-meal-summary')) ?>" onsubmit="return confirm('Supprimer cette reservation repas ?');">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="meal_reservation_delete">
+                                <input type="hidden" name="reservation_id" value="<?= e((string)$r['id']) ?>">
+                                <button class="rounded-lg border border-red-600 px-2 py-1 text-xs font-semibold text-red-100 hover:bg-red-950">Supprimer</button>
+                            </form>
+                        </td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($mealReservations === []): ?>
-                    <tr><td colspan="10" class="py-3 text-slate-400"><?= e(kc_t('manager.meal.none')) ?></td></tr>
+                    <tr><td colspan="12" class="py-3 text-slate-400"><?= e(kc_t('manager.meal.none')) ?></td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>

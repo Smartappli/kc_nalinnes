@@ -203,6 +203,40 @@ function meal_reservations_excel_headers(): array {
     ];
 }
 
+function meal_reservations_legacy_excel_headers(): array {
+    return [
+        'date',
+        'member_user_id',
+        'profile_name',
+        'profile_type',
+        'contact_email',
+        'contact_phone',
+        'adult_qty',
+        'child_qty',
+        'total_amount',
+        'notes',
+    ];
+}
+
+function normalize_meal_reservation_excel_row_values(array $values): ?array {
+    $headers = meal_reservations_excel_headers();
+    $legacyHeaders = meal_reservations_legacy_excel_headers();
+
+    if ($values === $headers || $values === $legacyHeaders) {
+        return null;
+    }
+
+    if (count($values) === count($legacyHeaders)) {
+        $values = array_merge(
+            array_slice($values, 0, 4),
+            ['confirmed'],
+            array_slice($values, 4)
+        );
+    }
+
+    return array_pad(array_slice($values, 0, count($headers)), count($headers), '');
+}
+
 function meal_reservations_should_use_xlsx(string $path): bool {
     return strtolower(pathinfo($path, PATHINFO_EXTENSION)) === 'xlsx' && class_exists('ZipArchive');
 }
@@ -251,7 +285,6 @@ function read_meal_reservations_xlsx_rows(string $path): array {
         return [];
     }
 
-    $headers = meal_reservations_excel_headers();
     $rows = [];
     foreach ($dom->getElementsByTagNameNS('http://schemas.openxmlformats.org/spreadsheetml/2006/main', 'row') as $rowNode) {
         $values = [];
@@ -260,12 +293,11 @@ function read_meal_reservations_xlsx_rows(string $path): array {
             $values[] = $textNodes->length > 0 ? (string)$textNodes->item(0)->textContent : '';
         }
 
-        if ($values === $headers) {
-            continue;
-        }
-
         if ($values !== []) {
-            $rows[] = array_pad(array_slice($values, 0, count($headers)), count($headers), '');
+            $normalizedValues = normalize_meal_reservation_excel_row_values($values);
+            if ($normalizedValues !== null) {
+                $rows[] = $normalizedValues;
+            }
         }
     }
 
@@ -283,7 +315,6 @@ function read_meal_reservations_html_excel_rows(string $path): array {
         return [];
     }
 
-    $headers = meal_reservations_excel_headers();
     $rows = [];
     foreach ($dom->getElementsByTagName('tr') as $rowNode) {
         $values = [];
@@ -293,12 +324,11 @@ function read_meal_reservations_html_excel_rows(string $path): array {
             }
         }
 
-        if ($values === $headers) {
-            continue;
-        }
-
         if ($values !== []) {
-            $rows[] = array_pad(array_slice($values, 0, count($headers)), count($headers), '');
+            $normalizedValues = normalize_meal_reservation_excel_row_values($values);
+            if ($normalizedValues !== null) {
+                $rows[] = $normalizedValues;
+            }
         }
     }
 
