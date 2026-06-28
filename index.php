@@ -58,7 +58,9 @@ function e(string $text): string {
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/main.min.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/skeleton.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/themes/classic/theme.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/themes/classic/palette.css" />
   <link rel="stylesheet" href="css/index.css">
 
   <script>
@@ -1405,7 +1407,29 @@ function e(string $text): string {
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.19/index.global.min.js"></script>
+  <script>
+    window.kcFullCalendarReady = Promise.all([
+      import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/+esm'),
+      import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/daygrid/+esm'),
+      import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/timegrid/+esm'),
+      import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/list/+esm'),
+      import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/interaction/+esm'),
+      import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/themes/classic/+esm')
+    ]).then(function (modules) {
+      window.FullCalendar = {
+        Calendar: modules[0].Calendar || modules[0].default,
+        plugins: [
+          modules[1].default,
+          modules[2].default,
+          modules[3].default,
+          modules[4].default,
+          modules[5].default
+        ].filter(Boolean)
+      };
+
+      return window.FullCalendar;
+    });
+  </script>
 
   <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -1612,10 +1636,16 @@ function e(string $text): string {
       if(themeBtnM) themeBtnM.addEventListener('click', toggleTheme);
 
       // --- Calendrier (FullCalendar) --------------------------------
-      try {
-        var calendarEl = document.getElementById('calendar');
-        if (calendarEl && window.FullCalendar && typeof FullCalendar.Calendar === 'function') {
+      var calendarEl = document.getElementById('calendar');
+      if (calendarEl) {
+        (window.kcFullCalendarReady || Promise.resolve(window.FullCalendar))
+          .then(function (FullCalendar) {
+            if (!FullCalendar || typeof FullCalendar.Calendar !== 'function') {
+              return;
+            }
+
           var calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: FullCalendar.plugins || [],
             initialView: (window.matchMedia && window.matchMedia('(max-width: 640px)').matches) ? 'listWeek' : 'dayGridMonth',
             height: 'auto',
             contentHeight: 'auto',
@@ -1894,8 +1924,9 @@ function e(string $text): string {
             }
           });
           calendar.render();
-        }
-      } catch (e) { console.error('Erreur FullCalendar:', e); }
+          })
+          .catch(function (e) { console.error('Erreur FullCalendar:', e); });
+      }
 
       // --- Export ICS : outils communs -------------------------------
       function parseDate(str) {

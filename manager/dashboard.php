@@ -247,8 +247,32 @@ try {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/skeleton.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/themes/classic/theme.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/themes/classic/palette.css" rel="stylesheet">
+    <script>
+      window.kcFullCalendarReady = Promise.all([
+        import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/+esm'),
+        import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/daygrid/+esm'),
+        import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/timegrid/+esm'),
+        import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/list/+esm'),
+        import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/interaction/+esm'),
+        import('https://cdn.jsdelivr.net/npm/fullcalendar@7.0.0/themes/classic/+esm')
+      ]).then(function (modules) {
+        window.FullCalendar = {
+          Calendar: modules[0].Calendar || modules[0].default,
+          plugins: [
+            modules[1].default,
+            modules[2].default,
+            modules[3].default,
+            modules[4].default,
+            modules[5].default
+          ].filter(Boolean)
+        };
+
+        return window.FullCalendar;
+      });
+    </script>
     <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial;}</style>
 </head>
 <body class="bg-slate-950 text-slate-100">
@@ -413,6 +437,11 @@ try {
 
 <script>
 (() => {
+  (window.kcFullCalendarReady || Promise.resolve(window.FullCalendar)).then((FullCalendar) => {
+  if (!FullCalendar || typeof FullCalendar.Calendar !== 'function') {
+    return;
+  }
+
   const calendarTexts = <?= json_encode([
       'locale' => $locale,
       'new' => kc_t('manager.calendar.new'),
@@ -440,6 +469,7 @@ try {
   const btnCancel = document.getElementById('btnCancel');
 
   const calendar = new FullCalendar.Calendar(document.getElementById('adminCalendar'), {
+    plugins: FullCalendar.plugins || [],
     initialView: 'dayGridMonth',
     locale: calendarTexts.locale,
     editable: true,
@@ -497,6 +527,7 @@ try {
   });
 
   calendar.render();
+  }).catch((e) => console.error('Erreur FullCalendar:', e));
 })();
 </script>
 
