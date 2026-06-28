@@ -347,6 +347,8 @@ try {
     // Gestion membres (admin)
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['member_create', 'member_profile_update', 'member_password_reset', 'member_grade_add', 'member_grade_delete', 'member_payment_update', 'member_dependent_add', 'member_dependent_update', 'member_dependent_delete'], true)) {
         require_manager_csrf();
+        $memberPaymentYearForRedirect = manager_member_payment_year($_POST['payment_year'] ?? $_POST['period_year'] ?? date('Y'));
+        $memberAdminRedirect = manager_dashboard_anchor_url_with_params('admin-users', ['payment_year' => $memberPaymentYearForRedirect]);
 
         try {
             $targetId = (int)($_POST['target_user_id'] ?? 0);
@@ -416,7 +418,7 @@ try {
             flash(manager_admin_auth_exception_message($e), 'error');
         }
 
-        header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+        header('Location: ' . $memberAdminRedirect, true, 303);
         exit;
     }
 
@@ -449,33 +451,6 @@ try {
         header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
         exit;
     }
-
-
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'grade_update') {
-        require_manager_csrf();
-
-        $targetId = (int)($_POST['target_user_id'] ?? 0);
-
-        if ($targetId <= 0) {
-            flash(kc_t('manager.flash.invalid_grade_params'), 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
-            exit;
-        }
-
-        try {
-            manager_admin_save_grade($db, $targetId, manager_admin_normalize_member_grade($_POST['target_grade'] ?? ''));
-        }
-        catch (Throwable $e) {
-            flash($e->getMessage(), 'error');
-            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
-            exit;
-        }
-
-        flash(kc_t('manager.flash.grade_updated'), 'success');
-        header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
-        exit;
-    }
-
 
     if (isset($_GET['download']) && $_GET['download'] === 'meal_reservations_xlsx') {
         if (!$auth->isLoggedIn()) {
@@ -561,10 +536,7 @@ try {
 
     $usersStmt = $db->query('SELECT id, email, username FROM users ORDER BY id ASC');
     $users = $usersStmt->fetchAll();
-    $memberPaymentYear = (int)($_GET['payment_year'] ?? date('Y'));
-    if ($memberPaymentYear < 2000 || $memberPaymentYear > 2100) {
-        $memberPaymentYear = (int)date('Y');
-    }
+    $memberPaymentYear = manager_member_payment_year($_GET['payment_year'] ?? date('Y'));
     $memberProfilesByUserId = member_record_profiles_by_user_id($db);
 
     $dependentsStmt = $db->query('SELECT id, guardian_user_id, full_name, birthdate, is_minor FROM member_dependents ORDER BY guardian_user_id ASC, is_minor DESC, full_name ASC, id ASC');
@@ -1016,6 +988,7 @@ try {
         <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-5 grid gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4 lg:grid-cols-[1.2fr_0.9fr_0.9fr_1fr_0.8fr_0.8fr_auto]" data-disable-on-submit>
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
             <input type="hidden" name="action" value="member_create">
+            <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
             <div>
                 <label for="new_member_email" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Email</label>
                 <input id="new_member_email" name="new_member_email" type="email" required class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
@@ -1052,11 +1025,19 @@ try {
             </div>
         </form>
 
-        <div class="mt-5 grid gap-3 lg:grid-cols-[1fr_auto]">
+        <div class="mt-5 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
             <div>
                 <label for="memberSearch" class="sr-only">Rechercher un membre</label>
                 <input id="memberSearch" type="search" placeholder="Rechercher par email, nom, prenom, grade, enfant ou profil repas" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500">
             </div>
+            <form method="get" action="/manager/dashboard.php#admin-users" class="flex flex-wrap items-end gap-2">
+                <input type="hidden" name="lang" value="<?= e(kc_current_locale()) ?>">
+                <div>
+                    <label for="memberPaymentYear" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Annee paiements</label>
+                    <input id="memberPaymentYear" name="payment_year" type="number" min="2000" max="2100" value="<?= e((string)$memberPaymentYear) ?>" class="mt-1 w-28 rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
+                </div>
+                <button class="rounded-lg bg-slate-700 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-600">Voir</button>
+            </form>
             <div class="flex flex-wrap gap-2">
                 <label for="memberRoleFilter" class="sr-only">Filtrer par role</label>
                 <select id="memberRoleFilter" class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
@@ -1110,6 +1091,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="member_profile_update">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                 <label class="sr-only" for="member_email_<?= e((string)$rowId) ?>">Email membre</label>
                                 <input id="member_email_<?= e((string)$rowId) ?>" name="target_email" type="email" value="<?= e((string)($row['email'] ?? '')) ?>" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-sm font-semibold text-slate-100">
                                 <label class="sr-only" for="member_username_<?= e((string)$rowId) ?>">Nom membre</label>
@@ -1129,6 +1111,7 @@ try {
                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                 <input type="hidden" name="action" value="member_grade_add">
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                 <p class="text-xs font-semibold text-slate-300">Actuel: <?= e($rowGrade !== '' ? $rowGrade : 'A definir') ?></p>
                                 <input name="grade" value="<?= e($rowGrade) ?>" placeholder="Grade" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
                                 <input name="obtained_at" type="date" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
@@ -1143,6 +1126,7 @@ try {
                                                 <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
                                                 <input type="hidden" name="action" value="member_grade_delete">
                                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                                 <input type="hidden" name="grade_id" value="<?= e((string)$gradeRow['id']) ?>">
                                                 <button class="rounded bg-red-600 px-1.5 py-0.5 text-[11px] font-semibold text-white hover:bg-red-500">X</button>
                                             </form>
@@ -1158,6 +1142,7 @@ try {
                                 <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
                                 <input type="hidden" name="period_type" value="annual">
                                 <input type="hidden" name="period_year" value="<?= e((string)$memberPaymentYear) ?>">
+                                <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                 <p class="text-xs font-semibold text-slate-300">Annee <?= e((string)$memberPaymentYear) ?>: <?= e(member_record_payment_status_label(is_array($annualPayment) ? (string)$annualPayment['status'] : null)) ?></p>
                                 <select name="payment_status" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100">
                                     <?php foreach (['unpaid' => 'Non paye', 'pending' => 'A verifier', 'paid' => 'Paye'] as $paymentStatus => $paymentLabel): ?>
@@ -1178,6 +1163,7 @@ try {
                                             <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
                                             <input type="hidden" name="period_type" value="monthly">
                                             <input type="hidden" name="period_year" value="<?= e((string)$memberPaymentYear) ?>">
+                                            <input type="hidden" name="payment_year" value="<?= e((string)$memberPaymentYear) ?>">
                                             <input type="hidden" name="period_month" value="<?= e((string)$month) ?>">
                                             <span class="text-[11px] font-semibold text-slate-400"><?= e(str_pad((string)$month, 2, '0', STR_PAD_LEFT)) ?></span>
                                             <select name="payment_status" class="rounded border border-slate-700 bg-slate-800 px-1 py-0.5 text-[11px] text-slate-100">
