@@ -46,6 +46,110 @@ function manager_admin_normalize_dependent_input(array $input): array {
     ];
 }
 
+function manager_admin_normalize_member_password(mixed $value): string {
+    $password = trim((string)$value);
+    if (strlen($password) < 8 || strlen($password) > 255) {
+        throw new InvalidArgumentException('Le mot de passe doit contenir entre 8 et 255 caracteres.');
+    }
+
+    return $password;
+}
+
+function manager_admin_normalize_member_role(mixed $value): string {
+    $role = strtolower(trim((string)$value));
+    if (!in_array($role, ['admin', 'member'], true)) {
+        throw new InvalidArgumentException('Role membre invalide.');
+    }
+
+    return $role;
+}
+
+function manager_admin_normalize_member_grade(mixed $value): ?string {
+    $grade = trim((string)$value);
+    if ($grade === '') {
+        return null;
+    }
+
+    if (mb_strlen($grade) > 100) {
+        throw new InvalidArgumentException('Grade membre trop long.');
+    }
+
+    return $grade;
+}
+
+function manager_admin_normalize_member_creation_input(array $input): array {
+    $profile = manager_admin_normalize_member_profile_input([
+        'target_email' => $input['new_member_email'] ?? $input['target_email'] ?? $input['email'] ?? '',
+        'target_username' => $input['new_member_username'] ?? $input['target_username'] ?? $input['username'] ?? '',
+    ]);
+
+    return [
+        'email' => $profile['email'],
+        'username' => $profile['username'],
+        'password' => manager_admin_normalize_member_password($input['new_member_password'] ?? $input['password'] ?? ''),
+        'role' => manager_admin_normalize_member_role($input['new_member_role'] ?? $input['target_role'] ?? 'member'),
+        'grade' => manager_admin_normalize_member_grade($input['new_member_grade'] ?? $input['target_grade'] ?? ''),
+    ];
+}
+
+function manager_admin_save_grade(PDO $db, int $userId, ?string $grade): void {
+    if ($userId <= 0) {
+        throw new InvalidArgumentException('Membre invalide.');
+    }
+
+    if ($grade === null) {
+        $stmt = $db->prepare('DELETE FROM member_grades WHERE user_id = :user_id');
+        $stmt->execute([':user_id' => $userId]);
+        return;
+    }
+
+    $stmt = $db->prepare('INSERT INTO member_grades (user_id, grade) VALUES (:user_id, :grade) ON DUPLICATE KEY UPDATE grade = VALUES(grade)');
+    $stmt->execute([':user_id' => $userId, ':grade' => $grade]);
+}
+
+function manager_admin_auth_exception_message(Throwable $e): string {
+    if ($e instanceof \Delight\Auth\UserAlreadyExistsException) {
+        return 'Cet email est deja utilise par un autre membre.';
+    }
+
+    if ($e instanceof \Delight\Auth\InvalidEmailException) {
+        return 'Email membre invalide.';
+    }
+
+    if ($e instanceof \Delight\Auth\InvalidPasswordException) {
+        return 'Mot de passe membre invalide.';
+    }
+
+    if ($e instanceof \Delight\Auth\UnknownIdException) {
+        return 'Membre introuvable.';
+    }
+
+    return $e->getMessage() !== '' ? $e->getMessage() : 'Operation membre impossible.';
+}
+
+function manager_admin_create_member(PDO $db, object $auth, array $input): array {
+    $member = manager_admin_normalize_member_creation_input($input);
+    $administration = $auth->admin();
+    $userId = (int)$administration->createUser($member['email'], $member['password'], $member['username']);
+
+    manager_admin_save_grade($db, $userId, $member['grade']);
+    set_admin_role($db, $member['email'], $member['role'] === 'admin');
+
+    return [
+        'id' => $userId,
+        'email' => $member['email'],
+        'username' => $member['username'],
+        'role' => $member['role'],
+        'grade' => $member['grade'],
+    ];
+}
+
+function manager_admin_reset_member_password(PDO $db, object $auth, int $userId, mixed $password): void {
+    manager_admin_assert_user_exists($db, $userId);
+    $administration = $auth->admin();
+    $administration->changePasswordForUserById($userId, manager_admin_normalize_member_password($password));
+}
+
 function manager_admin_fetch_user(PDO $db, int $userId): ?array {
     if ($userId <= 0) {
         return null;

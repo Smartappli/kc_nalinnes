@@ -54,6 +54,32 @@ final class ManagerMemberAdminTest extends TestCase {
         ]);
     }
 
+    public function testMemberCreationInputIsNormalized(): void {
+        $member = manager_admin_normalize_member_creation_input([
+            'new_member_email' => ' New@Example.COM ',
+            'new_member_username' => ' New Member ',
+            'new_member_password' => ' Secret123! ',
+            'new_member_role' => 'admin',
+            'new_member_grade' => ' 8e kyu ',
+        ]);
+
+        $this->assertSame('new@example.com', $member['email']);
+        $this->assertSame('New Member', $member['username']);
+        $this->assertSame('Secret123!', $member['password']);
+        $this->assertSame('admin', $member['role']);
+        $this->assertSame('8e kyu', $member['grade']);
+    }
+
+    public function testMemberCreationInputRejectsShortPassword(): void {
+        $this->expectException(InvalidArgumentException::class);
+
+        manager_admin_normalize_member_creation_input([
+            'new_member_email' => 'new@example.com',
+            'new_member_password' => 'short',
+            'new_member_role' => 'member',
+        ]);
+    }
+
     public function testUpdateMemberProfilePersistsNormalizedData(): void {
         $db = new FakeMemberAdminPdo();
 
@@ -77,6 +103,45 @@ final class ManagerMemberAdminTest extends TestCase {
             'target_email' => 'other@example.com',
             'target_username' => 'Member',
         ]);
+    }
+
+    public function testCreateMemberPersistsAccountGradeAndAdminRole(): void {
+        $db = new FakeMemberAdminPdo();
+        $auth = new FakeMemberAdminAuth($db);
+
+        $created = manager_admin_create_member($db, $auth, [
+            'new_member_email' => ' Created@Example.com ',
+            'new_member_username' => ' Created User ',
+            'new_member_password' => 'Secret123!',
+            'new_member_role' => 'admin',
+            'new_member_grade' => '7e kyu',
+        ]);
+
+        $this->assertSame(3, $created['id']);
+        $this->assertSame('created@example.com', $created['email']);
+        $this->assertSame('created@example.com', $db->users[3]['email']);
+        $this->assertSame('Created User', $db->users[3]['username']);
+        $this->assertSame('Secret123!', $db->passwords[3]);
+        $this->assertSame('7e kyu', $db->grades[3]);
+        $this->assertContains('created@example.com', $db->adminEmails);
+    }
+
+    public function testResetMemberPasswordUsesAuthAdministration(): void {
+        $db = new FakeMemberAdminPdo();
+        $auth = new FakeMemberAdminAuth($db);
+
+        manager_admin_reset_member_password($db, $auth, 1, 'Reset123!');
+
+        $this->assertSame('Reset123!', $db->passwords[1]);
+    }
+
+    public function testSaveGradeCanClearExistingGrade(): void {
+        $db = new FakeMemberAdminPdo();
+        $db->grades[1] = '9e kyu';
+
+        manager_admin_save_grade($db, 1, null);
+
+        $this->assertArrayNotHasKey(1, $db->grades);
     }
 
     public function testDependentLifecycleUsesGuardianScope(): void {
@@ -116,9 +181,27 @@ final class FakeMemberAdminPdo extends PDO {
     /** @var array<int, array{id:int,guardian_user_id:int,full_name:string,birthdate:?string,is_minor:int}> */
     public array $dependents = [];
 
+    /** @var array<int, string> */
+    public array $passwords = [
+        1 => 'OldPass123!',
+        2 => 'OtherPass123!',
+    ];
+
+    /** @var array<int, string> */
+    public array $grades = [];
+
+    /** @var list<string> */
+    public array $adminEmails = [];
+
+    public int $nextUserId = 3;
+
     public int $nextDependentId = 10;
 
     public function __construct() {}
+
+    public function exec(string $statement): int|false {
+        return 0;
+    }
 
     public function prepare(string $query, array $options = []): PDOStatement|false {
         return new FakeMemberAdminStatement($this, $query);
@@ -126,6 +209,45 @@ final class FakeMemberAdminPdo extends PDO {
 
     public function lastInsertId(?string $name = null): string|false {
         return (string)($this->nextDependentId - 1);
+    }
+}
+
+final class FakeMemberAdminAuth {
+    public function __construct(private FakeMemberAdminPdo $db) {}
+
+    public function admin(): FakeMemberAdminAdministration {
+        return new FakeMemberAdminAdministration($this->db);
+    }
+}
+
+final class FakeMemberAdminAdministration {
+    public function __construct(private FakeMemberAdminPdo $db) {}
+
+    public function createUser(string $email, string $password, ?string $username = null): int {
+        $email = normalize_email($email);
+        foreach ($this->db->users as $user) {
+            if (normalize_email((string)$user['email']) === $email) {
+                throw new \Delight\Auth\UserAlreadyExistsException();
+            }
+        }
+
+        $id = $this->db->nextUserId++;
+        $this->db->users[$id] = [
+            'id' => $id,
+            'email' => $email,
+            'username' => $username,
+        ];
+        $this->db->passwords[$id] = $password;
+
+        return $id;
+    }
+
+    public function changePasswordForUserById(int $userId, string $password): void {
+        if (!isset($this->db->users[$userId])) {
+            throw new \Delight\Auth\UnknownIdException();
+        }
+
+        $this->db->passwords[$userId] = $password;
     }
 }
 
@@ -181,6 +303,37 @@ final class FakeMemberAdminStatement extends PDOStatement {
                 'birthdate' => $params[':birthdate'] === null ? null : (string)$params[':birthdate'],
                 'is_minor' => (int)$params[':is_minor'],
             ];
+            $this->affectedRows = 1;
+            return true;
+        }
+
+        if (stripos($this->query, 'INSERT INTO member_grades') !== false) {
+            $this->db->grades[(int)$params[':user_id']] = (string)$params[':grade'];
+            $this->affectedRows = 1;
+            return true;
+        }
+
+        if (stripos($this->query, 'DELETE FROM member_grades') !== false) {
+            unset($this->db->grades[(int)$params[':user_id']]);
+            $this->affectedRows = 1;
+            return true;
+        }
+
+        if (stripos($this->query, 'INSERT INTO admin_users') !== false) {
+            $email = normalize_email((string)$params[':email']);
+            if ($email !== '' && !in_array($email, $this->db->adminEmails, true)) {
+                $this->db->adminEmails[] = $email;
+            }
+            $this->affectedRows = 1;
+            return true;
+        }
+
+        if (stripos($this->query, 'DELETE FROM admin_users') !== false) {
+            $email = normalize_email((string)$params[':email']);
+            $this->db->adminEmails = array_values(array_filter(
+                $this->db->adminEmails,
+                static fn(string $adminEmail): bool => $adminEmail !== $email
+            ));
             $this->affectedRows = 1;
             return true;
         }

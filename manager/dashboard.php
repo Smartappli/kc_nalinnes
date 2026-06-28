@@ -323,13 +323,17 @@ try {
     }
 
     // Gestion membres (admin)
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['member_profile_update', 'member_dependent_add', 'member_dependent_update', 'member_dependent_delete'], true)) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['member_create', 'member_profile_update', 'member_password_reset', 'member_dependent_add', 'member_dependent_update', 'member_dependent_delete'], true)) {
         require_manager_csrf();
 
         try {
             $targetId = (int)($_POST['target_user_id'] ?? 0);
 
-            if (($_POST['action'] ?? '') === 'member_profile_update') {
+            if (($_POST['action'] ?? '') === 'member_create') {
+                $createdMember = manager_admin_create_member($db, $auth, $_POST);
+                flash('Membre cree: ' . (string)$createdMember['email'], 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'member_profile_update') {
                 $existingMember = manager_admin_fetch_user($db, $targetId);
                 if ($existingMember === null) {
                     throw new RuntimeException('Membre introuvable.');
@@ -349,6 +353,14 @@ try {
 
                 flash('Informations membre mises a jour.', 'success');
             }
+            elseif (($_POST['action'] ?? '') === 'member_password_reset') {
+                if ($targetId === (int)$userId) {
+                    throw new RuntimeException('Vous ne pouvez pas reinitialiser votre propre mot de passe depuis cette page.');
+                }
+
+                manager_admin_reset_member_password($db, $auth, $targetId, $_POST['new_member_password'] ?? '');
+                flash('Mot de passe membre mis a jour.', 'success');
+            }
             elseif (($_POST['action'] ?? '') === 'member_dependent_add') {
                 manager_admin_add_dependent($db, $targetId, $_POST);
                 flash('Profil lie ajoute.', 'success');
@@ -363,7 +375,7 @@ try {
             }
         }
         catch (Throwable $e) {
-            flash($e->getMessage(), 'error');
+            flash(manager_admin_auth_exception_message($e), 'error');
         }
 
         header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
@@ -405,16 +417,21 @@ try {
         require_manager_csrf();
 
         $targetId = (int)($_POST['target_user_id'] ?? 0);
-        $grade = trim((string)($_POST['target_grade'] ?? ''));
 
-        if ($targetId <= 0 || $grade === '') {
+        if ($targetId <= 0) {
             flash(kc_t('manager.flash.invalid_grade_params'), 'error');
             header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
             exit;
         }
 
-        $stmt = $db->prepare('INSERT INTO member_grades (user_id, grade) VALUES (:user_id, :grade) ON DUPLICATE KEY UPDATE grade = VALUES(grade)');
-        $stmt->execute([':user_id' => $targetId, ':grade' => $grade]);
+        try {
+            manager_admin_save_grade($db, $targetId, manager_admin_normalize_member_grade($_POST['target_grade'] ?? ''));
+        }
+        catch (Throwable $e) {
+            flash($e->getMessage(), 'error');
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
+            exit;
+        }
 
         flash(kc_t('manager.flash.grade_updated'), 'success');
         header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
@@ -889,6 +906,37 @@ try {
             <div class="rounded-xl border <?= $memberAdminSummary['missing_grades'] > 0 ? 'border-red-500/40 bg-red-500/10' : 'border-slate-800 bg-slate-950/40' ?> p-4"><p class="text-xs uppercase tracking-[0.18em] <?= $memberAdminSummary['missing_grades'] > 0 ? 'text-red-300' : 'text-slate-500' ?>">Grades manquants</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['missing_grades']) ?></p></div>
         </div>
 
+        <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-5 grid gap-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4 lg:grid-cols-[1.2fr_1fr_1fr_0.8fr_0.8fr_auto]" data-disable-on-submit>
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="action" value="member_create">
+            <div>
+                <label for="new_member_email" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Email</label>
+                <input id="new_member_email" name="new_member_email" type="email" required class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+            </div>
+            <div>
+                <label for="new_member_username" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Nom</label>
+                <input id="new_member_username" name="new_member_username" maxlength="100" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+            </div>
+            <div>
+                <label for="new_member_password" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Mot de passe</label>
+                <input id="new_member_password" name="new_member_password" type="password" minlength="8" required autocomplete="new-password" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+            </div>
+            <div>
+                <label for="new_member_grade" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Grade</label>
+                <input id="new_member_grade" name="new_member_grade" maxlength="100" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+            </div>
+            <div>
+                <label for="new_member_role" class="block text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Role</label>
+                <select id="new_member_role" name="new_member_role" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-sm text-slate-100">
+                    <option value="member">Membre</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div class="flex items-end">
+                <button class="w-full rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70">Creer</button>
+            </div>
+        </form>
+
         <div class="mt-5 grid gap-3 lg:grid-cols-[1fr_auto]">
             <div>
                 <label for="memberSearch" class="sr-only">Rechercher un membre</label>
@@ -929,6 +977,7 @@ try {
                     $row = $memberRow['user'];
                     $rowId = (int)($row['id'] ?? 0);
                     $rowIsAdmin = (bool)$memberRow['is_admin'];
+                    $rowIsCurrentUser = $rowId === (int)$userId;
                     $rowGrade = (string)$memberRow['grade'];
                     $rowDependents = $memberRow['dependents'];
                     $mealStats = $memberRow['meal_stats'];
@@ -1037,6 +1086,14 @@ try {
                                     <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.admin')) ?></option>
                                 </select>
                                 <button class="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.users.save')) ?></button>
+                            </form>
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="mt-3 grid min-w-[12rem] gap-2" data-disable-on-submit>
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="member_password_reset">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <label class="sr-only" for="member_password_<?= e((string)$rowId) ?>">Nouveau mot de passe</label>
+                                <input id="member_password_<?= e((string)$rowId) ?>" name="new_member_password" type="password" minlength="8" required autocomplete="new-password" placeholder="Nouveau mot de passe" class="w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-xs text-slate-100 placeholder:text-slate-500" <?= $rowIsCurrentUser ? 'disabled' : '' ?>>
+                                <button class="rounded-lg bg-amber-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-amber-500 disabled:cursor-not-allowed disabled:opacity-60" <?= $rowIsCurrentUser ? 'disabled' : '' ?>>Reset acces</button>
                             </form>
                         </td>
                     </tr>

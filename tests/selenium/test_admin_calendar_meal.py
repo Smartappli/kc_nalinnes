@@ -185,7 +185,11 @@ def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     WebDriverWait(driver, WAIT_SECONDS).until(
         EC.visibility_of_element_located((By.CSS_SELECTOR, "#admin-users input[name='target_email']"))
     )
+    assert driver.find_element(By.ID, "new_member_email").is_displayed()
+    assert driver.find_element(By.ID, "new_member_password").is_displayed()
+    assert driver.find_element(By.CSS_SELECTOR, "#admin-users select[name='new_member_role']").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users input[name='target_username']").is_displayed()
+    assert driver.find_element(By.CSS_SELECTOR, "#memberRows input[name='new_member_password'][type='password']").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users input[name='dependent_name']").is_displayed()
     assert driver.find_element(By.CSS_SELECTOR, "#admin-users select[name='dependent_is_minor']").is_displayed()
 
