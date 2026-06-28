@@ -40,6 +40,12 @@ function manager_dashboard_url(): string {
     return '/manager/dashboard.php?lang=' . rawurlencode(kc_current_locale());
 }
 
+function manager_dashboard_url_with_params(array $params): string {
+    $query = array_merge(['lang' => kc_current_locale()], $params);
+
+    return '/manager/dashboard.php?' . http_build_query($query, '', '&', PHP_QUERY_RFC3986);
+}
+
 function manager_login_url(): string {
     return '/membres.php?lang=' . rawurlencode(kc_current_locale());
 }
@@ -50,6 +56,19 @@ function manager_member_dashboard_url(): string {
 
 function manager_dashboard_anchor_url(string $anchor): string {
     return manager_dashboard_url() . '#' . ltrim($anchor, '#');
+}
+
+function manager_dashboard_anchor_url_with_params(string $anchor, array $params): string {
+    return manager_dashboard_url_with_params($params) . '#' . ltrim($anchor, '#');
+}
+
+function manager_member_payment_year(mixed $value): int {
+    $year = (int)$value;
+    if ($year < 2000 || $year > 2100) {
+        return (int)date('Y');
+    }
+
+    return $year;
 }
 
 function require_manager_csrf(): void {
