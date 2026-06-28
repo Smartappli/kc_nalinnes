@@ -179,6 +179,15 @@ def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     WebDriverWait(driver, WAIT_SECONDS).until(
         EC.visibility_of_element_located((By.ID, "admin_profile_name"))
     )
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located((By.ID, "meal_adult_menu"))
+    )
+    assert driver.find_element(By.ID, "meal_child_menu").is_displayed()
+    assert driver.find_element(By.ID, "meal_adult_price").get_attribute("value")
+    assert driver.find_element(By.ID, "meal_child_price").get_attribute("value")
+    assert driver.find_element(By.ID, "meal_at").get_attribute("value")
+    assert driver.find_element(By.ID, "meal_reservation_deadline_at").get_attribute("value")
+
     set_field_value(driver, "#admin_profile_name", name)
     set_field_value(driver, "#admin_contact_email", email)
     set_field_value(driver, "#admin_contact_phone", "+32 499 00 00 00")
