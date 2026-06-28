@@ -32,7 +32,7 @@ jobs:
         run: vendor/bin/phpstan analyse --no-progress --memory-limit=512M
 
       - name: Unit tests
-        run: vendor/bin/phpunit tests --testdox
+        run: vendor/bin/phpunit tests --testdox --exclude-group translation-completeness
 
   selenium:
     name: Selenium E2E

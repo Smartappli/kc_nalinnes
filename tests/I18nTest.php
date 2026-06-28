@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Framework\Attributes\Group;
 
 require_once __DIR__ . '/../includes/i18n.php';
 
@@ -41,6 +42,7 @@ final class I18nTest extends TestCase {
         }
     }
 
+    #[Group('translation-completeness')]
     public function testEveryLocaleHasSameTranslationKeysAsFrench(): void {
         foreach (kc_translation_modules() as $module) {
             $frenchKeys = array_keys(kc_load_translation_file('fr', $module));

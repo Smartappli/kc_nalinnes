@@ -32,6 +32,7 @@ def driver(request):
     options.add_argument("--disable-dev-shm-usage")
     options.add_argument("--disable-gpu")
     options.add_argument("--window-size=1440,1100")
+    options.page_load_strategy = "eager"
 
     remote_url = os.environ.get("SELENIUM_REMOTE_URL")
     if remote_url:
