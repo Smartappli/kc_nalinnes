@@ -203,4 +203,47 @@ final class CalendarEventsTest extends TestCase {
             'end_recur' => '2026-09-01',
         ]);
     }
+
+    public function testDefaultDraftImportCreatesInactiveModelRows(): void {
+        $db = new FakeCalendarImportPdo();
+
+        $imported = kc_calendar_import_default_drafts($db);
+
+        $this->assertSame(count(kc_calendar_default_event_rows()), $imported);
+        $this->assertCount($imported, $db->insertedRows);
+        $this->assertStringContainsString('is_active, sort_order)', $db->preparedSql);
+        $this->assertStringContainsString('0, :sort_order', $db->preparedSql);
+
+        foreach ($db->insertedRows as $row) {
+            $this->assertStringStartsWith('[modele] ', (string)$row[':title']);
+            $this->assertGreaterThanOrEqual(1000, (int)$row[':sort_order']);
+        }
+    }
+}
+
+final class FakeCalendarImportPdo extends PDO {
+    public string $preparedSql = '';
+
+    /** @var list<array<string, mixed>> */
+    public array $insertedRows = [];
+
+    public function __construct() {}
+
+    public function exec(string $statement): int|false {
+        return 0;
+    }
+
+    public function prepare(string $query, array $options = []): PDOStatement|false {
+        $this->preparedSql = $query;
+        return new FakeCalendarImportStatement($this);
+    }
+}
+
+final class FakeCalendarImportStatement extends PDOStatement {
+    public function __construct(private FakeCalendarImportPdo $db) {}
+
+    public function execute(?array $params = null): bool {
+        $this->db->insertedRows[] = $params ?? [];
+        return true;
+    }
 }

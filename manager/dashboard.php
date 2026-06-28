@@ -124,13 +124,17 @@ try {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete', 'calendar_event_toggle', 'calendar_event_duplicate'], true)) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete', 'calendar_event_toggle', 'calendar_event_duplicate', 'calendar_import_default_drafts'], true)) {
         require_manager_csrf();
 
         try {
             if (($_POST['action'] ?? '') === 'calendar_event_delete') {
                 kc_calendar_delete_event($db, (int)($_POST['event_id'] ?? 0));
                 flash('Evenement calendrier supprime.', 'success');
+            }
+            elseif (($_POST['action'] ?? '') === 'calendar_import_default_drafts') {
+                $imported = kc_calendar_import_default_drafts($db);
+                flash($imported . ' modeles calendrier importes en brouillons.', 'success');
             }
             elseif (($_POST['action'] ?? '') === 'calendar_event_toggle') {
                 kc_calendar_set_event_active($db, (int)($_POST['event_id'] ?? 0), (string)($_POST['is_active'] ?? '0') === '1');
@@ -633,7 +637,14 @@ try {
                 <h2 class="text-xl font-bold"><?= e(kc_t('manager.calendar.title')) ?></h2>
                 <p class="mt-2 text-sm text-slate-400">Gerez les calendriers enfants, ados et adultes avec des evenements ponctuels ou repetes. Les evenements inactifs restent visibles ici mais ne sont pas publies.</p>
             </div>
-            <button id="btnNewEvent" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.calendar.new')) ?></button>
+            <div class="flex flex-wrap gap-2">
+                <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-calendar')) ?>" onsubmit="return confirm('Importer les modeles par defaut en brouillons ?');">
+                    <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                    <input type="hidden" name="action" value="calendar_import_default_drafts">
+                    <button class="rounded-lg border border-slate-600 px-3 py-2 text-sm font-semibold text-slate-100 hover:bg-slate-800">Importer modeles</button>
+                </form>
+                <button id="btnNewEvent" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.calendar.new')) ?></button>
+            </div>
         </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">

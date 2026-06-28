@@ -552,6 +552,37 @@ function kc_calendar_duplicate_event(PDO $db, int $id): int {
     return (int)$db->lastInsertId();
 }
 
+function kc_calendar_import_default_drafts(PDO $db): int {
+    ensure_calendar_events_table($db);
+
+    $stmt = $db->prepare('INSERT INTO calendar_events
+        (audience, event_type, title, description, color, start_at, end_at, days_of_week, start_time, end_time, start_recur, end_recur, is_active, sort_order)
+        VALUES
+        (:audience, :event_type, :title, :description, :color, :start_at, :end_at, :days_of_week, :start_time, :end_time, :start_recur, :end_recur, 0, :sort_order)');
+
+    $imported = 0;
+    foreach (kc_calendar_default_event_rows() as $row) {
+        $stmt->execute([
+            ':audience' => (string)$row['audience'],
+            ':event_type' => (string)$row['event_type'],
+            ':title' => '[modele] ' . (string)$row['title'],
+            ':description' => (string)$row['description'],
+            ':color' => (string)$row['color'],
+            ':start_at' => $row['start_at'],
+            ':end_at' => $row['end_at'],
+            ':days_of_week' => kc_calendar_days_to_storage($row['days_of_week']),
+            ':start_time' => $row['start_time'],
+            ':end_time' => $row['end_time'],
+            ':start_recur' => $row['start_recur'],
+            ':end_recur' => $row['end_recur'],
+            ':sort_order' => (int)$row['sort_order'] + 1000,
+        ]);
+        $imported++;
+    }
+
+    return $imported;
+}
+
 function kc_calendar_datetime_for_json(?string $value): ?string {
     if ($value === null || trim($value) === '') {
         return null;
