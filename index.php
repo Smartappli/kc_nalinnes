@@ -2,8 +2,20 @@
 declare(strict_types=1);
 
 require __DIR__ . '/includes/i18n.php';
+require __DIR__ . '/config/database.php';
+require __DIR__ . '/includes/calendar_events.php';
 
 $locale = kc_current_locale();
+$calendarDb = null;
+
+try {
+  $calendarDb = create_database_connection();
+}
+catch (Throwable $e) {
+  error_log('Calendar database unavailable on public page: ' . $e->getMessage());
+}
+
+$publicCalendarPayload = kc_calendar_events_payload(kc_calendar_public_event_rows($calendarDb));
 
 function e(string $text): string {
   return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
@@ -1451,6 +1463,9 @@ function e(string $text): string {
         icsAdultsName: <?= json_encode(kc_t('home.calendar.ics.name.adults'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
         icsClubName: <?= json_encode(kc_t('home.calendar.ics.name.club'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
       };
+      const managedCalendar = <?= json_encode($publicCalendarPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+      const publicCalendarEvents = Array.isArray(managedCalendar.fullcalendar) ? managedCalendar.fullcalendar : [];
+      const publicCalendarIcs = managedCalendar.ics && typeof managedCalendar.ics === 'object' ? managedCalendar.ics : {};
 
       // --- Sakura (actif du 1/3 au 31/3) -----------------------------
       try {
@@ -1672,7 +1687,7 @@ function e(string $text): string {
             dayHeaderFormat: { weekday: 'short' },
             slotMinTime: '16:00:00',
             slotMaxTime: '21:30:00',
-            events: [
+            events: publicCalendarEvents.length ? publicCalendarEvents : [
               // =========================
               // COURS RÃ‰CURRENTS (SAISON)
               // =========================
@@ -2035,6 +2050,11 @@ function e(string $text): string {
         return out;
       }
 
+      function managedIcsEvents(audience) {
+        const events = publicCalendarIcs[audience];
+        return Array.isArray(events) && events.length ? events : null;
+      }
+
       // Segments pour enfants (lundi 17â€“18)
       const SEGMENTS_ENFANTS = [
         { start: '2025-09-01', end: '2025-10-19' },
@@ -2056,6 +2076,11 @@ function e(string $text): string {
 
       // --- Construction des Ã©vÃ©nements par groupe -------------------
       function buildEventsEnfants() {
+        const managed = managedIcsEvents('children');
+        if (managed) {
+          return managed;
+        }
+
         const events = [];
 
         // Cours hebdomadaires (lundi 17â€“18), sans exclusion : Saint Nicolas est en plus
@@ -2099,6 +2124,11 @@ function e(string $text): string {
       }
 
       function buildEventsAdos() {
+        const managed = managedIcsEvents('teens');
+        if (managed) {
+          return managed;
+        }
+
         const events = [];
         const skipDates = []; // Saint Nicolas nâ€™est plus un remplacement
 
@@ -2191,6 +2221,11 @@ function e(string $text): string {
       }
 
       function buildEventsAdultes() {
+        const managed = managedIcsEvents('adults');
+        if (managed) {
+          return managed;
+        }
+
         const events = [];
         const skipDates = []; // Saint Nicolas nâ€™est plus un remplacement
 
@@ -2283,6 +2318,11 @@ function e(string $text): string {
       }
 
       function buildEventsToutClub() {
+        const managed = managedIcsEvents('club');
+        if (managed) {
+          return managed;
+        }
+
         const enfants = buildEventsEnfants();
         const ados    = buildEventsAdos();
         const adultes = buildEventsAdultes();

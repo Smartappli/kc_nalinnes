@@ -7,6 +7,7 @@ configure_error_reporting_from_env();
 
 require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/i18n.php';
+require __DIR__ . '/../includes/calendar_events.php';
 require __DIR__ . '/admin_access.php';
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../member/meal_reservation.php';
@@ -44,6 +45,19 @@ function manager_member_dashboard_url(): string {
     return '/member/dashboard.php?lang=' . rawurlencode(kc_current_locale());
 }
 
+function manager_dashboard_anchor_url(string $anchor): string {
+    return manager_dashboard_url() . '#' . ltrim($anchor, '#');
+}
+
+function require_manager_csrf(): void {
+    $postedToken = (string)($_POST['csrf_token'] ?? '');
+    if (!hash_equals((string)($_SESSION['csrf_token'] ?? ''), $postedToken)) {
+        flash(kc_t('manager.flash.csrf'), 'error');
+        header('Location: ' . manager_dashboard_url(), true, 303);
+        exit;
+    }
+}
+
 // CSRF
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -61,6 +75,7 @@ try {
     ensure_meal_reservations_columns($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
+    ensure_calendar_events_table($db);
 
     $loginBypassEnabled = is_temp_bypass_login_enabled();
 
@@ -106,6 +121,119 @@ try {
     if (!$isAdmin) {
         flash(kc_t('manager.flash.member_redirect'), 'info');
         header('Location: ' . manager_member_dashboard_url(), true, 303);
+        exit;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete'], true)) {
+        require_manager_csrf();
+
+        try {
+            if (($_POST['action'] ?? '') === 'calendar_event_delete') {
+                kc_calendar_delete_event($db, (int)($_POST['event_id'] ?? 0));
+                flash('Evenement calendrier supprime.', 'success');
+            }
+            else {
+                kc_calendar_save_event($db, $_POST);
+                flash('Evenement calendrier enregistre.', 'success');
+            }
+        }
+        catch (Throwable $e) {
+            flash($e->getMessage(), 'error');
+        }
+
+        header('Location: ' . manager_dashboard_anchor_url('admin-calendar'), true, 303);
+        exit;
+    }
+
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'admin_meal_reservation') {
+        require_manager_csrf();
+
+        $postedSubmissionToken = (string)($_POST['meal_submission_token'] ?? '');
+        $profileName = trim((string)($_POST['profile_name'] ?? ''));
+        $contactEmail = trim((string)($_POST['contact_email'] ?? ''));
+        $contactPhone = trim((string)($_POST['contact_phone'] ?? ''));
+        $adultQty = max(0, (int)($_POST['repas_adulte'] ?? 0));
+        $childQty = max(0, (int)($_POST['repas_enfant'] ?? 0));
+        $notes = trim((string)($_POST['notes'] ?? ''));
+        $sendCopy = !empty($_POST['send_copy']) && $_POST['send_copy'] === '1';
+
+        $_SESSION['meal_admin_old'] = [
+            'profile_name' => $profileName,
+            'contact_email' => $contactEmail,
+            'contact_phone' => $contactPhone,
+            'adult_qty' => (string)$adultQty,
+            'child_qty' => (string)$childQty,
+            'notes' => $notes,
+            'send_copy' => $sendCopy ? '1' : '0',
+        ];
+
+        try {
+            if (!consume_meal_reservation_submission_token('admin_public', $postedSubmissionToken)) {
+                throw new RuntimeException(kc_t('meal.flash.invalid_request'));
+            }
+
+            if ($profileName === '' || strlen($profileName) > 255) {
+                throw new RuntimeException(kc_t('meal.flash.invalid_name'));
+            }
+
+            if ($contactEmail === '' || !filter_var($contactEmail, FILTER_VALIDATE_EMAIL)) {
+                throw new RuntimeException(kc_t('meal.flash.invalid_email'));
+            }
+
+            if ($adultQty === 0 && $childQty === 0) {
+                throw new RuntimeException(kc_t('meal.flash.no_meal'));
+            }
+
+            $total = compute_meal_total($adultQty, $childQty, 19, 10);
+            $reservationDate = date('Y-m-d H:i:s');
+            $reservationId = save_public_meal_reservation($db, [
+                'profile_name' => $profileName,
+                'contact_email' => $contactEmail,
+                'contact_phone' => $contactPhone,
+                'adult_qty' => $adultQty,
+                'child_qty' => $childQty,
+                'total_amount' => $total,
+                'notes' => $notes,
+            ]);
+
+            append_meal_reservation_to_excel([
+                'date' => $reservationDate,
+                'member_user_id' => '0',
+                'profile_name' => $profileName,
+                'profile_type' => 'admin_public',
+                'contact_email' => $contactEmail,
+                'contact_phone' => $contactPhone,
+                'adult_qty' => (string)$adultQty,
+                'child_qty' => (string)$childQty,
+                'total_amount' => (string)$total,
+                'notes' => $notes,
+            ]);
+
+            $to = (string)env_value('RESERVATION_EMAIL_TO', 'duchesnesakura@gmail.com');
+            $message = kc_t('meal.mail.heading') . "\n"
+                . kc_t('meal.mail.reservation_id') . ': ' . $reservationId . "\n"
+                . kc_t('meal.mail.name') . ': ' . $profileName . "\n"
+                . 'Email: ' . $contactEmail . "\n"
+                . kc_t('meal.mail.phone') . ': ' . ($contactPhone !== '' ? $contactPhone : '-') . "\n"
+                . kc_t('meal.mail.adults') . ': ' . $adultQty . "\n"
+                . kc_t('meal.mail.children') . ': ' . $childQty . "\n"
+                . kc_t('meal.mail.total') . ': ' . $total . " EUR\n"
+                . kc_t('meal.mail.notes') . ': ' . ($notes !== '' ? $notes : '-') . "\n"
+                . "Date: " . $reservationDate . "\n";
+            send_meal_reservation_mail($to, kc_t('meal.mail.admin_subject'), $message, 'From: no-reply@kc-nalinnes.be');
+
+            if ($sendCopy) {
+                send_meal_reservation_mail($contactEmail, kc_t('meal.mail.copy_subject'), $message, 'From: no-reply@kc-nalinnes.be');
+            }
+
+            unset($_SESSION['meal_admin_old']);
+            flash(kc_t('meal.flash.success'), 'success');
+        }
+        catch (Throwable $e) {
+            flash($e->getMessage(), 'error');
+        }
+
+        header('Location: ' . manager_dashboard_anchor_url('admin-meal'), true, 303);
         exit;
     }
 
@@ -221,6 +349,22 @@ try {
     $gradesByUserId = [];
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
 
+    $calendarRows = kc_calendar_admin_event_rows($db);
+    $calendarPayload = kc_calendar_events_payload($calendarRows);
+    $calendarAudiences = kc_calendar_audiences();
+    $calendarEventTypes = kc_calendar_event_types();
+    $mealAdminOld = $_SESSION['meal_admin_old'] ?? [
+        'profile_name' => '',
+        'contact_email' => '',
+        'contact_phone' => '',
+        'adult_qty' => '0',
+        'child_qty' => '0',
+        'notes' => '',
+        'send_copy' => '1',
+    ];
+    unset($_SESSION['meal_admin_old']);
+    $mealAdminSubmissionToken = meal_reservation_submission_token('admin_public');
+
 } catch (\Throwable $e) {
     error_log('Manager dashboard error: ' . get_class($e) . ': ' . $e->getMessage());
     http_response_code(500);
@@ -318,6 +462,65 @@ try {
         </div>
     </section>
 
+    <section id="admin-meal" class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+                <p class="text-xs font-semibold uppercase tracking-[0.18em] text-orange-300"><?= e(kc_t('meal.hero.kicker')) ?></p>
+                <h2 class="mt-1 text-xl font-bold"><?= e(kc_t('meal.hero.title')) ?></h2>
+                <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('meal.hero.description')) ?></p>
+            </div>
+            <a href="<?= e(manager_dashboard_url()) ?>&download=meal_reservations_xlsx" class="inline-flex items-center justify-center rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500">
+                <?= e(kc_t('manager.meal.export')) ?>
+            </a>
+        </div>
+
+        <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-meal')) ?>" class="mt-5 grid gap-4 md:grid-cols-2" data-disable-on-submit>
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="meal_submission_token" value="<?= e($mealAdminSubmissionToken) ?>">
+            <input type="hidden" name="action" value="admin_meal_reservation">
+
+            <div class="md:col-span-2">
+                <label for="admin_profile_name" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.name')) ?></label>
+                <input id="admin_profile_name" name="profile_name" required maxlength="255" value="<?= e((string)$mealAdminOld['profile_name']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100" autocomplete="name">
+            </div>
+
+            <div>
+                <label for="admin_contact_email" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.email')) ?></label>
+                <input id="admin_contact_email" type="email" name="contact_email" required value="<?= e((string)$mealAdminOld['contact_email']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100" autocomplete="email">
+            </div>
+
+            <div>
+                <label for="admin_contact_phone" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.phone')) ?></label>
+                <input id="admin_contact_phone" name="contact_phone" value="<?= e((string)$mealAdminOld['contact_phone']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100" autocomplete="tel">
+            </div>
+
+            <div>
+                <label for="admin_repas_adulte" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.adults')) ?></label>
+                <input id="admin_repas_adulte" type="number" min="0" name="repas_adulte" value="<?= e((string)$mealAdminOld['adult_qty']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
+            </div>
+
+            <div>
+                <label for="admin_repas_enfant" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.children')) ?></label>
+                <input id="admin_repas_enfant" type="number" min="0" name="repas_enfant" value="<?= e((string)$mealAdminOld['child_qty']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
+            </div>
+
+            <div class="md:col-span-2">
+                <label for="admin_meal_notes" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.notes')) ?></label>
+                <textarea id="admin_meal_notes" name="notes" rows="3" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100"><?= e((string)$mealAdminOld['notes']) ?></textarea>
+            </div>
+
+            <div class="md:col-span-2 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <label class="inline-flex items-center gap-2 text-sm text-slate-300">
+                    <input type="checkbox" name="send_copy" value="1" <?= ((string)$mealAdminOld['send_copy'] === '1') ? 'checked' : '' ?>>
+                    <?= e(kc_t('meal.form.copy')) ?>
+                </label>
+                <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70">
+                    <?= e(kc_t('meal.form.submit')) ?>
+                </button>
+            </div>
+        </form>
+    </section>
+
     <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
         <h2 class="text-xl font-bold"><?= e(kc_t('manager.users.title')) ?></h2>
         <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('manager.users.description')) ?></p>
@@ -404,30 +607,126 @@ try {
         </div>
     </section>
 
-    <section class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <div class="flex items-center justify-between gap-3">
-            <h2 class="text-xl font-bold"><?= e(kc_t('manager.calendar.title')) ?></h2>
+    <section id="admin-calendar" class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+        <div class="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+                <h2 class="text-xl font-bold"><?= e(kc_t('manager.calendar.title')) ?></h2>
+                <p class="mt-2 text-sm text-slate-400">Gerez les calendriers enfants, ados et adultes avec des evenements ponctuels ou repetes.</p>
+            </div>
             <button id="btnNewEvent" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.calendar.new')) ?></button>
         </div>
-        <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('manager.calendar.description')) ?></p>
-        <div id="adminCalendar" class="mt-6"></div>
+
+        <div id="calendarAudienceFilters" class="mt-5 flex flex-wrap gap-2 text-sm">
+            <button type="button" data-filter="club" class="calendar-filter rounded-lg border border-slate-600 bg-slate-800 px-3 py-2 font-semibold text-slate-100">Tout</button>
+            <button type="button" data-filter="children" class="calendar-filter rounded-lg border border-blue-400/60 px-3 py-2 font-semibold text-blue-100">Enfants</button>
+            <button type="button" data-filter="teens" class="calendar-filter rounded-lg border border-orange-400/60 px-3 py-2 font-semibold text-orange-100">Ados</button>
+            <button type="button" data-filter="adults" class="calendar-filter rounded-lg border border-emerald-400/60 px-3 py-2 font-semibold text-emerald-100">Adultes</button>
+        </div>
+
+        <div class="mt-6 rounded-xl border border-slate-800 bg-slate-950/50 p-2">
+            <div id="adminCalendar" class="min-h-[560px]"></div>
+        </div>
     </section>
 
     <dialog id="eventDialog" class="rounded-xl p-0 backdrop:bg-black/70">
-      <form method="dialog" id="eventForm" class="w-[92vw] max-w-lg bg-slate-900 text-slate-100 p-5 space-y-4">
+      <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-calendar')) ?>" id="eventForm" class="w-[94vw] max-w-2xl bg-slate-900 text-slate-100 p-5 space-y-4">
+        <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+        <input type="hidden" name="action" id="eventFormAction" value="calendar_event_save">
+        <input type="hidden" name="event_id" id="eventId">
         <h3 class="text-lg font-bold" id="dialogTitle"><?= e(kc_t('manager.calendar.new')) ?></h3>
-        <input type="hidden" id="eventId">
-        <div><label class="block text-sm"><?= e(kc_t('manager.calendar.field_title')) ?></label><input id="eventTitle" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required></div>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-          <div><label class="block text-sm"><?= e(kc_t('manager.calendar.start')) ?></label><input type="datetime-local" id="eventStart" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required></div>
-          <div><label class="block text-sm"><?= e(kc_t('manager.calendar.end')) ?></label><input type="datetime-local" id="eventEnd" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></div>
+
+        <div class="grid gap-3 md:grid-cols-2">
+            <div>
+                <label for="eventAudience" class="block text-sm">Calendrier</label>
+                <select id="eventAudience" name="audience" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+                    <?php foreach ($calendarAudiences as $audienceKey => $audienceLabel): ?>
+                        <option value="<?= e((string)$audienceKey) ?>"><?= e((string)$audienceLabel) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label for="eventType" class="block text-sm">Type</label>
+                <select id="eventType" name="event_type" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+                    <?php foreach ($calendarEventTypes as $typeKey => $typeLabel): ?>
+                        <option value="<?= e((string)$typeKey) ?>"><?= e((string)$typeLabel) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
         </div>
-        <div><label class="block text-sm"><?= e(kc_t('manager.calendar.field_description')) ?></label><textarea id="eventDesc" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea></div>
-        <div class="flex justify-between">
+
+        <div>
+            <label for="eventTitle" class="block text-sm"><?= e(kc_t('manager.calendar.field_title')) ?></label>
+            <input id="eventTitle" name="title" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2" required maxlength="255">
+        </div>
+
+        <div class="grid gap-3 md:grid-cols-[1fr_auto_auto]">
+            <div>
+                <label for="eventColor" class="block text-sm">Couleur</label>
+                <input id="eventColor" name="color" type="color" value="#3b82f6" class="mt-1 h-10 w-full rounded-lg border border-slate-700 bg-slate-800 px-2 py-1">
+            </div>
+            <div>
+                <label for="eventSortOrder" class="block text-sm">Ordre</label>
+                <input id="eventSortOrder" name="sort_order" type="number" min="0" value="100" class="mt-1 w-28 rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+            </div>
+            <label class="mt-7 inline-flex items-center gap-2 text-sm text-slate-300">
+                <input id="eventIsActive" type="checkbox" name="is_active" value="1" checked>
+                Actif
+            </label>
+        </div>
+
+        <div id="singleEventFields" class="grid gap-3 md:grid-cols-2">
+            <div>
+                <label for="eventStart" class="block text-sm"><?= e(kc_t('manager.calendar.start')) ?></label>
+                <input type="datetime-local" id="eventStart" name="start_at" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+            </div>
+            <div>
+                <label for="eventEnd" class="block text-sm"><?= e(kc_t('manager.calendar.end')) ?></label>
+                <input type="datetime-local" id="eventEnd" name="end_at" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+            </div>
+        </div>
+
+        <div id="recurringEventFields" class="hidden space-y-3 rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+            <div>
+                <p class="text-sm font-semibold">Jours de repetition</p>
+                <div class="mt-2 grid grid-cols-2 gap-2 text-sm sm:grid-cols-4">
+                    <?php foreach ([1 => 'Lun', 2 => 'Mar', 3 => 'Mer', 4 => 'Jeu', 5 => 'Ven', 6 => 'Sam', 0 => 'Dim'] as $dayValue => $dayLabel): ?>
+                        <label class="inline-flex items-center gap-2 rounded-lg border border-slate-700 px-2 py-1">
+                            <input type="checkbox" name="days_of_week[]" value="<?= e((string)$dayValue) ?>" data-day-checkbox>
+                            <?= e($dayLabel) ?>
+                        </label>
+                    <?php endforeach; ?>
+                </div>
+            </div>
+            <div class="grid gap-3 md:grid-cols-2">
+                <div>
+                    <label for="eventStartTime" class="block text-sm">Heure debut</label>
+                    <input type="time" id="eventStartTime" name="start_time" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+                </div>
+                <div>
+                    <label for="eventEndTime" class="block text-sm">Heure fin</label>
+                    <input type="time" id="eventEndTime" name="end_time" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+                </div>
+                <div>
+                    <label for="eventStartRecur" class="block text-sm">Debut recurrence</label>
+                    <input type="date" id="eventStartRecur" name="start_recur" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+                </div>
+                <div>
+                    <label for="eventEndRecur" class="block text-sm">Fin recurrence</label>
+                    <input type="date" id="eventEndRecur" name="end_recur" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label for="eventDesc" class="block text-sm"><?= e(kc_t('manager.calendar.field_description')) ?></label>
+            <textarea id="eventDesc" name="description" rows="3" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2"></textarea>
+        </div>
+
+        <div class="flex justify-between gap-3">
           <button type="button" id="btnDeleteEvent" class="rounded-lg bg-red-600 px-3 py-2 text-sm font-semibold text-white hover:bg-red-500 hidden"><?= e(kc_t('manager.calendar.delete')) ?></button>
           <div class="ml-auto flex gap-2">
             <button type="button" id="btnCancel" class="rounded-lg border border-slate-600 px-3 py-2 text-sm"><?= e(kc_t('manager.calendar.cancel')) ?></button>
-            <button type="submit" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('manager.calendar.save')) ?></button>
+            <button type="submit" id="btnSaveEvent" class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('manager.calendar.save')) ?></button>
           </div>
         </div>
       </form>
