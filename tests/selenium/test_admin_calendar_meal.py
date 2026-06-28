@@ -182,6 +182,13 @@ def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     WebDriverWait(driver, WAIT_SECONDS).until(
         EC.visibility_of_element_located((By.ID, "meal_adult_menu"))
     )
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located((By.CSS_SELECTOR, "#admin-users input[name='target_email']"))
+    )
+    assert driver.find_element(By.CSS_SELECTOR, "#admin-users input[name='target_username']").is_displayed()
+    assert driver.find_element(By.CSS_SELECTOR, "#admin-users input[name='dependent_name']").is_displayed()
+    assert driver.find_element(By.CSS_SELECTOR, "#admin-users select[name='dependent_is_minor']").is_displayed()
+
     assert driver.find_element(By.ID, "meal_child_menu").is_displayed()
     assert driver.find_element(By.ID, "meal_adult_price").get_attribute("value")
     assert driver.find_element(By.ID, "meal_child_price").get_attribute("value")
