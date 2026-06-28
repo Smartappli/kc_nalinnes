@@ -510,7 +510,7 @@ try {
 
         $templatesDir = __DIR__ . '/../docs';
         $templateFiles = list_pdf_templates($templatesDir);
-        $allowedTemplatesRaw = (string)env_value('ALLOWED_PRECOMPLETED_PDFS', 'mutualia-ac-sport-fr.pdf');
+        $allowedTemplatesRaw = (string)env_value('ALLOWED_PRECOMPLETED_PDFS', implode(',', default_mutuelle_pdf_templates()));
         $allowedTemplates = array_values(array_filter(array_map('trim', explode(',', $allowedTemplatesRaw))));
         if ($allowedTemplates !== []) {
             $templateFiles = array_values(array_filter($templateFiles, static fn(string $name): bool => in_array($name, $allowedTemplates, true)));
@@ -532,9 +532,10 @@ try {
 
         $responsibleName = member_record_display_name($targetUser, member_record_profile($db, $targetId));
         $beneficiaryName = $responsibleName;
+        $beneficiaryBirthdate = '';
         $dependentId = (int)($_GET['dependent_id'] ?? 0);
         if ($dependentId > 0) {
-            $dependentStmt = $db->prepare('SELECT full_name FROM member_dependents WHERE id = :id AND guardian_user_id = :guardian_user_id LIMIT 1');
+            $dependentStmt = $db->prepare('SELECT full_name, birthdate FROM member_dependents WHERE id = :id AND guardian_user_id = :guardian_user_id LIMIT 1');
             $dependentStmt->execute([':id' => $dependentId, ':guardian_user_id' => $targetId]);
             $dependentRow = $dependentStmt->fetch(PDO::FETCH_ASSOC);
             if (!is_array($dependentRow)) {
@@ -544,11 +545,26 @@ try {
             }
 
             $beneficiaryName = (string)$dependentRow['full_name'];
+            $beneficiaryBirthdate = (string)($dependentRow['birthdate'] ?? '');
+        }
+
+        try {
+            $pdfContent = generate_precompleted_mutuelle_pdf($templatePath, $beneficiaryName, $responsibleName, [
+                'beneficiary_birthdate' => $beneficiaryBirthdate,
+                'responsible_email' => (string)($targetUser['email'] ?? ''),
+                'membership_year' => (string)$paymentYear,
+            ]);
+        }
+        catch (Throwable $pdfError) {
+            error_log('Mutuelle PDF generation error: ' . $pdfError->getMessage());
+            flash('Ce modele PDF ne peut pas encore etre precomplete automatiquement.', 'error');
+            header('Location: ' . $memberAdminRedirect, true, 303);
+            exit;
         }
 
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . precompleted_mutuelle_filename($beneficiaryName) . '"');
-        echo generate_precompleted_mutuelle_pdf($templatePath, $beneficiaryName, $responsibleName);
+        echo $pdfContent;
         exit;
     }
 
