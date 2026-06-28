@@ -6,10 +6,12 @@ require_once __DIR__ . '/../config/env.php';
 configure_error_reporting_from_env();
 
 require __DIR__ . '/../vendor/autoload.php';
+require __DIR__ . '/../includes/fpdf_alias.php';
 require __DIR__ . '/../includes/i18n.php';
 require __DIR__ . '/../includes/calendar_events.php';
 require __DIR__ . '/admin_access.php';
 require __DIR__ . '/member_admin.php';
+require __DIR__ . '/../member/pdf_access.php';
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../member/meal_reservation.php';
 

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/admin_access.php';
+require_once __DIR__ . '/../member/member_records.php';
 
 function manager_admin_normalize_member_profile_input(array $input): array {
     $email = normalize_email((string)($input['target_email'] ?? $input['email'] ?? ''));
@@ -14,9 +15,13 @@ function manager_admin_normalize_member_profile_input(array $input): array {
         throw new InvalidArgumentException('Nom membre trop long.');
     }
 
+    $names = member_record_normalize_profile_input($input);
+
     return [
         'email' => $email,
         'username' => $username === '' ? null : $username,
+        'first_name' => $names['first_name'],
+        'last_name' => $names['last_name'],
     ];
 }
 
@@ -86,6 +91,8 @@ function manager_admin_normalize_member_creation_input(array $input): array {
     return [
         'email' => $profile['email'],
         'username' => $profile['username'],
+        'first_name' => member_record_normalize_name($input['new_member_first_name'] ?? $input['first_name'] ?? '', 'Prenom'),
+        'last_name' => member_record_normalize_name($input['new_member_last_name'] ?? $input['last_name'] ?? '', 'Nom'),
         'password' => manager_admin_normalize_member_password($input['new_member_password'] ?? $input['password'] ?? ''),
         'role' => manager_admin_normalize_member_role($input['new_member_role'] ?? $input['target_role'] ?? 'member'),
         'grade' => manager_admin_normalize_member_grade($input['new_member_grade'] ?? $input['target_grade'] ?? ''),
@@ -132,6 +139,10 @@ function manager_admin_create_member(PDO $db, object $auth, array $input): array
     $administration = $auth->admin();
     $userId = (int)$administration->createUser($member['email'], $member['password'], $member['username']);
 
+    member_record_save_profile($db, $userId, [
+        'first_name' => $member['first_name'],
+        'last_name' => $member['last_name'],
+    ]);
     manager_admin_save_grade($db, $userId, $member['grade']);
     set_admin_role($db, $member['email'], $member['role'] === 'admin');
 
@@ -139,6 +150,8 @@ function manager_admin_create_member(PDO $db, object $auth, array $input): array
         'id' => $userId,
         'email' => $member['email'],
         'username' => $member['username'],
+        'first_name' => $member['first_name'],
+        'last_name' => $member['last_name'],
         'role' => $member['role'],
         'grade' => $member['grade'],
     ];
@@ -182,12 +195,18 @@ function manager_admin_update_member_profile(PDO $db, int $userId, array $input)
         ':username' => $profile['username'],
         ':id' => $userId,
     ]);
+    member_record_save_profile($db, $userId, [
+        'first_name' => $profile['first_name'],
+        'last_name' => $profile['last_name'],
+    ]);
 
     return [
         'id' => $userId,
         'old_email' => normalize_email((string)($existing['email'] ?? '')),
         'email' => $profile['email'],
         'username' => $profile['username'],
+        'first_name' => $profile['first_name'],
+        'last_name' => $profile['last_name'],
     ];
 }
 

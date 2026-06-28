@@ -297,6 +297,52 @@ def test_admin_can_create_update_member_dependents_and_reset_password(driver, ba
     assert updated_child_name in body
 
 
+def test_admin_can_update_meal_settings_and_public_page_reflects_them(driver, base_url):
+    submit_login(driver, base_url)
+
+    unique = uuid4().hex[:8]
+    adult_menu = f"Menu adulte Selenium {unique}"
+    child_menu = f"Menu enfant Selenium {unique}"
+    meal_day = date.today() + timedelta(days=45)
+    deadline_day = date.today() + timedelta(days=30)
+    meal_at = f"{meal_day.isoformat()}T19:30"
+    deadline_at = f"{deadline_day.isoformat()}T12:15"
+    meal_label = f"{meal_day.day:02d}/{meal_day.month:02d}/{meal_day.year} 19:30"
+    deadline_label = f"{deadline_day.day:02d}/{deadline_day.month:02d}/{deadline_day.year} 12:15"
+
+    settings_form = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located(
+            (By.XPATH, "//section[@id='admin-meal']//form[.//input[@name='action' and @value='meal_settings_update']]")
+        )
+    )
+    set_element_value(driver, settings_form.find_element(By.CSS_SELECTOR, "textarea[name='adult_menu']"), adult_menu)
+    set_element_value(driver, settings_form.find_element(By.CSS_SELECTOR, "textarea[name='child_menu']"), child_menu)
+    set_element_value(driver, settings_form.find_element(By.CSS_SELECTOR, "input[name='adult_price']"), "23.50")
+    set_element_value(driver, settings_form.find_element(By.CSS_SELECTOR, "input[name='child_price']"), "12.25")
+    set_element_value(driver, settings_form.find_element(By.CSS_SELECTOR, "input[name='meal_at']"), meal_at)
+    set_element_value(driver, settings_form.find_element(By.CSS_SELECTOR, "input[name='reservation_deadline_at']"), deadline_at)
+    submit_form(driver, settings_form)
+
+    wait_for_path(driver, "/manager/dashboard.php")
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        lambda current: "Parametres du repas enregistres" in current.find_element(By.TAG_NAME, "body").text
+    )
+
+    driver.get(absolute_url(base_url, "/reservation-repas.php?lang=fr"))
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located((By.ID, "repas_adulte"))
+    )
+    body = driver.find_element(By.TAG_NAME, "body").text
+
+    assert adult_menu in body
+    assert child_menu in body
+    assert "23,50 EUR" in body
+    assert "12,25 EUR" in body
+    assert meal_label in body
+    assert deadline_label in body
+    assert "Reservations cloturees" not in body
+
+
 def test_admin_can_create_meal_reservation_from_dashboard(driver, base_url):
     submit_login(driver, base_url)
 

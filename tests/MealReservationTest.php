@@ -67,6 +67,65 @@ final class MealReservationTest extends TestCase {
         ]);
     }
 
+    public function testMealSettingsRejectInvalidPrice(): void {
+        $this->expectException(\InvalidArgumentException::class);
+
+        normalize_meal_settings_input([
+            'adult_price' => 'prix',
+        ]);
+    }
+
+    public function testMealSettingsRejectOutOfRangePrice(): void {
+        $this->expectException(\InvalidArgumentException::class);
+
+        normalize_meal_settings_input([
+            'child_price' => '10000',
+        ]);
+    }
+
+    public function testMealSettingsAllowBlankDatesAndKeepReservationsOpen(): void {
+        $settings = normalize_meal_settings_input([
+            'reservation_deadline_at' => '',
+            'meal_at' => '',
+        ]);
+
+        $this->assertNull($settings['reservation_deadline_at']);
+        $this->assertNull($settings['meal_at']);
+        $this->assertSame('-', meal_datetime_label($settings['meal_at']));
+        $this->assertSame('', meal_datetime_input_value($settings['reservation_deadline_at']));
+        $this->assertTrue(meal_reservations_are_open($settings, new \DateTimeImmutable('2035-01-01 12:00:00')));
+    }
+
+    public function testMealSettingsFallbackToDefaultsWhenNoDatabaseRowExists(): void {
+        $db = new FakeMealSettingsPdo();
+
+        $settings = meal_settings($db);
+
+        $this->assertSame(meal_default_settings(), $settings);
+        $this->assertSame(1, $db->execCount);
+    }
+
+    public function testSaveMealSettingsPersistsAndCanBeReadBack(): void {
+        $db = new FakeMealSettingsPdo();
+
+        $saved = save_meal_settings($db, [
+            'adult_menu' => '  Menu adulte test  ',
+            'child_menu' => 'Menu enfant test',
+            'adult_price' => '22,75',
+            'child_price' => '11.50',
+            'reservation_deadline_at' => '2030-06-20T12:30',
+            'meal_at' => '2030-06-25T19:45',
+        ]);
+        $readBack = meal_settings($db);
+
+        $this->assertSame('Menu adulte test', $saved['adult_menu']);
+        $this->assertSame('Menu adulte test', $readBack['adult_menu']);
+        $this->assertSame(22.75, $readBack['adult_price']);
+        $this->assertSame(11.5, $readBack['child_price']);
+        $this->assertSame('2030-06-20 12:30:00', $readBack['reservation_deadline_at']);
+        $this->assertSame('2030-06-25 19:45:00', $readBack['meal_at']);
+    }
+
     public function testMealReservationOpenStateUsesDeadline(): void {
         $settings = meal_default_settings();
 
@@ -329,5 +388,52 @@ final class MealReservationTest extends TestCase {
             total_amount INTEGER NOT NULL DEFAULT 0,
             created_at TEXT DEFAULT CURRENT_TIMESTAMP
         )');
+    }
+}
+
+final class FakeMealSettingsPdo extends \PDO {
+    /** @var array<string, mixed>|null */
+    public ?array $settingsRow = null;
+
+    public int $execCount = 0;
+
+    public function __construct() {}
+
+    public function exec(string $statement): int|false {
+        $this->execCount++;
+
+        return 0;
+    }
+
+    public function query(string $query, ?int $fetchMode = null, mixed ...$fetchModeArgs): \PDOStatement|false {
+        return new FakeMealSettingsStatement($this, 'select');
+    }
+
+    public function prepare(string $query, array $options = []): \PDOStatement|false {
+        return new FakeMealSettingsStatement($this, 'save');
+    }
+}
+
+final class FakeMealSettingsStatement extends \PDOStatement {
+    public function __construct(private FakeMealSettingsPdo $db, private string $operation) {}
+
+    public function execute(?array $params = null): bool {
+        if ($this->operation === 'save') {
+            $params ??= [];
+            $this->db->settingsRow = [
+                'adult_menu' => $params[':adult_menu'] ?? '',
+                'child_menu' => $params[':child_menu'] ?? '',
+                'adult_price' => $params[':adult_price'] ?? 0,
+                'child_price' => $params[':child_price'] ?? 0,
+                'reservation_deadline_at' => $params[':reservation_deadline_at'] ?? null,
+                'meal_at' => $params[':meal_at'] ?? null,
+            ];
+        }
+
+        return true;
+    }
+
+    public function fetch(int $mode = \PDO::FETCH_DEFAULT, int $cursorOrientation = \PDO::FETCH_ORI_NEXT, int $cursorOffset = 0): mixed {
+        return $this->db->settingsRow ?? false;
     }
 }
