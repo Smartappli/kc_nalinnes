@@ -86,7 +86,7 @@ function save_public_meal_reservation(PDO $db, array $reservation): int {
     $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, contact_email, contact_phone, notes, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :email, :phone, :notes, :adult, :child, :total)');
     $stmt->execute([
         ':uid' => 0,
-        ':ptype' => 'public',
+        ':ptype' => (string)($reservation['profile_type'] ?? 'public'),
         ':did' => null,
         ':pname' => (string)$reservation['profile_name'],
         ':email' => (string)$reservation['contact_email'],

@@ -187,6 +187,7 @@ try {
             $total = compute_meal_total($adultQty, $childQty, 19, 10);
             $reservationDate = date('Y-m-d H:i:s');
             $reservationId = save_public_meal_reservation($db, [
+                'profile_type' => 'admin_public',
                 'profile_name' => $profileName,
                 'contact_email' => $contactEmail,
                 'contact_phone' => $contactPhone,
@@ -736,6 +737,15 @@ try {
 
 <script>
 (() => {
+  document.querySelectorAll('form[data-disable-on-submit]').forEach((managedForm) => {
+    managedForm.addEventListener('submit', () => {
+      managedForm.querySelectorAll('button[type="submit"]').forEach((button) => {
+        button.disabled = true;
+        button.classList.add('opacity-70', 'cursor-not-allowed');
+      });
+    });
+  });
+
   (window.kcFullCalendarReady || Promise.resolve(window.FullCalendar)).then((FullCalendar) => {
   if (!FullCalendar || typeof FullCalendar.Calendar !== 'function') {
     return;
@@ -746,26 +756,110 @@ try {
       'new' => kc_t('manager.calendar.new'),
       'edit' => kc_t('manager.calendar.edit'),
   ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
-  const storageKey = 'kc_admin_calendar_events';
-  const loadEvents = () => { try { return JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch(e){ return []; } };
-  const saveEvents = (events) => localStorage.setItem(storageKey, JSON.stringify(events));
+  const serverEvents = <?= json_encode($calendarPayload['fullcalendar'], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+  let activeFilter = 'club';
+
   const toLocalInput = (date) => {
     if (!date) return '';
     const d = new Date(date);
     d.setMinutes(d.getMinutes() - d.getTimezoneOffset());
     return d.toISOString().slice(0,16);
   };
+  const compactDate = (value) => value ? String(value).slice(0, 10) : '';
+  const compactTime = (value) => value ? String(value).slice(0, 5) : '';
 
   const dialog = document.getElementById('eventDialog');
   const form = document.getElementById('eventForm');
+  const actionInput = document.getElementById('eventFormAction');
+  const singleFields = document.getElementById('singleEventFields');
+  const recurringFields = document.getElementById('recurringEventFields');
+  const dayCheckboxes = Array.from(document.querySelectorAll('[data-day-checkbox]'));
   const fields = {
-    id: document.getElementById('eventId'), title: document.getElementById('eventTitle'),
-    start: document.getElementById('eventStart'), end: document.getElementById('eventEnd'),
+    id: document.getElementById('eventId'),
+    audience: document.getElementById('eventAudience'),
+    type: document.getElementById('eventType'),
+    title: document.getElementById('eventTitle'),
+    color: document.getElementById('eventColor'),
+    sortOrder: document.getElementById('eventSortOrder'),
+    isActive: document.getElementById('eventIsActive'),
+    start: document.getElementById('eventStart'),
+    end: document.getElementById('eventEnd'),
+    startTime: document.getElementById('eventStartTime'),
+    endTime: document.getElementById('eventEndTime'),
+    startRecur: document.getElementById('eventStartRecur'),
+    endRecur: document.getElementById('eventEndRecur'),
     desc: document.getElementById('eventDesc')
   };
   const btnDelete = document.getElementById('btnDeleteEvent');
   const btnNew = document.getElementById('btnNewEvent');
   const btnCancel = document.getElementById('btnCancel');
+  const filterButtons = Array.from(document.querySelectorAll('.calendar-filter'));
+
+  function filteredEvents() {
+    if (activeFilter === 'club') {
+      return serverEvents;
+    }
+
+    return serverEvents.filter((event) => {
+      const audience = event.extendedProps && event.extendedProps.audience;
+      return audience === activeFilter || audience === 'all';
+    });
+  }
+
+  function refreshCalendarEvents(calendar) {
+    calendar.removeAllEvents();
+    calendar.addEventSource(filteredEvents());
+  }
+
+  function updateFilterButtons() {
+    filterButtons.forEach((button) => {
+      const active = button.dataset.filter === activeFilter;
+      button.setAttribute('aria-pressed', active ? 'true' : 'false');
+      button.classList.toggle('bg-slate-800', active);
+      button.classList.toggle('text-slate-100', active);
+      button.classList.toggle('bg-transparent', !active);
+    });
+  }
+
+  function resetDayCheckboxes(values = []) {
+    const selectedDays = values.map((value) => Number(value));
+    dayCheckboxes.forEach((checkbox) => {
+      checkbox.checked = selectedDays.includes(Number(checkbox.value));
+    });
+  }
+
+  function toggleEventTypeFields() {
+    const recurring = fields.type.value === 'recurring';
+    singleFields.classList.toggle('hidden', recurring);
+    recurringFields.classList.toggle('hidden', !recurring);
+    fields.start.required = !recurring;
+    fields.end.required = !recurring;
+    fields.startTime.required = recurring;
+    fields.endTime.required = recurring;
+    fields.startRecur.required = recurring;
+    fields.endRecur.required = recurring;
+  }
+
+  function eventDataFromCalendar(event) {
+    const extended = event.extendedProps || {};
+    return {
+      id: event.id,
+      title: event.title,
+      start: event.start,
+      end: event.end,
+      color: event.backgroundColor || event.borderColor,
+      audience: extended.audience || 'children',
+      eventType: extended.eventType || 'single',
+      description: extended.description || '',
+      daysOfWeek: extended.daysOfWeek || [],
+      startTime: extended.startTime || '',
+      endTime: extended.endTime || '',
+      startRecur: extended.startRecur || '',
+      endRecur: extended.endRecur || '',
+      sortOrder: extended.sortOrder ?? 100,
+      isActive: extended.isActive !== false
+    };
+  }
 
   const calendar = new FullCalendar.Calendar(document.getElementById('adminCalendar'), {
     plugins: FullCalendar.plugins || [],
@@ -774,57 +868,84 @@ try {
     editable: true,
     selectable: true,
     headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' },
-    events: loadEvents(),
-    select(info) { openDialog({ start: info.startStr, end: info.endStr }); },
-    eventClick(info) {
-      const e = info.event;
-      openDialog({ id: e.id, title: e.title, start: e.start, end: e.end, description: e.extendedProps.description || '' });
+    events: filteredEvents(),
+    select(info) {
+      openDialog({
+        start: info.startStr,
+        end: info.endStr,
+        audience: activeFilter === 'club' ? 'children' : activeFilter,
+        eventType: 'single'
+      });
     },
-    eventDrop: persistFromCalendar,
-    eventResize: persistFromCalendar
+    eventClick(info) {
+      openDialog(eventDataFromCalendar(info.event));
+    },
+    eventDrop(info) {
+      const data = eventDataFromCalendar(info.event);
+      if (data.eventType === 'recurring') {
+        info.revert();
+      }
+      openDialog(data);
+    },
+    eventResize(info) {
+      const data = eventDataFromCalendar(info.event);
+      if (data.eventType === 'recurring') {
+        info.revert();
+      }
+      openDialog(data);
+    }
   });
-
-  function persistFromCalendar() {
-    const events = calendar.getEvents().map(e => ({ id: e.id, title: e.title, start: e.start?.toISOString(), end: e.end?.toISOString() || null, description: e.extendedProps.description || '' }));
-    saveEvents(events);
-  }
 
   function openDialog(data = {}) {
     document.getElementById('dialogTitle').textContent = data.id ? calendarTexts.edit : calendarTexts.new;
     fields.id.value = data.id || '';
+    fields.audience.value = data.audience || (activeFilter === 'club' ? 'children' : activeFilter);
+    fields.type.value = data.eventType || 'single';
     fields.title.value = data.title || '';
+    fields.color.value = data.color || '#3b82f6';
+    fields.sortOrder.value = String(data.sortOrder ?? 100);
+    fields.isActive.checked = data.isActive !== false;
     fields.start.value = toLocalInput(data.start);
     fields.end.value = toLocalInput(data.end);
+    fields.startTime.value = compactTime(data.startTime);
+    fields.endTime.value = compactTime(data.endTime);
+    fields.startRecur.value = compactDate(data.startRecur);
+    fields.endRecur.value = compactDate(data.endRecur);
+    resetDayCheckboxes(data.daysOfWeek || []);
     fields.desc.value = data.description || '';
+    actionInput.value = 'calendar_event_save';
     btnDelete.classList.toggle('hidden', !data.id);
+    toggleEventTypeFields();
     dialog.showModal();
   }
 
-  btnNew.addEventListener('click', () => openDialog());
+  btnNew.addEventListener('click', () => openDialog({
+    audience: activeFilter === 'club' ? 'children' : activeFilter,
+    eventType: 'single',
+    isActive: true
+  }));
   btnCancel.addEventListener('click', () => dialog.close());
+  fields.type.addEventListener('change', toggleEventTypeFields);
 
-  form.addEventListener('submit', (ev) => {
-    ev.preventDefault();
-    const id = fields.id.value || String(Date.now());
-    const payload = { id, title: fields.title.value.trim(), start: new Date(fields.start.value).toISOString(), end: fields.end.value ? new Date(fields.end.value).toISOString() : null, description: fields.desc.value.trim() };
-    if (!payload.title || !payload.start) return;
-
-    const existing = calendar.getEventById(id);
-    if (existing) { existing.setProp('title', payload.title); existing.setStart(payload.start); existing.setEnd(payload.end); existing.setExtendedProp('description', payload.description); }
-    else { calendar.addEvent(payload); }
-    persistFromCalendar();
-    dialog.close();
+  filterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      activeFilter = button.dataset.filter || 'club';
+      updateFilterButtons();
+      refreshCalendarEvents(calendar);
+    });
   });
 
   btnDelete.addEventListener('click', () => {
-    const id = fields.id.value;
-    if (!id) return;
-    const existing = calendar.getEventById(id);
-    if (existing) existing.remove();
-    persistFromCalendar();
-    dialog.close();
+    if (!fields.id.value) {
+      return;
+    }
+
+    actionInput.value = 'calendar_event_delete';
+    form.submit();
   });
 
+  updateFilterButtons();
+  toggleEventTypeFields();
   calendar.render();
   }).catch((e) => console.error('Erreur FullCalendar:', e));
 })();
