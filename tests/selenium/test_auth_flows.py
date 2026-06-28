@@ -3,7 +3,7 @@ from urllib.parse import urljoin, urlparse
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.ui import Select, WebDriverWait
 
 
 WAIT_SECONDS = 15
@@ -175,3 +175,26 @@ def test_admin_can_login_to_manager_dashboard(driver, base_url):
 
     assert ADMIN_EMAIL in body
     assert MEMBER_EMAIL in body
+
+    member_search = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located((By.ID, "memberSearch"))
+    )
+    member_search.clear()
+    member_search.send_keys(MEMBER_EMAIL)
+
+    member_row = WebDriverWait(driver, WAIT_SECONDS).until(
+        EC.visibility_of_element_located(
+            (By.XPATH, f"//tr[@data-member-row][.//*[contains(normalize-space(), '{MEMBER_EMAIL}')]]")
+        )
+    )
+    assert "Repas membre" in body_text(driver)
+
+    Select(driver.find_element(By.ID, "memberRoleFilter")).select_by_value("admin")
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        lambda current: "hidden" in member_row.get_attribute("class").split()
+    )
+
+    Select(driver.find_element(By.ID, "memberRoleFilter")).select_by_value("member")
+    WebDriverWait(driver, WAIT_SECONDS).until(
+        lambda current: "hidden" not in member_row.get_attribute("class").split()
+    )

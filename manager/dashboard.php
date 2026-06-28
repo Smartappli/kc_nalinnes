@@ -85,6 +85,7 @@ try {
     ensure_meal_reservations_columns($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
+    $db->exec('CREATE TABLE IF NOT EXISTS member_dependents (id INT AUTO_INCREMENT PRIMARY KEY, guardian_user_id INT NOT NULL, full_name VARCHAR(255) NOT NULL, birthdate DATE NULL, is_minor TINYINT(1) NOT NULL DEFAULT 1)');
     ensure_calendar_events_table($db);
 
     $loginBypassEnabled = is_temp_bypass_login_enabled();
@@ -94,7 +95,7 @@ try {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
             flash(kc_t('manager.flash.csrf'), 'error');
-            header('Location: ' . manager_dashboard_url(), true, 303);
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
             exit;
         }
 
@@ -308,7 +309,7 @@ try {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
             flash(kc_t('manager.flash.csrf'), 'error');
-            header('Location: ' . manager_dashboard_url(), true, 303);
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
             exit;
         }
 
@@ -317,7 +318,7 @@ try {
 
         if ($targetId <= 0 || !in_array($targetRole, ['admin', 'member'], true)) {
             flash(kc_t('manager.flash.invalid_user_params'), 'error');
-            header('Location: ' . manager_dashboard_url(), true, 303);
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
             exit;
         }
 
@@ -334,7 +335,7 @@ try {
         set_admin_role($db, $targetEmail, $targetRole === 'admin');
 
         flash(kc_t('manager.flash.user_role_updated'), 'success');
-        header('Location: ' . manager_dashboard_url(), true, 303);
+        header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
         exit;
     }
 
@@ -343,7 +344,7 @@ try {
         $postedToken = (string)($_POST['csrf_token'] ?? '');
         if (!hash_equals((string)$_SESSION['csrf_token'], $postedToken)) {
             flash(kc_t('manager.flash.csrf'), 'error');
-            header('Location: ' . manager_dashboard_url(), true, 303);
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
             exit;
         }
 
@@ -352,7 +353,7 @@ try {
 
         if ($targetId <= 0 || $grade === '') {
             flash(kc_t('manager.flash.invalid_grade_params'), 'error');
-            header('Location: ' . manager_dashboard_url(), true, 303);
+            header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
             exit;
         }
 
@@ -360,7 +361,7 @@ try {
         $stmt->execute([':user_id' => $targetId, ':grade' => $grade]);
 
         flash(kc_t('manager.flash.grade_updated'), 'success');
-        header('Location: ' . manager_dashboard_url(), true, 303);
+        header('Location: ' . manager_dashboard_anchor_url('admin-users'), true, 303);
         exit;
     }
 
@@ -405,6 +406,22 @@ try {
     $usersStmt = $db->query('SELECT id, email, username FROM users ORDER BY id ASC');
     $users = $usersStmt->fetchAll();
 
+    $dependentsStmt = $db->query('SELECT id, guardian_user_id, full_name, birthdate, is_minor FROM member_dependents ORDER BY guardian_user_id ASC, is_minor DESC, full_name ASC, id ASC');
+    $dependentsRows = $dependentsStmt->fetchAll();
+    $dependentsByUserId = [];
+    foreach ($dependentsRows as $dependentRow) {
+        $guardianId = (int)($dependentRow['guardian_user_id'] ?? 0);
+        if ($guardianId <= 0) {
+            continue;
+        }
+
+        if (!isset($dependentsByUserId[$guardianId])) {
+            $dependentsByUserId[$guardianId] = [];
+        }
+
+        $dependentsByUserId[$guardianId][] = $dependentRow;
+    }
+
     $mealSummaryStmt = $db->query('SELECT COALESCE(SUM(CASE WHEN status <> \'cancelled\' THEN adult_qty ELSE 0 END),0) AS total_adult, COALESCE(SUM(CASE WHEN status <> \'cancelled\' THEN child_qty ELSE 0 END),0) AS total_child, COALESCE(SUM(CASE WHEN status <> \'cancelled\' THEN total_amount ELSE 0 END),0) AS total_amount FROM meal_reservations');
     $mealSummary = $mealSummaryStmt->fetch() ?: ['total_adult' => 0, 'total_child' => 0, 'total_amount' => 0];
 
@@ -415,6 +432,113 @@ try {
     $gradesRows = $gradesStmt->fetchAll();
     $gradesByUserId = [];
     foreach ($gradesRows as $g) { $gradesByUserId[(int)$g['user_id']] = (string)$g['grade']; }
+
+    $mealStatsByUserId = [];
+    foreach ($mealReservations as $reservationRow) {
+        $reservationUserId = (int)($reservationRow['member_user_id'] ?? 0);
+        if ($reservationUserId <= 0) {
+            continue;
+        }
+
+        if (!isset($mealStatsByUserId[$reservationUserId])) {
+            $mealStatsByUserId[$reservationUserId] = [
+                'count' => 0,
+                'active_count' => 0,
+                'adult_qty' => 0,
+                'child_qty' => 0,
+                'total_amount' => 0.0,
+                'last_at' => '',
+                'last_profile' => '',
+                'profiles' => [],
+            ];
+        }
+
+        $profileName = trim((string)($reservationRow['profile_name'] ?? ''));
+        if ($profileName !== '') {
+            $mealStatsByUserId[$reservationUserId]['profiles'][$profileName] = true;
+        }
+
+        if ($mealStatsByUserId[$reservationUserId]['last_at'] === '') {
+            $mealStatsByUserId[$reservationUserId]['last_at'] = (string)($reservationRow['created_at'] ?? '');
+            $mealStatsByUserId[$reservationUserId]['last_profile'] = $profileName;
+        }
+
+        $mealStatsByUserId[$reservationUserId]['count']++;
+        if ((string)($reservationRow['status'] ?? 'confirmed') !== 'cancelled') {
+            $mealStatsByUserId[$reservationUserId]['active_count']++;
+            $mealStatsByUserId[$reservationUserId]['adult_qty'] += (int)($reservationRow['adult_qty'] ?? 0);
+            $mealStatsByUserId[$reservationUserId]['child_qty'] += (int)($reservationRow['child_qty'] ?? 0);
+            $mealStatsByUserId[$reservationUserId]['total_amount'] += (float)($reservationRow['total_amount'] ?? 0);
+        }
+    }
+
+    $memberAdminRows = [];
+    $memberAdminSummary = [
+        'total' => 0,
+        'admins' => 0,
+        'members' => 0,
+        'minor_dependents' => 0,
+        'adult_dependents' => 0,
+        'missing_grades' => 0,
+        'meal_profiles' => 0,
+    ];
+    foreach ($users as $row) {
+        $memberId = (int)($row['id'] ?? 0);
+        $rowEmail = strtolower((string)($row['email'] ?? ''));
+        $rowIsAdmin = in_array($rowEmail, $adminEmails, true);
+        $rowGrade = trim((string)($gradesByUserId[$memberId] ?? ''));
+        $rowDependents = $dependentsByUserId[$memberId] ?? [];
+        $minorDependentCount = 0;
+        $adultDependentCount = 0;
+        foreach ($rowDependents as $dependentRow) {
+            if ((int)($dependentRow['is_minor'] ?? 1) === 1) {
+                $minorDependentCount++;
+            }
+            else {
+                $adultDependentCount++;
+            }
+        }
+
+        $mealStats = $mealStatsByUserId[$memberId] ?? [
+            'count' => 0,
+            'active_count' => 0,
+            'adult_qty' => 0,
+            'child_qty' => 0,
+            'total_amount' => 0.0,
+            'last_at' => '',
+            'last_profile' => '',
+            'profiles' => [],
+        ];
+        $mealProfileCount = count($mealStats['profiles']);
+        $memberSearchText = strtolower(trim(
+            (string)($row['email'] ?? '') . ' '
+            . (string)($row['username'] ?? '') . ' '
+            . $rowGrade . ' '
+            . implode(' ', array_map(static fn(array $dependentRow): string => (string)($dependentRow['full_name'] ?? ''), $rowDependents)) . ' '
+            . implode(' ', array_keys($mealStats['profiles']))
+        ));
+
+        $memberAdminRows[] = [
+            'user' => $row,
+            'is_admin' => $rowIsAdmin,
+            'grade' => $rowGrade,
+            'dependents' => $rowDependents,
+            'minor_dependents' => $minorDependentCount,
+            'adult_dependents' => $adultDependentCount,
+            'meal_stats' => $mealStats,
+            'meal_profiles' => $mealProfileCount,
+            'search' => $memberSearchText,
+        ];
+
+        $memberAdminSummary['total']++;
+        $memberAdminSummary[$rowIsAdmin ? 'admins' : 'members']++;
+        $memberAdminSummary['minor_dependents'] += $minorDependentCount;
+        $memberAdminSummary['adult_dependents'] += $adultDependentCount;
+        $memberAdminSummary['meal_profiles'] += $mealProfileCount;
+        if ($rowGrade === '') {
+            $memberAdminSummary['missing_grades']++;
+        }
+    }
 
     $calendarRows = kc_calendar_admin_event_rows($db);
     $calendarPayload = kc_calendar_events_payload($calendarRows, true);
@@ -634,9 +758,44 @@ try {
     </section>
 
     <section id="admin-users" class="mt-10 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
-        <h2 class="text-xl font-bold"><?= e(kc_t('manager.users.title')) ?></h2>
-        <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('manager.users.description')) ?></p>
-        <div class="mt-4 overflow-x-auto">
+        <div class="flex flex-col gap-2 lg:flex-row lg:items-start lg:justify-between">
+            <div>
+                <h2 class="text-xl font-bold"><?= e(kc_t('manager.users.title')) ?></h2>
+                <p class="mt-2 text-sm text-slate-400">Suivi centralise des comptes, grades, enfants rattaches et reservations repas membres.</p>
+            </div>
+            <div class="text-sm text-slate-400"><span id="memberVisibleCount"><?= e((string)$memberAdminSummary['total']) ?></span> / <?= e((string)$memberAdminSummary['total']) ?> comptes visibles</div>
+        </div>
+
+        <div class="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+            <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4"><p class="text-xs uppercase tracking-[0.18em] text-slate-500">Comptes</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['total']) ?></p></div>
+            <div class="rounded-xl border border-emerald-500/30 bg-emerald-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-emerald-300">Membres</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['members']) ?></p></div>
+            <div class="rounded-xl border border-sky-500/30 bg-sky-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-sky-300">Admins</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['admins']) ?></p></div>
+            <div class="rounded-xl border border-orange-500/30 bg-orange-500/10 p-4"><p class="text-xs uppercase tracking-[0.18em] text-orange-300">Enfants mineurs</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['minor_dependents']) ?></p></div>
+            <div class="rounded-xl border <?= $memberAdminSummary['missing_grades'] > 0 ? 'border-red-500/40 bg-red-500/10' : 'border-slate-800 bg-slate-950/40' ?> p-4"><p class="text-xs uppercase tracking-[0.18em] <?= $memberAdminSummary['missing_grades'] > 0 ? 'text-red-300' : 'text-slate-500' ?>">Grades manquants</p><p class="mt-1 text-2xl font-bold"><?= e((string)$memberAdminSummary['missing_grades']) ?></p></div>
+        </div>
+
+        <div class="mt-5 grid gap-3 lg:grid-cols-[1fr_auto]">
+            <div>
+                <label for="memberSearch" class="sr-only">Rechercher un membre</label>
+                <input id="memberSearch" type="search" placeholder="Rechercher par email, nom, grade, enfant ou profil repas" class="w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500">
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <label for="memberRoleFilter" class="sr-only">Filtrer par role</label>
+                <select id="memberRoleFilter" class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
+                    <option value="all">Tous les roles</option>
+                    <option value="member">Membres</option>
+                    <option value="admin">Admins</option>
+                </select>
+                <label for="memberGradeFilter" class="sr-only">Filtrer par grade</label>
+                <select id="memberGradeFilter" class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
+                    <option value="all">Tous les grades</option>
+                    <option value="missing">Grade manquant</option>
+                    <option value="filled">Grade renseigne</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="mt-4 overflow-x-auto rounded-xl border border-slate-800">
             <table class="min-w-full text-sm">
                 <thead>
                 <tr class="text-left text-slate-400 border-b border-slate-800">
@@ -828,6 +987,86 @@ try {
         </form>
 
         <div class="mt-3 overflow-x-auto rounded-xl border border-slate-800">
+            <table class="hidden">
+                <thead class="bg-slate-950/70">
+                <tr class="text-left text-slate-400">
+                    <th class="px-3 py-2"><?= e(kc_t('manager.users.id')) ?></th>
+                    <th class="px-3 py-2">Membre</th>
+                    <th class="px-3 py-2">Grade</th>
+                    <th class="px-3 py-2">Profils lies</th>
+                    <th class="px-3 py-2">Repas membre</th>
+                    <th class="px-3 py-2">Role</th>
+                    <th class="px-3 py-2">Actions</th>
+                </tr>
+                </thead>
+                <tbody id="memberRows">
+                <?php foreach ($memberAdminRows as $memberRow): ?>
+                    <?php
+                    $row = $memberRow['user'];
+                    $rowId = (int)($row['id'] ?? 0);
+                    $rowIsAdmin = (bool)$memberRow['is_admin'];
+                    $rowGrade = (string)$memberRow['grade'];
+                    $rowDependents = $memberRow['dependents'];
+                    $mealStats = $memberRow['meal_stats'];
+                    ?>
+                    <tr data-disabled-member-row data-role="<?= $rowIsAdmin ? 'admin' : 'member' ?>" data-grade="<?= $rowGrade === '' ? 'missing' : 'filled' ?>" data-search="<?= e((string)$memberRow['search']) ?>" class="border-t border-slate-800 align-top">
+                        <td class="px-3 py-3 text-slate-400"><?= e((string)$rowId) ?></td>
+                        <td class="px-3 py-3">
+                            <p class="font-semibold text-slate-100"><?= e((string)($row['email'] ?? '')) ?></p>
+                            <p class="mt-1 text-xs text-slate-400"><?= (string)($row['username'] ?? '') !== '' ? e((string)$row['username']) : 'Username vide' ?></p>
+                        </td>
+                        <td class="px-3 py-3">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="flex min-w-[11rem] items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="grade_update">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <input name="target_grade" value="<?= e($rowGrade) ?>" placeholder="A definir" class="w-28 rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-slate-100">
+                                <button class="rounded-lg bg-emerald-600 px-2 py-1 text-xs font-semibold text-white hover:bg-emerald-500"><?= e(kc_t('manager.users.update')) ?></button>
+                            </form>
+                        </td>
+                        <td class="px-3 py-3">
+                            <p class="font-semibold"><?= e((string)((int)$memberRow['minor_dependents'] + (int)$memberRow['adult_dependents'])) ?> profil(s)</p>
+                            <p class="mt-1 text-xs text-slate-400"><?= e((string)$memberRow['minor_dependents']) ?> mineur(s), <?= e((string)$memberRow['adult_dependents']) ?> adulte(s)</p>
+                            <?php if ($rowDependents !== []): ?>
+                                <details class="mt-2">
+                                    <summary class="cursor-pointer text-xs font-semibold text-sky-200">Voir les profils</summary>
+                                    <ul class="mt-2 space-y-1 text-xs text-slate-300">
+                                        <?php foreach ($rowDependents as $dependentRow): ?>
+                                            <li><?= e((string)($dependentRow['full_name'] ?? '')) ?><?= (string)($dependentRow['birthdate'] ?? '') !== '' ? ' - ' . e((string)$dependentRow['birthdate']) : '' ?><?= (int)($dependentRow['is_minor'] ?? 1) === 1 ? ' - mineur' : ' - adulte' ?></li>
+                                        <?php endforeach; ?>
+                                    </ul>
+                                </details>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-3 py-3">
+                            <p class="font-semibold"><?= e((string)$mealStats['active_count']) ?> active(s) / <?= e((string)$mealStats['count']) ?> total</p>
+                            <p class="mt-1 text-xs text-slate-400"><?= e((string)$mealStats['adult_qty']) ?> adulte(s), <?= e((string)$mealStats['child_qty']) ?> enfant(s), <?= e(number_format((float)$mealStats['total_amount'], 2, ',', ' ')) ?> EUR</p>
+                            <?php if ((string)$mealStats['last_at'] !== ''): ?>
+                                <p class="mt-1 text-xs text-slate-500">Derniere: <?= e((string)$mealStats['last_at']) ?><?= (string)$mealStats['last_profile'] !== '' ? ' - ' . e((string)$mealStats['last_profile']) : '' ?></p>
+                            <?php endif; ?>
+                        </td>
+                        <td class="px-3 py-3">
+                            <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold <?= $rowIsAdmin ? 'bg-sky-500/15 text-sky-200' : 'bg-emerald-500/15 text-emerald-200' ?>"><?= e($rowIsAdmin ? kc_t('manager.users.admin') : kc_t('manager.users.member')) ?></span>
+                        </td>
+                        <td class="px-3 py-3">
+                            <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-users')) ?>" class="flex min-w-[12rem] items-center gap-2">
+                                <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+                                <input type="hidden" name="action" value="user_update">
+                                <input type="hidden" name="target_user_id" value="<?= e((string)$rowId) ?>">
+                                <select name="target_role" class="rounded-lg border border-slate-700 bg-slate-800 px-2 py-1 text-slate-100">
+                                    <option value="member" <?= !$rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.member')) ?></option>
+                                    <option value="admin" <?= $rowIsAdmin ? 'selected' : '' ?>><?= e(kc_t('manager.users.admin')) ?></option>
+                                </select>
+                                <button class="rounded-lg bg-sky-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-sky-500"><?= e(kc_t('manager.users.save')) ?></button>
+                            </form>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+                <?php if ($memberAdminRows === []): ?>
+                    <tr><td colspan="7" class="px-3 py-4 text-slate-400">Aucun membre.</td></tr>
+                <?php endif; ?>
+                </tbody>
+            </table>
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-950/70 text-left text-slate-400">
                 <tr>
@@ -1028,6 +1267,39 @@ try {
       });
     });
   });
+
+  const memberSearch = document.getElementById('memberSearch');
+  const memberRoleFilter = document.getElementById('memberRoleFilter');
+  const memberGradeFilter = document.getElementById('memberGradeFilter');
+  const memberVisibleCount = document.getElementById('memberVisibleCount');
+  const memberRows = Array.from(document.querySelectorAll('[data-member-row]'));
+
+  function syncMemberRows() {
+    const query = (memberSearch?.value || '').trim().toLowerCase();
+    const role = memberRoleFilter?.value || 'all';
+    const grade = memberGradeFilter?.value || 'all';
+    let visibleCount = 0;
+
+    memberRows.forEach((row) => {
+      const matchesQuery = query === '' || (row.dataset.search || '').includes(query);
+      const matchesRole = role === 'all' || row.dataset.role === role;
+      const matchesGrade = grade === 'all' || row.dataset.grade === grade;
+      const visible = matchesQuery && matchesRole && matchesGrade;
+      row.classList.toggle('hidden', !visible);
+      if (visible) {
+        visibleCount++;
+      }
+    });
+
+    if (memberVisibleCount) {
+      memberVisibleCount.textContent = String(visibleCount);
+    }
+  }
+
+  memberSearch?.addEventListener('input', syncMemberRows);
+  memberRoleFilter?.addEventListener('change', syncMemberRows);
+  memberGradeFilter?.addEventListener('change', syncMemberRows);
+  syncMemberRows();
 
   (window.kcFullCalendarReady || Promise.resolve(window.FullCalendar)).then((FullCalendar) => {
   if (!FullCalendar || typeof FullCalendar.Calendar !== 'function') {
