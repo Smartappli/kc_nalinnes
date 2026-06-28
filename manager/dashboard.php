@@ -9,6 +9,7 @@ require __DIR__ . '/../vendor/autoload.php';
 require __DIR__ . '/../includes/i18n.php';
 require __DIR__ . '/../includes/calendar_events.php';
 require __DIR__ . '/admin_access.php';
+require __DIR__ . '/member_admin.php';
 require __DIR__ . '/../config/database.php';
 require __DIR__ . '/../member/meal_reservation.php';
 
