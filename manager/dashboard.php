@@ -808,7 +808,7 @@ try {
                     <th class="px-3 py-2">Actions</th>
                 </tr>
                 </thead>
-                <tbody id="disabledMemberRows">
+                <tbody id="memberRows">
                 <?php foreach ($memberAdminRows as $memberRow): ?>
                     <?php
                     $row = $memberRow['user'];
@@ -1079,7 +1079,7 @@ try {
                     <th class="px-3 py-2">Actions</th>
                 </tr>
                 </thead>
-                <tbody id="memberRows">
+                <tbody id="disabledMemberRows">
                 <?php foreach ($memberAdminRows as $memberRow): ?>
                     <?php
                     $row = $memberRow['user'];
