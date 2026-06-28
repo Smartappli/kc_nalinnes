@@ -3,7 +3,7 @@
         'name' => 'odebauche/site',
         'pretty_version' => 'dev-master',
         'version' => 'dev-master',
-        'reference' => 'b7a1d00d88884f54d3cea8a5713fd77817136a07',
+        'reference' => 'a7aafc74e99e4ff9a3c793bfc4784f8fb6711b60',
         'type' => 'library',
         'install_path' => __DIR__ . '/../../',
         'aliases' => array(),
@@ -94,7 +94,7 @@
         'odebauche/site' => array(
             'pretty_version' => 'dev-master',
             'version' => 'dev-master',
-            'reference' => 'b7a1d00d88884f54d3cea8a5713fd77817136a07',
+            'reference' => 'a7aafc74e99e4ff9a3c793bfc4784f8fb6711b60',
             'type' => 'library',
             'install_path' => __DIR__ . '/../../',
             'aliases' => array(),
