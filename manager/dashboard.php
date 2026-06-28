@@ -134,11 +134,31 @@ try {
         exit;
     }
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete', 'calendar_event_toggle', 'calendar_event_duplicate', 'calendar_import_default_drafts'], true)) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && in_array(($_POST['action'] ?? ''), ['calendar_event_save', 'calendar_event_delete', 'calendar_event_toggle', 'calendar_event_duplicate', 'calendar_import_default_drafts', 'calendar_bulk'], true)) {
         require_manager_csrf();
 
         try {
-            if (($_POST['action'] ?? '') === 'calendar_event_delete') {
+            if (($_POST['action'] ?? '') === 'calendar_bulk') {
+                $bulkAction = (string)($_POST['calendar_bulk_action'] ?? '');
+                $eventIds = kc_calendar_normalize_event_ids($_POST['event_ids'] ?? []);
+
+                if ($bulkAction === 'publish') {
+                    $updated = kc_calendar_set_events_active($db, $eventIds, true);
+                    flash($updated . ' evenement(s) calendrier publie(s).', 'success');
+                }
+                elseif ($bulkAction === 'unpublish') {
+                    $updated = kc_calendar_set_events_active($db, $eventIds, false);
+                    flash($updated . ' evenement(s) calendrier passe(s) en brouillon.', 'success');
+                }
+                elseif ($bulkAction === 'delete') {
+                    $deleted = kc_calendar_delete_events($db, $eventIds);
+                    flash($deleted . ' evenement(s) calendrier supprime(s).', 'success');
+                }
+                else {
+                    throw new InvalidArgumentException('Action calendrier en masse invalide.');
+                }
+            }
+            elseif (($_POST['action'] ?? '') === 'calendar_event_delete') {
                 kc_calendar_delete_event($db, (int)($_POST['event_id'] ?? 0));
                 flash('Evenement calendrier supprime.', 'success');
             }
@@ -794,10 +814,27 @@ try {
             <div id="adminCalendar" class="min-h-[560px]"></div>
         </div>
 
-        <div class="mt-6 overflow-x-auto rounded-xl border border-slate-800">
+        <form id="calendarBulkForm" method="post" action="<?= e(manager_dashboard_anchor_url('admin-calendar')) ?>" class="mt-6 flex flex-wrap items-center gap-2" data-calendar-bulk-form>
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="action" value="calendar_bulk">
+            <label for="calendarBulkAction" class="sr-only">Action en masse</label>
+            <select id="calendarBulkAction" name="calendar_bulk_action" class="rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-slate-100">
+                <option value="publish">Publier</option>
+                <option value="unpublish">Passer en brouillon</option>
+                <option value="delete">Supprimer</option>
+            </select>
+            <button type="submit" class="rounded-lg bg-sky-600 px-3 py-2 text-sm font-semibold text-white hover:bg-sky-500 disabled:cursor-not-allowed disabled:opacity-50" disabled>Appliquer</button>
+            <span id="calendarBulkCount" class="text-sm text-slate-400">0 selection</span>
+        </form>
+
+        <div class="mt-3 overflow-x-auto rounded-xl border border-slate-800">
             <table class="min-w-full text-sm">
                 <thead class="bg-slate-950/70 text-left text-slate-400">
                 <tr>
+                    <th class="px-3 py-2">
+                        <label class="sr-only" for="calendarSelectAll">Selectionner les evenements visibles</label>
+                        <input id="calendarSelectAll" type="checkbox" class="h-4 w-4 rounded border-slate-600 bg-slate-900">
+                    </th>
                     <th class="px-3 py-2">Statut</th>
                     <th class="px-3 py-2">Calendrier</th>
                     <th class="px-3 py-2">Type</th>
@@ -824,6 +861,10 @@ try {
                     ));
                     ?>
                     <tr data-calendar-row data-audience="<?= e($calendarAudience) ?>" data-search="<?= e($calendarSearchText) ?>" class="border-t <?= $calendarHasConflict ? 'border-red-500/30 bg-red-950/20' : 'border-slate-800' ?> <?= $calendarActive ? '' : 'bg-slate-950/50 text-slate-400' ?>">
+                        <td class="px-3 py-3 align-top">
+                            <label class="sr-only" for="calendarSelect<?= e((string)$calendarRowId) ?>">Selectionner <?= e((string)($calendarRow['title'] ?? '')) ?></label>
+                            <input id="calendarSelect<?= e((string)$calendarRowId) ?>" form="calendarBulkForm" type="checkbox" name="event_ids[]" value="<?= e((string)$calendarRowId) ?>" class="h-4 w-4 rounded border-slate-600 bg-slate-900" data-calendar-select>
+                        </td>
                         <td class="px-3 py-3">
                             <span class="inline-flex rounded-full px-2 py-1 text-xs font-semibold <?= $calendarActive ? 'bg-emerald-500/15 text-emerald-200' : 'bg-slate-700/60 text-slate-300' ?>">
                                 <?= $calendarActive ? 'Publie' : 'Brouillon' ?>
@@ -864,7 +905,7 @@ try {
                     </tr>
                 <?php endforeach; ?>
                 <?php if ($calendarRows === []): ?>
-                    <tr><td colspan="7" class="px-3 py-4 text-slate-400">Aucun evenement calendrier.</td></tr>
+                    <tr><td colspan="8" class="px-3 py-4 text-slate-400">Aucun evenement calendrier.</td></tr>
                 <?php endif; ?>
                 </tbody>
             </table>
@@ -1039,6 +1080,11 @@ try {
   const searchInput = document.getElementById('calendarSearch');
   const tableRows = Array.from(document.querySelectorAll('[data-calendar-row]'));
   const editButtons = Array.from(document.querySelectorAll('[data-edit-event-id]'));
+  const bulkForm = document.getElementById('calendarBulkForm');
+  const bulkAction = document.getElementById('calendarBulkAction');
+  const bulkCount = document.getElementById('calendarBulkCount');
+  const selectAll = document.getElementById('calendarSelectAll');
+  const rowCheckboxes = Array.from(document.querySelectorAll('[data-calendar-select]'));
   let pendingCalendarChangeRevert = null;
   let eventFormSubmitting = false;
 
@@ -1076,6 +1122,28 @@ try {
       const matchesSearch = query === '' || (row.dataset.search || '').includes(query);
       row.classList.toggle('hidden', !(matchesAudience && matchesSearch));
     });
+    updateCalendarBulkState();
+  }
+
+  function visibleCalendarCheckboxes() {
+    return rowCheckboxes.filter((checkbox) => {
+      const row = checkbox.closest('[data-calendar-row]');
+      return row && !row.classList.contains('hidden');
+    });
+  }
+
+  function updateCalendarBulkState() {
+    const selectedCount = rowCheckboxes.filter((checkbox) => checkbox.checked).length;
+    const visibleCheckboxes = visibleCalendarCheckboxes();
+    const visibleSelectedCount = visibleCheckboxes.filter((checkbox) => checkbox.checked).length;
+
+    bulkCount.textContent = selectedCount + ' selection' + (selectedCount > 1 ? 's' : '');
+    bulkForm.querySelectorAll('button[type="submit"]').forEach((button) => {
+      button.disabled = selectedCount === 0;
+    });
+
+    selectAll.checked = visibleCheckboxes.length > 0 && visibleSelectedCount === visibleCheckboxes.length;
+    selectAll.indeterminate = visibleSelectedCount > 0 && visibleSelectedCount < visibleCheckboxes.length;
   }
 
   function resetDayCheckboxes(values = []) {
@@ -1231,6 +1299,29 @@ try {
   });
 
   searchInput?.addEventListener('input', syncCalendarTable);
+
+  rowCheckboxes.forEach((checkbox) => {
+    checkbox.addEventListener('change', updateCalendarBulkState);
+  });
+
+  selectAll?.addEventListener('change', () => {
+    visibleCalendarCheckboxes().forEach((checkbox) => {
+      checkbox.checked = selectAll.checked;
+    });
+    updateCalendarBulkState();
+  });
+
+  bulkForm?.addEventListener('submit', (event) => {
+    const selectedCount = rowCheckboxes.filter((checkbox) => checkbox.checked).length;
+    if (selectedCount === 0) {
+      event.preventDefault();
+      return;
+    }
+
+    if (bulkAction.value === 'delete' && !confirm('Supprimer les evenements calendrier selectionnes ?')) {
+      event.preventDefault();
+    }
+  });
 
   editButtons.forEach((button) => {
     button.addEventListener('click', () => {

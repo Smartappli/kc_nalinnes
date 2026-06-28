@@ -491,6 +491,60 @@ function kc_calendar_delete_event(PDO $db, int $id): void {
     $stmt->execute([':id' => $id]);
 }
 
+function kc_calendar_normalize_event_ids(mixed $ids): array {
+    $rawIds = is_array($ids) ? $ids : [$ids];
+    $normalized = [];
+
+    foreach ($rawIds as $id) {
+        $intId = (int)$id;
+        if ($intId > 0) {
+            $normalized[$intId] = $intId;
+        }
+    }
+
+    return array_values($normalized);
+}
+
+function kc_calendar_placeholders_for_ids(array $ids): array {
+    $placeholders = [];
+    $params = [];
+
+    foreach (kc_calendar_normalize_event_ids($ids) as $i => $id) {
+        $placeholder = ':id' . $i;
+        $placeholders[] = $placeholder;
+        $params[$placeholder] = $id;
+    }
+
+    if ($placeholders === []) {
+        throw new InvalidArgumentException('Selection calendrier vide.');
+    }
+
+    return [$placeholders, $params];
+}
+
+function kc_calendar_set_events_active(PDO $db, array $ids, bool $isActive): int {
+    ensure_calendar_events_table($db);
+
+    [$placeholders, $params] = kc_calendar_placeholders_for_ids($ids);
+    $params[':is_active'] = $isActive ? 1 : 0;
+
+    $stmt = $db->prepare('UPDATE calendar_events SET is_active = :is_active WHERE id IN (' . implode(', ', $placeholders) . ')');
+    $stmt->execute($params);
+
+    return $stmt->rowCount();
+}
+
+function kc_calendar_delete_events(PDO $db, array $ids): int {
+    ensure_calendar_events_table($db);
+
+    [$placeholders, $params] = kc_calendar_placeholders_for_ids($ids);
+
+    $stmt = $db->prepare('DELETE FROM calendar_events WHERE id IN (' . implode(', ', $placeholders) . ')');
+    $stmt->execute($params);
+
+    return $stmt->rowCount();
+}
+
 function kc_calendar_event_by_id(PDO $db, int $id): ?array {
     ensure_calendar_events_table($db);
 
