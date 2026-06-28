@@ -10,10 +10,185 @@ if (realpath($_SERVER['SCRIPT_FILENAME'] ?? '') === __FILE__) {
     exit;
 }
 
-function compute_meal_total(int $adultQty, int $childQty, int $adultPrice = 19, int $childPrice = 10): int {
+function compute_meal_total(int $adultQty, int $childQty, int|float $adultPrice = 19, int|float $childPrice = 10): int|float {
     $adultQty = max(0, $adultQty);
     $childQty = max(0, $childQty);
-    return ($adultQty * $adultPrice) + ($childQty * $childPrice);
+    $total = ($adultQty * (float)$adultPrice) + ($childQty * (float)$childPrice);
+
+    return floor($total) === $total ? (int)$total : round($total, 2);
+}
+
+function meal_default_settings(): array {
+    return [
+        'adult_menu' => '1 brochette + 1 saucisse.',
+        'child_menu' => '1 saucisse ou 1 brochette.',
+        'adult_price' => 19.0,
+        'child_price' => 10.0,
+        'reservation_deadline_at' => '2026-06-22 12:00:00',
+        'meal_at' => '2026-06-26 20:00:00',
+    ];
+}
+
+function normalize_meal_setting_text(mixed $value, string $fallback, int $maxLength = 500): string {
+    $text = trim((string)$value);
+    if ($text === '') {
+        $text = $fallback;
+    }
+
+    return mb_substr($text, 0, $maxLength);
+}
+
+function normalize_meal_setting_price(mixed $value, float $fallback): float {
+    $normalized = str_replace(',', '.', trim((string)$value));
+    if ($normalized === '') {
+        return $fallback;
+    }
+
+    if (!is_numeric($normalized)) {
+        throw new InvalidArgumentException('Prix repas invalide.');
+    }
+
+    $price = round((float)$normalized, 2);
+    if ($price < 0 || $price > 9999) {
+        throw new InvalidArgumentException('Prix repas invalide.');
+    }
+
+    return $price;
+}
+
+function normalize_meal_setting_datetime(mixed $value, string $fieldLabel): ?string {
+    $value = trim((string)$value);
+    if ($value === '') {
+        return null;
+    }
+
+    try {
+        return (new DateTimeImmutable(str_replace('T', ' ', $value)))->format('Y-m-d H:i:s');
+    }
+    catch (Throwable $e) {
+        throw new InvalidArgumentException($fieldLabel . ' invalide.');
+    }
+}
+
+function normalize_meal_settings_input(array $input): array {
+    $defaults = meal_default_settings();
+    $settings = [
+        'adult_menu' => normalize_meal_setting_text($input['adult_menu'] ?? $defaults['adult_menu'], (string)$defaults['adult_menu']),
+        'child_menu' => normalize_meal_setting_text($input['child_menu'] ?? $defaults['child_menu'], (string)$defaults['child_menu']),
+        'adult_price' => normalize_meal_setting_price($input['adult_price'] ?? $defaults['adult_price'], (float)$defaults['adult_price']),
+        'child_price' => normalize_meal_setting_price($input['child_price'] ?? $defaults['child_price'], (float)$defaults['child_price']),
+        'reservation_deadline_at' => normalize_meal_setting_datetime($input['reservation_deadline_at'] ?? $defaults['reservation_deadline_at'], 'Date limite de reservation'),
+        'meal_at' => normalize_meal_setting_datetime($input['meal_at'] ?? $defaults['meal_at'], 'Date du repas'),
+    ];
+
+    if ($settings['reservation_deadline_at'] !== null && $settings['meal_at'] !== null && strtotime($settings['reservation_deadline_at']) > strtotime($settings['meal_at'])) {
+        throw new InvalidArgumentException('La date limite doit etre anterieure ou egale a la date du repas.');
+    }
+
+    return $settings;
+}
+
+function ensure_meal_settings_table(PDO $db): void {
+    $db->exec('CREATE TABLE IF NOT EXISTS meal_settings (
+        id INT PRIMARY KEY,
+        adult_menu TEXT NOT NULL,
+        child_menu TEXT NOT NULL,
+        adult_price DECIMAL(10,2) NOT NULL DEFAULT 19,
+        child_price DECIMAL(10,2) NOT NULL DEFAULT 10,
+        reservation_deadline_at DATETIME NULL,
+        meal_at DATETIME NULL,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    )');
+}
+
+function meal_settings(PDO $db): array {
+    ensure_meal_settings_table($db);
+
+    $stmt = $db->query('SELECT adult_menu, child_menu, adult_price, child_price, reservation_deadline_at, meal_at FROM meal_settings WHERE id = 1 LIMIT 1');
+    $row = $stmt ? $stmt->fetch(PDO::FETCH_ASSOC) : false;
+    if (!is_array($row)) {
+        return meal_default_settings();
+    }
+
+    return normalize_meal_settings_input(array_merge(meal_default_settings(), $row));
+}
+
+function save_meal_settings(PDO $db, array $input): array {
+    ensure_meal_settings_table($db);
+
+    $settings = normalize_meal_settings_input($input);
+    $stmt = $db->prepare('INSERT INTO meal_settings
+        (id, adult_menu, child_menu, adult_price, child_price, reservation_deadline_at, meal_at)
+        VALUES
+        (1, :adult_menu, :child_menu, :adult_price, :child_price, :reservation_deadline_at, :meal_at)
+        ON DUPLICATE KEY UPDATE
+            adult_menu = VALUES(adult_menu),
+            child_menu = VALUES(child_menu),
+            adult_price = VALUES(adult_price),
+            child_price = VALUES(child_price),
+            reservation_deadline_at = VALUES(reservation_deadline_at),
+            meal_at = VALUES(meal_at)');
+    $stmt->execute([
+        ':adult_menu' => $settings['adult_menu'],
+        ':child_menu' => $settings['child_menu'],
+        ':adult_price' => $settings['adult_price'],
+        ':child_price' => $settings['child_price'],
+        ':reservation_deadline_at' => $settings['reservation_deadline_at'],
+        ':meal_at' => $settings['meal_at'],
+    ]);
+
+    return $settings;
+}
+
+function meal_price_label(int|float $price): string {
+    $price = round((float)$price, 2);
+    if (floor($price) === $price) {
+        return (string)(int)$price;
+    }
+
+    return number_format($price, 2, ',', '');
+}
+
+function meal_datetime_label(?string $datetime): string {
+    if ($datetime === null || trim($datetime) === '') {
+        return '-';
+    }
+
+    try {
+        return (new DateTimeImmutable($datetime))->format('d/m/Y H:i');
+    }
+    catch (Throwable $e) {
+        return (string)$datetime;
+    }
+}
+
+function meal_datetime_input_value(?string $datetime): string {
+    if ($datetime === null || trim($datetime) === '') {
+        return '';
+    }
+
+    try {
+        return (new DateTimeImmutable($datetime))->format('Y-m-d\TH:i');
+    }
+    catch (Throwable $e) {
+        return '';
+    }
+}
+
+function meal_reservations_are_open(array $settings, ?DateTimeImmutable $now = null): bool {
+    $deadline = $settings['reservation_deadline_at'] ?? null;
+    if (!is_string($deadline) || trim($deadline) === '') {
+        return true;
+    }
+
+    $now = $now ?? new DateTimeImmutable('now');
+
+    try {
+        return $now <= new DateTimeImmutable($deadline);
+    }
+    catch (Throwable $e) {
+        return true;
+    }
 }
 
 function meal_reservation_submission_token(string $scope): string {
@@ -123,7 +298,7 @@ function save_public_meal_reservation(PDO $db, array $reservation): int {
         ':notes' => (string)($reservation['notes'] ?? ''),
         ':adult' => (int)$reservation['adult_qty'],
         ':child' => (int)$reservation['child_qty'],
-        ':total' => (int)$reservation['total_amount'],
+        ':total' => round((float)$reservation['total_amount'], 2),
     ]);
 
     return (int)$db->lastInsertId();

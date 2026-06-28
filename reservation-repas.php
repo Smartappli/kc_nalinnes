@@ -44,6 +44,16 @@ $old = $_SESSION['meal_public_old'] ?? [
 ];
 unset($_SESSION['meal_public_old']);
 
+$mealSettings = meal_default_settings();
+try {
+    $settingsDb = create_database_connection();
+    $mealSettings = meal_settings($settingsDb);
+}
+catch (Throwable $settingsError) {
+    error_log('Meal settings load failed on public page: ' . $settingsError->getMessage());
+}
+$mealReservationsOpen = meal_reservations_are_open($mealSettings);
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $postedToken = (string)($_POST['csrf_token'] ?? '');
     $postedSubmissionToken = (string)($_POST['meal_submission_token'] ?? '');
@@ -96,8 +106,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    if (!$mealReservationsOpen) {
+        flash('Les reservations repas sont cloturees.', 'error');
+        header('Location: ' . kc_redirect_url_with_locale('/reservation-repas.php'), true, 303);
+        exit;
+    }
+
     try {
-        $total = compute_meal_total($adultQty, $childQty, 19, 10);
+        $total = compute_meal_total($adultQty, $childQty, (float)$mealSettings['adult_price'], (float)$mealSettings['child_price']);
         $reservationDate = date('Y-m-d H:i:s');
         $reservationId = null;
 
@@ -278,15 +294,25 @@ $mealSubmissionToken = meal_reservation_submission_token('public');
         <p class="mt-3 text-slate-300">
           <?= e(kc_t('meal.hero.description')) ?>
         </p>
+        <div class="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+          <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+            <p class="font-semibold text-slate-100">Repas</p>
+            <p class="mt-1 text-slate-400"><?= e(meal_datetime_label((string)$mealSettings['meal_at'])) ?></p>
+          </div>
+          <div class="rounded-xl border <?= $mealReservationsOpen ? 'border-slate-800 bg-slate-950/40' : 'border-red-500/40 bg-red-500/10' ?> p-3">
+            <p class="font-semibold <?= $mealReservationsOpen ? 'text-slate-100' : 'text-red-200' ?>">Date limite</p>
+            <p class="mt-1 <?= $mealReservationsOpen ? 'text-slate-400' : 'text-red-100' ?>"><?= e(meal_datetime_label((string)$mealSettings['reservation_deadline_at'])) ?></p>
+          </div>
+        </div>
 
         <div class="mt-5 grid gap-3 sm:grid-cols-2">
           <div class="reservation-meal-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-            <p class="text-sm font-semibold text-slate-100"><?= e(kc_t('meal.card.adult.title')) ?></p>
-            <p class="mt-1 text-sm text-slate-400"><?= e(kc_t('meal.card.adult.description')) ?></p>
+            <p class="text-sm font-semibold text-slate-100">Adulte - <?= e(meal_price_label((float)$mealSettings['adult_price'])) ?> EUR</p>
+            <p class="mt-1 text-sm text-slate-400"><?= e((string)$mealSettings['adult_menu']) ?></p>
           </div>
           <div class="reservation-meal-card rounded-xl border border-slate-800 bg-slate-950/50 p-4">
-            <p class="text-sm font-semibold text-slate-100"><?= e(kc_t('meal.card.child.title')) ?></p>
-            <p class="mt-1 text-sm text-slate-400"><?= e(kc_t('meal.card.child.description')) ?></p>
+            <p class="text-sm font-semibold text-slate-100">Enfant - <?= e(meal_price_label((float)$mealSettings['child_price'])) ?> EUR</p>
+            <p class="mt-1 text-sm text-slate-400"><?= e((string)$mealSettings['child_menu']) ?></p>
           </div>
         </div>
 
@@ -316,12 +342,12 @@ $mealSubmissionToken = meal_reservation_submission_token('public');
           </div>
 
           <div>
-            <label for="repas_adulte" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.adults')) ?></label>
+            <label for="repas_adulte" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.adults')) ?> - <?= e(meal_price_label((float)$mealSettings['adult_price'])) ?> EUR</label>
             <input id="repas_adulte" type="number" min="0" name="repas_adulte" value="<?= e((string)$old['adult_qty']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
           </div>
 
           <div>
-            <label for="repas_enfant" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.children')) ?></label>
+            <label for="repas_enfant" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.children')) ?> - <?= e(meal_price_label((float)$mealSettings['child_price'])) ?> EUR</label>
             <input id="repas_enfant" type="number" min="0" name="repas_enfant" value="<?= e((string)$old['child_qty']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
           </div>
 
@@ -335,8 +361,8 @@ $mealSubmissionToken = meal_reservation_submission_token('public');
               <input type="checkbox" name="send_copy" value="1" <?= ((string)$old['send_copy'] === '1') ? 'checked' : '' ?>>
               <?= e(kc_t('meal.form.copy')) ?>
             </label>
-            <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70">
-              <?= e(kc_t('meal.form.submit')) ?>
+            <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70" <?= $mealReservationsOpen ? '' : 'disabled' ?>>
+              <?= $mealReservationsOpen ? e(kc_t('meal.form.submit')) : 'Reservations cloturees' ?>
             </button>
           </div>
         </form>

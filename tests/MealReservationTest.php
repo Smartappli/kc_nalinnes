@@ -34,6 +34,46 @@ final class MealReservationTest extends TestCase {
         $this->assertSame(42, compute_meal_total(2, 1, 16, 10));
     }
 
+    public function testComputeMealTotalWithDecimalPrices(): void {
+        $this->assertSame(49.5, compute_meal_total(2, 1, 19.5, 10.5));
+    }
+
+    public function testMealSettingsInputIsNormalized(): void {
+        $settings = normalize_meal_settings_input([
+            'adult_menu' => '  Brochette + saucisse  ',
+            'child_menu' => '  Saucisse enfant  ',
+            'adult_price' => '19,50',
+            'child_price' => '10.25',
+            'reservation_deadline_at' => '2026-06-22T12:00',
+            'meal_at' => '2026-06-26T20:00',
+        ]);
+
+        $this->assertSame('Brochette + saucisse', $settings['adult_menu']);
+        $this->assertSame('Saucisse enfant', $settings['child_menu']);
+        $this->assertSame(19.5, $settings['adult_price']);
+        $this->assertSame(10.25, $settings['child_price']);
+        $this->assertSame('2026-06-22 12:00:00', $settings['reservation_deadline_at']);
+        $this->assertSame('2026-06-26 20:00:00', $settings['meal_at']);
+        $this->assertSame('19,50', meal_price_label((float)$settings['adult_price']));
+        $this->assertSame('22/06/2026 12:00', meal_datetime_label((string)$settings['reservation_deadline_at']));
+    }
+
+    public function testMealSettingsRejectDeadlineAfterMealDate(): void {
+        $this->expectException(\InvalidArgumentException::class);
+
+        normalize_meal_settings_input([
+            'reservation_deadline_at' => '2026-06-27T12:00',
+            'meal_at' => '2026-06-26T20:00',
+        ]);
+    }
+
+    public function testMealReservationOpenStateUsesDeadline(): void {
+        $settings = meal_default_settings();
+
+        $this->assertTrue(meal_reservations_are_open($settings, new \DateTimeImmutable('2026-06-22 11:59:00')));
+        $this->assertFalse(meal_reservations_are_open($settings, new \DateTimeImmutable('2026-06-22 12:01:00')));
+    }
+
     public function testMealReservationSubmissionTokenCanOnlyBeConsumedOnce(): void {
         $_SESSION = [];
 

@@ -83,6 +83,8 @@ try {
     $auth = new \Delight\Auth\Auth($db);
     ensure_meal_reservations_table($db);
     ensure_meal_reservations_columns($db);
+    ensure_meal_settings_table($db);
+    $mealSettings = meal_settings($db);
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_grades (user_id INT PRIMARY KEY, grade VARCHAR(100) NOT NULL, updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP)');
     $db->exec('CREATE TABLE IF NOT EXISTS member_dependents (id INT AUTO_INCREMENT PRIMARY KEY, guardian_user_id INT NOT NULL, full_name VARCHAR(255) NOT NULL, birthdate DATE NULL, is_minor TINYINT(1) NOT NULL DEFAULT 1)');
@@ -209,6 +211,21 @@ try {
         exit;
     }
 
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'meal_settings_update') {
+        require_manager_csrf();
+
+        try {
+            $mealSettings = save_meal_settings($db, $_POST);
+            flash('Parametres du repas enregistres.', 'success');
+        }
+        catch (Throwable $e) {
+            flash($e->getMessage(), 'error');
+        }
+
+        header('Location: ' . manager_dashboard_anchor_url('admin-meal'), true, 303);
+        exit;
+    }
+
     if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'admin_meal_reservation') {
         require_manager_csrf();
 
@@ -248,7 +265,7 @@ try {
                 throw new RuntimeException(kc_t('meal.flash.no_meal'));
             }
 
-            $total = compute_meal_total($adultQty, $childQty, 19, 10);
+            $total = compute_meal_total($adultQty, $childQty, (float)$mealSettings['adult_price'], (float)$mealSettings['child_price']);
             $reservationDate = date('Y-m-d H:i:s');
             $reservationId = save_public_meal_reservation($db, [
                 'profile_type' => 'admin_public',
@@ -710,6 +727,27 @@ try {
             </a>
         </div>
 
+        <div class="mt-5 grid gap-3 md:grid-cols-4">
+            <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Repas</p>
+                <p class="mt-1 font-semibold"><?= e(meal_datetime_label((string)$mealSettings['meal_at'])) ?></p>
+            </div>
+            <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Limite</p>
+                <p class="mt-1 font-semibold"><?= e(meal_datetime_label((string)$mealSettings['reservation_deadline_at'])) ?></p>
+            </div>
+            <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Adulte</p>
+                <p class="mt-1 font-semibold"><?= e(meal_price_label((float)$mealSettings['adult_price'])) ?> EUR</p>
+                <p class="mt-1 text-xs text-slate-400"><?= e((string)$mealSettings['adult_menu']) ?></p>
+            </div>
+            <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-4">
+                <p class="text-xs uppercase tracking-[0.18em] text-slate-500">Enfant</p>
+                <p class="mt-1 font-semibold"><?= e(meal_price_label((float)$mealSettings['child_price'])) ?> EUR</p>
+                <p class="mt-1 text-xs text-slate-400"><?= e((string)$mealSettings['child_menu']) ?></p>
+            </div>
+        </div>
+
         <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-meal')) ?>" class="mt-5 grid gap-4 md:grid-cols-2" data-disable-on-submit>
             <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
             <input type="hidden" name="meal_submission_token" value="<?= e($mealAdminSubmissionToken) ?>">
@@ -731,12 +769,12 @@ try {
             </div>
 
             <div>
-                <label for="admin_repas_adulte" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.adults')) ?></label>
+                <label for="admin_repas_adulte" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.adults')) ?> - <?= e(meal_price_label((float)$mealSettings['adult_price'])) ?> EUR</label>
                 <input id="admin_repas_adulte" type="number" min="0" name="repas_adulte" value="<?= e((string)$mealAdminOld['adult_qty']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
             </div>
 
             <div>
-                <label for="admin_repas_enfant" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.children')) ?></label>
+                <label for="admin_repas_enfant" class="block text-sm font-semibold text-slate-200"><?= e(kc_t('meal.form.children')) ?> - <?= e(meal_price_label((float)$mealSettings['child_price'])) ?> EUR</label>
                 <input id="admin_repas_enfant" type="number" min="0" name="repas_enfant" value="<?= e((string)$mealAdminOld['child_qty']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
             </div>
 
@@ -753,6 +791,44 @@ try {
                 <button class="inline-flex items-center justify-center rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-red-900/40 hover:bg-red-500 transition disabled:cursor-not-allowed disabled:opacity-70">
                     <?= e(kc_t('meal.form.submit')) ?>
                 </button>
+            </div>
+        </form>
+
+        <form method="post" action="<?= e(manager_dashboard_anchor_url('admin-meal')) ?>" class="mt-6 rounded-xl border border-slate-800 bg-slate-950/40 p-4" data-disable-on-submit>
+            <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
+            <input type="hidden" name="action" value="meal_settings_update">
+            <div class="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                <div>
+                    <h3 class="font-semibold">Parametres du repas</h3>
+                    <p class="mt-1 text-sm text-slate-400">Menus, prix, date du repas et limite de reservation utilises par les formulaires public, membre et admin.</p>
+                </div>
+                <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70">Enregistrer</button>
+            </div>
+            <div class="mt-4 grid gap-4 md:grid-cols-2">
+                <div>
+                    <label for="meal_adult_menu" class="block text-sm font-semibold text-slate-200">Menu adulte</label>
+                    <textarea id="meal_adult_menu" name="adult_menu" rows="3" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100"><?= e((string)$mealSettings['adult_menu']) ?></textarea>
+                </div>
+                <div>
+                    <label for="meal_child_menu" class="block text-sm font-semibold text-slate-200">Menu enfant</label>
+                    <textarea id="meal_child_menu" name="child_menu" rows="3" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100"><?= e((string)$mealSettings['child_menu']) ?></textarea>
+                </div>
+                <div>
+                    <label for="meal_adult_price" class="block text-sm font-semibold text-slate-200">Prix adulte (EUR)</label>
+                    <input id="meal_adult_price" name="adult_price" type="number" min="0" step="0.01" value="<?= e((string)$mealSettings['adult_price']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
+                </div>
+                <div>
+                    <label for="meal_child_price" class="block text-sm font-semibold text-slate-200">Prix enfant (EUR)</label>
+                    <input id="meal_child_price" name="child_price" type="number" min="0" step="0.01" value="<?= e((string)$mealSettings['child_price']) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
+                </div>
+                <div>
+                    <label for="meal_at" class="block text-sm font-semibold text-slate-200">Date et heure du repas</label>
+                    <input id="meal_at" name="meal_at" type="datetime-local" value="<?= e(meal_datetime_input_value((string)$mealSettings['meal_at'])) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
+                </div>
+                <div>
+                    <label for="meal_reservation_deadline_at" class="block text-sm font-semibold text-slate-200">Date limite de reservation</label>
+                    <input id="meal_reservation_deadline_at" name="reservation_deadline_at" type="datetime-local" value="<?= e(meal_datetime_input_value((string)$mealSettings['reservation_deadline_at'])) ?>" class="mt-1 w-full rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-slate-100">
+                </div>
             </div>
         </form>
     </section>

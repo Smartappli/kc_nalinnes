@@ -56,6 +56,9 @@ try {
 
     $db->exec('CREATE TABLE IF NOT EXISTS member_dependents (id INT AUTO_INCREMENT PRIMARY KEY, guardian_user_id INT NOT NULL, full_name VARCHAR(255) NOT NULL, birthdate DATE NULL, is_minor TINYINT(1) NOT NULL DEFAULT 1)');
     ensure_meal_reservations_table($db);
+    ensure_meal_settings_table($db);
+    $mealSettings = meal_settings($db);
+    $mealReservationsOpen = meal_reservations_are_open($mealSettings);
 
     $loginBypassEnabled = is_temp_bypass_login_enabled();
 
@@ -144,6 +147,12 @@ try {
             exit;
         }
 
+        if (!$mealReservationsOpen) {
+            flash('Les reservations repas sont cloturees.', 'error');
+            header('Location: ' . member_dashboard_url(), true, 303);
+            exit;
+        }
+
         $profileType = (string)($_POST['profile_type'] ?? 'self');
         $dependentId = (int)($_POST['dependent_id'] ?? 0);
         $profileName = $user !== '' ? $user : $email;
@@ -160,7 +169,7 @@ try {
             $profileName = (string)$child['full_name'];
         }
 
-        $total = compute_meal_total($adultQty, $childQty, 19, 10);
+        $total = compute_meal_total($adultQty, $childQty, (float)$mealSettings['adult_price'], (float)$mealSettings['child_price']);
         $stmt = $db->prepare('INSERT INTO meal_reservations (member_user_id, profile_type, dependent_id, profile_name, status, adult_qty, child_qty, total_amount) VALUES (:uid, :ptype, :did, :pname, :status, :adult, :child, :total)');
         $stmt->execute([
             ':uid' => (int)$auth->getUserId(),
@@ -408,6 +417,24 @@ try {
 <section class="mt-8 rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
   <h2 class="text-xl font-bold"><?= e(kc_t('member.meal.title')) ?></h2>
   <p class="mt-2 text-sm text-slate-400"><?= e(kc_t('member.meal.description')) ?></p>
+  <div class="mt-4 grid gap-3 text-sm md:grid-cols-2">
+    <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+      <p class="font-semibold text-slate-100">Adulte - <?= e(meal_price_label((float)$mealSettings['adult_price'])) ?> EUR</p>
+      <p class="mt-1 text-slate-400"><?= e((string)$mealSettings['adult_menu']) ?></p>
+    </div>
+    <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+      <p class="font-semibold text-slate-100">Enfant - <?= e(meal_price_label((float)$mealSettings['child_price'])) ?> EUR</p>
+      <p class="mt-1 text-slate-400"><?= e((string)$mealSettings['child_menu']) ?></p>
+    </div>
+    <div class="rounded-xl border border-slate-800 bg-slate-950/40 p-3">
+      <p class="font-semibold text-slate-100">Date du repas</p>
+      <p class="mt-1 text-slate-400"><?= e(meal_datetime_label((string)$mealSettings['meal_at'])) ?></p>
+    </div>
+    <div class="rounded-xl border <?= $mealReservationsOpen ? 'border-slate-800 bg-slate-950/40' : 'border-red-500/40 bg-red-500/10' ?> p-3">
+      <p class="font-semibold <?= $mealReservationsOpen ? 'text-slate-100' : 'text-red-200' ?>">Date limite</p>
+      <p class="mt-1 <?= $mealReservationsOpen ? 'text-slate-400' : 'text-red-100' ?>"><?= e(meal_datetime_label((string)$mealSettings['reservation_deadline_at'])) ?></p>
+    </div>
+  </div>
   <form method="post" action="<?= e(member_dashboard_url()) ?>" class="mt-4 grid gap-3 md:grid-cols-2" data-disable-on-submit>
     <input type="hidden" name="csrf_token" value="<?= e($_SESSION['csrf_token']) ?>">
     <input type="hidden" name="meal_submission_token" value="<?= e($mealSubmissionToken) ?>">
@@ -429,16 +456,16 @@ try {
       </select>
     </div>
     <div>
-      <label class="block text-sm"><?= e(kc_t('member.meal.adult_label')) ?></label>
+      <label class="block text-sm"><?= e(kc_t('member.meal.list_adults')) ?> - <?= e(meal_price_label((float)$mealSettings['adult_price'])) ?> EUR</label>
       <input type="number" min="0" name="repas_adulte" value="0" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
     </div>
     <div>
-      <label class="block text-sm"><?= e(kc_t('member.meal.child_label')) ?></label>
+      <label class="block text-sm"><?= e(kc_t('member.meal.list_children')) ?> - <?= e(meal_price_label((float)$mealSettings['child_price'])) ?> EUR</label>
       <input type="number" min="0" name="repas_enfant" value="0" class="mt-1 w-full rounded-lg bg-slate-800 border border-slate-700 px-3 py-2">
     </div>
     <div class="md:col-span-2">
       <label class="inline-flex items-center gap-2 text-sm mb-2"><input type="checkbox" name="send_copy" value="1"> <?= e(kc_t('member.meal.copy')) ?></label><br>
-      <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"><?= e(kc_t('member.meal.reserve')) ?></button>
+      <button class="rounded-lg bg-emerald-600 px-3 py-2 text-sm font-semibold text-white hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70" <?= $mealReservationsOpen ? '' : 'disabled' ?>><?= $mealReservationsOpen ? e(kc_t('member.meal.reserve')) : 'Reservations cloturees' ?></button>
     </div>
   </form>
 
